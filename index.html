@@ -126,10 +126,13 @@ function packing(){
   if(q>left&&!confirm('शेष स्टॉक '+left.toFixed(3)+' kg है, आप '+q+' kg दर्ज कर रहे हैं। फिर भी सेव करें?'))return;
   db.batches.push({product:pid,date:f.get('date'),qty:q,size:+f.get('size'),packs:+f.get('packs'),batch:f.get('batch').trim()});save();packing()}}
 
-const DK=['mo','mr','mc','po','pc','pw','exp','act','size','wk','wh','mh'];
+const DK=['mo','mr','mc','po','pc','pw','exp','act','size','wk','wh','mh','wr','rp','gp'];
 function dcalc(o){const n=k=>+o[k]||0,mat=n('mo')+n('mr')-n('mc'),pk=n('po')-n('pc'),
- exp=n('exp')||(n('size')>0?mat*1000/n('size'):0),act=n('act'),man=n('wk')*n('wh');
- return{mat,pk,waste:n('pw'),wp:pk>0?n('pw')/pk*100:0,exp,act,diff:act-exp,yp:exp?act/exp*100:0,man,mh:n('mh'),ph:n('mh')?act/n('mh'):0,pm:man?act/man:0}}
+ exp=n('exp')||(n('size')>0?mat*1000/n('size'):0),act=n('act'),man=n('wk')*n('wh'),
+ avg=(()=>{const q=db.purchases.filter(x=>x.product===o.product);const b=q.reduce((a,x)=>a+x.qty,0);return b?q.reduce((a,x)=>a+x.qty*x.rate,0)/b:0})(),
+ wages=man*n('wr'),roll=pk*n('rp'),wcost=n('pw')*n('rp'),raw=mat*avg,total=wages+roll+raw;
+ const expR=n('gp')>0?pk*1000/n('gp'):0,filmAct=act*n('gp')/1000;
+ return{expR,diffR:act-expR,impWaste:pk-filmAct,wages,roll,wcost,raw,total,cpp:act?total/act:0,mat,pk,waste:n('pw'),wp:pk>0?n('pw')/pk*100:0,exp,act,diff:act-exp,yp:exp?act/exp*100:0,man,mh:n('mh'),ph:n('mh')?act/n('mh'):0,pm:man?act/man:0}}
 function daily(){
  shell('दैनिक उत्पादन शीट',`<div class="card"><form id="df">
  <div class="form"><div><label>तारीख</label><input type="date" name="date" value="${today()}"></div>
@@ -146,26 +149,37 @@ function daily(){
  <div><label>पैकिंग मटेरियल वेस्टेज (kg)</label><input name="pw" type="number" min="0" step=".001" value="0"></div></div>
  <h3 style="margin-top:16px">3. पाउच : अपेक्षित vs वास्तविक</h3><div class="form">
  <div><label>अपेक्षित पाउच (खाली = माल ÷ साइज)</label><input name="exp" type="number" min="0" step="1"></div>
- <div><label>वास्तविक पाउच बने</label><input name="act" type="number" min="0" step="1" value="0"></div></div>
+ <div><label>वास्तविक पाउच बने</label><input name="act" type="number" min="0" step="1" value="0"></div>
+ <div><label>1 पाउच में रोल वज़न (gram)</label><input name="gp" type="number" min="0" step=".01" value="1.1"></div></div>
  <h3 style="margin-top:16px">4. वर्कर और मशीन</h3><div class="form">
  <div><label>वर्कर संख्या</label><input name="wk" type="number" min="0" value="0"></div>
  <div><label>घंटे प्रति वर्कर</label><input name="wh" type="number" min="0" step=".25" value="8"></div>
- <div><label>मशीन चलने के घंटे</label><input name="mh" type="number" min="0" step=".25" value="0"></div></div>
+ <div><label>मशीन चलने के घंटे</label><input name="mh" type="number" min="0" step=".25" value="0"></div>
+ <div><label>मज़दूरी दर ₹/घंटा (प्रति वर्कर)</label><input name="wr" type="number" min="0" step=".01" value="0"></div>
+ <div><label>रोल का भाव ₹/kg</label><input name="rp" type="number" min="0" step=".01" value="0"></div></div>
  <div class="card" id="dprev" style="margin:16px 0 0;background:#f8faf7"></div>
  <div class="actions"><button ${db.products.length?'':'disabled'}>शीट सेव करें</button></div>${db.products.length?'':'<p class="muted">पहले उत्पाद जोड़ें।</p>'}</form></div>
- <div class="card"><h3>शीट हिस्ट्री</h3><div class="tablewrap"><table><tr><th>तारीख</th><th>उत्पाद</th><th>माल उपयोग</th><th>पैकिंग उपयोग</th><th>वेस्टेज</th><th>पाउच (अपेक्षित / वास्तविक)</th><th>अंतर</th><th>मैन-घंटे</th><th>मशीन घंटे</th><th>पाउच/घंटा</th><th></th></tr>
- ${db.daily.map((x,i)=>{const c=dcalc(x);return `<tr><td>${esc(x.date)}</td><td>${esc(nameOf(x.product))}<div class="muted">${esc(x.batch)}</div></td><td>${c.mat.toFixed(2)} kg</td><td>${c.pk.toFixed(2)} kg</td><td>${c.waste.toFixed(2)} kg (${c.wp.toFixed(1)}%)</td><td>${Math.round(c.exp)} / ${c.act}</td><td class="${c.diff<0?'bad':'good'}">${Math.round(c.diff)} (${c.yp.toFixed(1)}%)</td><td>${c.man.toFixed(1)}</td><td>${c.mh}</td><td>${Math.round(c.ph)}</td><td><button class="danger" onclick="delRec('daily',${i})">हटाएँ</button></td></tr>`}).reverse().join('')||'<tr><td colspan="11" class="empty">कोई शीट नहीं</td></tr>'}</table></div></div>`);
+ <div class="card"><h3>शीट हिस्ट्री</h3><div class="tablewrap"><table><tr><th>तारीख</th><th>उत्पाद</th><th>माल उपयोग</th><th>पैकिंग उपयोग</th><th>वेस्टेज</th><th>पाउच (अपेक्षित / वास्तविक)</th><th>अंतर</th><th>रोल से अपेक्षित</th><th>रोल अंतर</th><th>मैन-घंटे</th><th>मशीन घंटे</th><th>पाउच/घंटा</th><th>मज़दूरी</th><th>रोल लागत</th><th>कुल लागत</th><th>लागत/पाउच</th><th></th></tr>
+ ${db.daily.map((x,i)=>{const c=dcalc(x);return `<tr><td>${esc(x.date)}</td><td>${esc(nameOf(x.product))}<div class="muted">${esc(x.batch)}</div></td><td>${c.mat.toFixed(2)} kg</td><td>${c.pk.toFixed(2)} kg</td><td>${c.waste.toFixed(2)} kg (${c.wp.toFixed(1)}%)</td><td>${Math.round(c.exp)} / ${c.act}</td><td class="${c.diff<0?'bad':'good'}">${Math.round(c.diff)} (${c.yp.toFixed(1)}%)</td><td>${Math.round(c.expR)}</td><td class="${c.diffR<0?'bad':'good'}">${Math.round(c.diffR)}</td><td>${c.man.toFixed(1)}</td><td>${c.mh}</td><td>${Math.round(c.ph)}</td><td>${fmt(c.wages)}</td><td>${fmt(c.roll)}</td><td>${fmt(c.total)}</td><td><b>${fmt(c.cpp)}</b></td><td><button class="danger" onclick="delRec('daily',${i})">हटाएँ</button></td></tr>`}).reverse().join('')||'<tr><td colspan="17" class="empty">कोई शीट नहीं</td></tr>'}</table></div></div>`);
  const f=document.getElementById('df'),get=()=>Object.fromEntries(DK.map(k=>[k,f[k].value]));
- const prev=()=>{const c=dcalc(get());document.getElementById('dprev').innerHTML=`<div class="grid">
+ const prev=()=>{const c=dcalc({...get(),product:f.product.value});document.getElementById('dprev').innerHTML=`<div class="grid">
  <div><div class="muted">माल उपयोग</div><div class="metric">${c.mat.toFixed(2)} kg</div></div>
  <div><div class="muted">पैकिंग मटेरियल उपयोग</div><div class="metric">${c.pk.toFixed(2)} kg</div></div>
  <div><div class="muted">वेस्टेज %</div><div class="metric">${c.wp.toFixed(1)}%</div></div>
  <div><div class="muted">अपेक्षित पाउच</div><div class="metric">${Math.round(c.exp)}</div></div>
  <div><div class="muted">अंतर</div><div class="metric ${c.diff<0?'bad':'good'}">${Math.round(c.diff)}</div></div>
  <div><div class="muted">मैन-घंटे</div><div class="metric">${c.man.toFixed(1)}</div></div>
- <div><div class="muted">पाउच/मशीन घंटा</div><div class="metric">${Math.round(c.ph)}</div></div></div>`};
- f.oninput=prev;prev();
- f.onsubmit=e=>{e.preventDefault();const o=get(),c=dcalc(o);
+ <div><div class="muted">पाउच/मशीन घंटा</div><div class="metric">${Math.round(c.ph)}</div></div>
+ <div><div class="muted">मज़दूरी</div><div class="metric">${fmt(c.wages)}</div></div>
+ <div><div class="muted">रोल लागत</div><div class="metric">${fmt(c.roll)}</div></div>
+ <div><div class="muted">रोल से अपेक्षित पाउच</div><div class="metric">${Math.round(c.expR)}</div></div>
+ <div><div class="muted">रोल अंतर (वास्तविक − अपेक्षित)</div><div class="metric ${c.diffR<0?'bad':'good'}">${Math.round(c.diffR)}</div></div>
+ <div><div class="muted">अनुमानित वेस्ट/गायब रोल (kg)</div><div class="metric ${c.impWaste>0?'bad':''}">${c.impWaste.toFixed(2)}</div></div>
+ <div><div class="muted">वेस्टेज की कीमत</div><div class="metric bad">${fmt(c.wcost)}</div></div>
+ <div><div class="muted">माल लागत (औसत खरीद दर)</div><div class="metric">${fmt(c.raw)}</div></div>
+ <div><div class="muted">लागत प्रति पाउच</div><div class="metric">${fmt(c.cpp)}</div></div></div>`};
+ f.oninput=prev;f.product.onchange=prev;prev();
+ f.onsubmit=e=>{e.preventDefault();const o=get(),c=dcalc({...o,product:f.product.value});
   if(c.mat<0||c.pk<0){alert('क्लोज़िंग, ओपनिंग से ज़्यादा नहीं हो सकती। आंकड़े जाँचें।');return}
   const r={date:f.date.value,product:f.product.value,batch:f.batch.value.trim()};DK.forEach(k=>r[k]=+o[k]||0);
   db.daily.push(r);save();daily()}}
@@ -203,7 +217,7 @@ const expPurchase=()=>csv('khareed',[['तारीख','उत्पाद','�
 const expPack=()=>csv('packing',[['तारीख','उत्पाद','kg','साइज g','पैकेट','बैच'],...db.batches.map(x=>[x.date,nameOf(x.product),x.qty,x.size,x.packs,x.batch])]);
 const expStock=()=>csv('stock',[['उत्पाद','खरीद kg','उपयोग kg','शेष kg'],...db.products.map(p=>[p.name,bought(p.id),used(p.id),bought(p.id)-used(p.id)])]);
 
-const expDaily=()=>csv('daily-sheet',[['तारीख','उत्पाद','बैच','माल ओपनिंग','आया','क्लोज़िंग','माल उपयोग','पैकिंग ओपनिंग','पैकिंग क्लोज़िंग','पैकिंग उपयोग','पैकिंग वेस्टेज kg','वेस्टेज %','अपेक्षित पाउच','वास्तविक पाउच','अंतर','वर्कर','घंटे/वर्कर','मैन-घंटे','मशीन घंटे','पाउच/घंटा'],...db.daily.map(x=>{const c=dcalc(x);return[x.date,nameOf(x.product),x.batch,x.mo,x.mr,x.mc,c.mat,x.po,x.pc,c.pk,x.pw,c.wp.toFixed(2),Math.round(c.exp),x.act,Math.round(c.diff),x.wk,x.wh,c.man,x.mh,Math.round(c.ph)]})]);
+const expDaily=()=>csv('daily-sheet',[['तारीख','उत्पाद','बैच','माल ओपनिंग','आया','क्लोज़िंग','माल उपयोग','पैकिंग ओपनिंग','पैकिंग क्लोज़िंग','पैकिंग उपयोग','पैकिंग वेस्टेज kg','वेस्टेज %','अपेक्षित पाउच','वास्तविक पाउच','अंतर','वर्कर','घंटे/वर्कर','मैन-घंटे','मशीन घंटे','पाउच/घंटा','मज़दूरी दर','रोल भाव','मज़दूरी','रोल लागत','वेस्टेज कीमत','gram/पाउच','रोल से अपेक्षित','अनुमानित वेस्ट kg','माल लागत','कुल लागत','लागत/पाउच'],...db.daily.map(x=>{const c=dcalc(x);return[x.date,nameOf(x.product),x.batch,x.mo,x.mr,x.mc,c.mat,x.po,x.pc,c.pk,x.pw,c.wp.toFixed(2),Math.round(c.exp),x.act,Math.round(c.diff),x.wk,x.wh,c.man,x.mh,Math.round(c.ph),x.wr,x.rp,c.wages,c.roll,c.wcost,x.gp,Math.round(c.expR),c.impWaste.toFixed(3),c.raw,c.total,c.cpp.toFixed(3)]})]);
 function backup(){
  shell('बैकअप',`<div class="notice">डेटा सिर्फ इसी फोन/ब्राउज़र में है। ब्राउज़र का डेटा साफ करने पर सब मिट जाएगा, इसलिए हफ्ते में एक बार बैकअप डाउनलोड करें।</div>
  <div class="card"><h3>बैकअप लें</h3><div class="actions"><button onclick="exportDb()">बैकअप फाइल डाउनलोड करें</button></div></div>
