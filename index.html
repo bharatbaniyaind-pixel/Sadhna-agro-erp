@@ -12,16 +12,17 @@ h1{margin:0;font-size:21px}header small{color:#dce9df}
 nav{width:205px;background:#fff;border-right:1px solid var(--line);padding:10px}
 nav button{display:block;width:100%;text-align:left;background:none;color:#26332c;margin:3px 0;border-radius:6px;padding:8px}
 nav button.active,nav button:hover{background:#eaf1eb;color:var(--g)}
-main{padding:20px;max-width:1200px;width:100%;margin:auto}h2{margin:0 0 15px}h3{margin:0 0 10px}
+main{padding:20px;max-width:1250px;width:100%;margin:auto}h2{margin:0 0 15px}h3{margin:0 0 10px}
+h4{margin:15px 0 8px;color:var(--g);border-bottom:1px solid var(--line);padding-bottom:4px;font-size:14px}
 button{border:0;border-radius:8px;background:var(--g);color:#fff;padding:10px 13px;font:inherit;font-weight:600;cursor:pointer}
 button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#e9efea;color:var(--g)}.danger{background:#a83434;padding:6px 10px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;margin-bottom:13px}
 .metric{font-size:26px;font-weight:750;color:var(--g);margin-top:6px}.muted{color:var(--muted);font-size:13px}
-label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
-input,select{width:100%;padding:10px;border:1px solid #cbd6ce;border-radius:8px;background:#fff;font:inherit}
-.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:11px;align-items:end}
-table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{color:var(--muted)}
+label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px;font-weight:500}
+input,select{width:100%;padding:9px;border:1px solid #cbd6ce;border-radius:8px;background:#fff;font:inherit;font-size:14px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:11px;align-items:end}
+table{width:100%;border-collapse:collapse;font-size:13.5px}td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{color:var(--muted);background:#fafcfa}
 .tablewrap{overflow:auto}.notice{padding:12px;background:#fff7e6;border:1px solid #f1dba8;border-radius:9px;color:#634b1d;font-size:13px;margin-bottom:13px}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.empty{text-align:center;color:var(--muted);padding:15px}
 .good{color:#1d7a46;font-weight:700}.bad{color:#a83434;font-weight:700}
@@ -136,7 +137,6 @@ const options = () => db.products.map(p => '<option value="' + p.id + '">' + esc
 const bought = id => db.purchases.filter(x => x.product === id).reduce((s, x) => s + x.qty, 0);
 const used = id => db.batches.filter(x => x.product === id).reduce((s, x) => s + x.qty, 0);
 
-// खरीद की कुल रकम (GST सहित) निकालने के लिए हेल्पर फंक्शन
 const purTotal = x => {
     const base = (Number(x.qty) || 0) * (Number(x.rate) || 0);
     const gst = Number(x.gst) || 0;
@@ -255,35 +255,103 @@ function packing() {
 }
 window.delBatch = id => removeData('batches', id);
 
+// --- अपडेटेड दैनिक उत्पादन शीट (DAILY PRODUCTION SHEET) ---
 function daily() {
-    document.getElementById('app').innerHTML = `<h2>दैनिक उत्पादन शीट</h2>
-    <div class="card"><form id="dailyf" class="form">
-     <div><label>दिनांक</label><input type="date" name="date" value="${todayISO()}"></div>
-     <div><label>विवरण / गतिविधि</label><input name="note" required placeholder="जैसे: जीरा पैकिंग कार्य"></div>
-     <div><label>कुल पैकेट/मात्रा</label><input name="output" required placeholder="जैसे: 500 पैकेट"></div>
-     <button>सेव करें</button></form></div>
-    <div class="card"><h3>दैनिक रिकॉर्ड</h3><div class="tablewrap"><table><tr><th>दिनांक</th><th>विवरण</th><th>उत्पादन आउटपुट</th><th></th></tr>
-    ${db.daily.slice(-20).reverse().map(x => `<tr><td>${x.date}</td><td>${esc(x.note)}</td><td><b>${esc(x.output)}</b></td><td><button class="danger" onclick="delDaily('${x.id}')">हटाएँ</button></td></tr>`).join('') || '<tr><td colspan="4" class="empty">कोई रिकॉर्ड नहीं</td></tr>'}</table></div></div>`;
+    const prodOpts = db.products.length 
+        ? db.products.map(p => `<option value="${esc(p.name)}">${esc(p.name)}</option>`).join('') + `<option value="अन्य">अन्य</option>`
+        : `<option value="सामान्य">सामान्य</option>`;
+
+    document.getElementById('app').innerHTML = `<h2>दैनिक उत्पादन और लागत शीट (Daily Report)</h2>
+    <div class="card">
+    <form id="dailyf">
+     <h4>1. सामान्य विवरण (Basic Info)</h4>
+     <div class="form">
+       <div><label>दिनांक *</label><input type="date" name="date" value="${todayISO()}" required></div>
+       <div><label>उत्पाद / गतिविधि *</label><select name="product_name">${prodOpts}</select></div>
+       <div><label>कार्य विवरण / बैच नोट</label><input name="note" placeholder="जैसे: 500g जीरा पैकिंग"></div>
+       <div><label>कुल तैयार पाउच (Qty) *</label><input type="number" name="total_pouches" required placeholder="जैसे: 500"></div>
+     </div>
+
+     <h4>2. रॉ मटेरियल स्टॉक (Raw Material Opening &amp; Closing)</h4>
+     <div class="form">
+       <div><label>मटेरियल ओपनिंग (kg) *</label><input type="number" step="0.01" name="mat_open" required placeholder="0.00"></div>
+       <div><label>मटेरियल क्लोजिंग (kg) *</label><input type="number" step="0.01" name="mat_close" required placeholder="0.00"></div>
+       <div><label>प्रति पाउच वजन (ग्राम में) *</label><input type="number" step="0.1" name="pouch_wt" required placeholder="जैसे: 500"></div>
+     </div>
+
+     <h4>3. पैकिंग मटेरियल, रेट और वेस्टेज (Packing Material &amp; Wastage)</h4>
+     <div class="form">
+       <div><label>पैकिंग मटेरियल ओपनिंग (kg/pcs) *</label><input type="number" step="0.01" name="pack_open" required placeholder="0.00"></div>
+       <div><label>पैकिंग मटेरियल क्लोजिंग (kg/pcs) *</label><input type="number" step="0.01" name="pack_close" required placeholder="0.00"></div>
+       <div><label>पैकिंग मटेरियल रेट (₹ प्रति kg/pc) *</label><input type="number" step="0.01" name="pack_rate" required placeholder="0.00"></div>
+       <div><label>पैकिंग वेस्टेज (kg/pcs) *</label><input type="number" step="0.01" name="pack_wastage" value="0" required placeholder="0.00"></div>
+     </div>
+
+     <h4>4. लेबर और मशीनरी विवरण (Labour &amp; Machinery)</h4>
+     <div class="form">
+       <div><label>कुल लेबर घंटे (Labour Hours) *</label><input type="number" step="0.5" name="labour_hrs" required placeholder="जैसे: 8"></div>
+       <div><label>लेबर रेट (₹ प्रति घंटा) *</label><input type="number" step="0.01" name="labour_rate" required placeholder="जैसे: 60"></div>
+       <div><label>मशीनरी घंटे (Machinery Hours) *</label><input type="number" step="0.5" name="mach_hrs" required placeholder="जैसे: 6.5"></div>
+       <button type="submit">दैनिक रिपोर्ट सेव करें</button>
+     </div>
+    </form>
+    </div>
+
+    <div class="card"><h3>दैनिक उत्पादन रिकॉर्ड</h3>
+    <div class="tablewrap"><table>
+    <tr>
+      <th>दिनांक</th>
+      <th>उत्पाद / विवरण</th>
+      <th>मटेरियल (Open → Close)</th>
+      <th>खपत (Used)</th>
+      <th>पैकिंग मटेरियल (Open → Close)</th>
+      <th>पैकिंग रेट</th>
+      <th>वेस्टेज</th>
+      <th>पाउच वजन / कुल पाउच</th>
+      <th>लेबर (Hrs × Rate)</th>
+      <th>मशीन (Hrs)</th>
+      <th>कुल पैकिंग+लेबर खर्च</th>
+      <th></th>
+    </tr>
+    ${db.daily.slice(-25).reverse().map(x => {
+        const matUsed = ((Number(x.mat_open)||0) - (Number(x.mat_close)||0)).toFixed(2);
+        const packUsed = (Number(x.pack_open)||0) - (Number(x.pack_close)||0);
+        const packCost = packUsed * (Number(x.pack_rate)||0);
+        const labCost = (Number(x.labour_hrs)||0) * (Number(x.labour_rate)||0);
+        const totalOpCost = packCost + labCost;
+
+        return `<tr>
+          <td>${x.date}</td>
+          <td><b>${esc(x.product_name || '-')}</b><br><span class="muted">${esc(x.note || '')}</span></td>
+          <td>${x.mat_open || 0} → ${x.mat_close || 0} kg</td>
+          <td class="good">${matUsed} kg</td>
+          <td>${x.pack_open || 0} → ${x.pack_close || 0}</td>
+          <td>${fmt(x.pack_rate || 0)}</td>
+          <td class="bad">${x.pack_wastage || 0}</td>
+          <td><b>${x.pouch_wt || 0}g</b> (${x.total_pouches || 0} pcs)</td>
+          <td>${x.labour_hrs || 0}h × ${fmt(x.labour_rate || 0)}<br><small class="muted">(${fmt(labCost)})</small></td>
+          <td><b>${x.mach_hrs || 0} hrs</b></td>
+          <td><b>${fmt(totalOpCost)}</b></td>
+          <td><button class="danger" onclick="delDaily('${x.id}')">हटाएँ</button></td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="12" class="empty">अभी कोई दैनिक रिकॉर्ड नहीं है</td></tr>'}
+    </table></div></div>`;
     
     document.getElementById('dailyf').onsubmit = async e => {
         e.preventDefault();
         const f = new FormData(e.target);
-        await saveData('daily', { id: uid(), date: f.get('date'), note: f.get('note').trim(), output: f.get('output').trim() });
-    };
-}
-window.delDaily = id => removeData('daily', id);
-
-function reports() {
-    const totalAmt = db.purchases.reduce((s, x) => s + purTotal(x), 0);
-    document.getElementById('app').innerHTML = `<h2>रिपोर्ट</h2>
-    <div class="card"><h3>कुल कारोबार सारांश</h3>
-    <p>कुल उत्पाद: <b>${db.products.length}</b></p>
-    <p>कुल खरीद प्रविष्टियाँ: <b>${db.purchases.length}</b></p>
-    <p>कुल खरीद खर्च (GST सहित): <b>${fmt(totalAmt)}</b></p>
-    <p>कुल पैकिंग बैचेस: <b>${db.batches.length}</b></p></div>`;
-}
-
-// ऐप शुरू करें
-loadData();
-</script>
-</body></html>
+        await saveData('daily', { 
+            id: uid(), 
+            date: f.get('date'),
+            product_name: f.get('product_name'),
+            note: f.get('note').trim(),
+            total_pouches: Number(f.get('total_pouches')),
+            mat_open: Number(f.get('mat_open')),
+            mat_close: Number(f.get('mat_close')),
+            pouch_wt: Number(f.get('pouch_wt')),
+            pack_open: Number(f.get('pack_open')),
+            pack_close: Number(f.get('pack_close')),
+            pack_rate: Number(f.get('pack_rate')),
+            pack_wastage: Number(f.get('pack_wastage')),
+            labour_hrs: Number(f.get('labour_hrs')),
+            labour_rate: Number(
