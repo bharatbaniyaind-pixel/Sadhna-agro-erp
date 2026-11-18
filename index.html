@@ -35,6 +35,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <button data-page="purchase">＋ खरीद एंट्री</button>
 <button data-page="stock">▤ स्टॉक</button>
 <button data-page="packing">□ पैकिंग / उत्पादन</button>
+<button data-page="daily">🏭 दैनिक उत्पादन शीट</button>
 <button data-page="costing">₹ लागत कैलकुलेटर</button>
 <button data-page="reports">▥ रिपोर्ट</button>
 <button data-page="backup">⚙ बैकअप</button>
@@ -44,14 +45,14 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <script>
 const KEY='sadhna_agro_erp_v1';
 let db;try{db=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){db={}}
-db.products=db.products||[];db.purchases=db.purchases||[];db.batches=db.batches||[];
+db.products=db.products||[];db.purchases=db.purchases||[];db.batches=db.batches||[];db.daily=db.daily||[];
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){alert('सेव नहीं हो पाया। ब्राउज़र स्टोरेज बंद है।')}};
 const fmt=n=>'₹'+(Number(n)||0).toLocaleString('en-IN',{maximumFractionDigits:2});
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>(crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random());
 const todayISO=()=>new Date().toISOString().slice(0,10);
 document.getElementById('today').textContent=new Date().toLocaleDateString('hi-IN',{dateStyle:'medium'});
-const pages={dashboard,products,purchase,stock,packing,costing,reports,backup};
+const pages={dashboard,products,purchase,stock,packing,daily,costing,reports,backup};
 document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b)go(b.dataset.page)});
 function go(p){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));pages[p]()}
 function shell(t,s){document.getElementById('app').innerHTML='<h2>'+t+'</h2>'+s}
@@ -101,7 +102,7 @@ function purchase(){
  ${db.purchases.map((x,i)=>`<tr><td>${esc(x.date)}</td><td>${esc(nameOf(x.product))}</td><td>${esc(x.supplier)}</td><td>${x.qty} kg</td><td>${fmt(x.rate)}</td><td>${fmt(x.qty*x.rate)}</td><td><button class="danger" onclick="delRec('purchases',${i})">हटाएँ</button></td></tr>`).reverse().join('')||'<tr><td colspan="7" class="empty">कोई रिकॉर्ड नहीं</td></tr>'}</table></div></div>`);
  document.getElementById('buy').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);
   db.purchases.push({product:f.get('product'),date:f.get('date'),qty:+f.get('qty'),rate:+f.get('rate'),supplier:f.get('supplier').trim()});save();purchase()}}
-function delRec(k,i){if(confirm('यह रिकॉर्ड हटाएँ?')){db[k].splice(i,1);save();go(k==='purchases'?'purchase':'packing')}}
+function delRec(k,i){if(confirm('यह रिकॉर्ड हटाएँ?')){db[k].splice(i,1);save();go({purchases:'purchase',batches:'packing',daily:'daily'}[k])}}
 
 function stock(){
  shell('स्टॉक स्थिति',`<div class="card"><p class="muted">शेष स्टॉक = दर्ज खरीद मात्रा − पैकिंग में उपयोग मात्रा।</p><div class="tablewrap"><table>
@@ -124,6 +125,50 @@ function packing(){
  document.getElementById('pack').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),pid=f.get('product'),q=+f.get('qty'),left=bought(pid)-used(pid);
   if(q>left&&!confirm('शेष स्टॉक '+left.toFixed(3)+' kg है, आप '+q+' kg दर्ज कर रहे हैं। फिर भी सेव करें?'))return;
   db.batches.push({product:pid,date:f.get('date'),qty:q,size:+f.get('size'),packs:+f.get('packs'),batch:f.get('batch').trim()});save();packing()}}
+
+const DK=['mo','mr','mc','po','pc','pw','exp','act','size','wk','wh','mh'];
+function dcalc(o){const n=k=>+o[k]||0,mat=n('mo')+n('mr')-n('mc'),pk=n('po')-n('pc'),
+ exp=n('exp')||(n('size')>0?mat*1000/n('size'):0),act=n('act'),man=n('wk')*n('wh');
+ return{mat,pk,waste:n('pw'),wp:pk>0?n('pw')/pk*100:0,exp,act,diff:act-exp,yp:exp?act/exp*100:0,man,mh:n('mh'),ph:n('mh')?act/n('mh'):0,pm:man?act/man:0}}
+function daily(){
+ shell('दैनिक उत्पादन शीट',`<div class="card"><form id="df">
+ <div class="form"><div><label>तारीख</label><input type="date" name="date" value="${today()}"></div>
+ <div><label>उत्पाद *</label><select name="product" required>${options()}</select></div>
+ <div><label>बैच नंबर</label><input name="batch"></div>
+ <div><label>पाउच साइज (gram)</label><input name="size" type="number" min="1" value="100"></div></div>
+ <h3 style="margin-top:16px">1. माल (kg) : ओपनिंग / क्लोज़िंग</h3><div class="form">
+ <div><label>ओपनिंग</label><input name="mo" type="number" min="0" step=".001" value="0"></div>
+ <div><label>दिन में आया (+)</label><input name="mr" type="number" min="0" step=".001" value="0"></div>
+ <div><label>क्लोज़िंग</label><input name="mc" type="number" min="0" step=".001" value="0"></div></div>
+ <h3 style="margin-top:16px">2. पैकिंग मटेरियल (kg, फिल्म/रोल) : ओपनिंग / क्लोज़िंग</h3><div class="form">
+ <div><label>ओपनिंग वज़न</label><input name="po" type="number" min="0" step=".001" value="0"></div>
+ <div><label>क्लोज़िंग वज़न</label><input name="pc" type="number" min="0" step=".001" value="0"></div>
+ <div><label>पैकिंग मटेरियल वेस्टेज (kg)</label><input name="pw" type="number" min="0" step=".001" value="0"></div></div>
+ <h3 style="margin-top:16px">3. पाउच : अपेक्षित vs वास्तविक</h3><div class="form">
+ <div><label>अपेक्षित पाउच (खाली = माल ÷ साइज)</label><input name="exp" type="number" min="0" step="1"></div>
+ <div><label>वास्तविक पाउच बने</label><input name="act" type="number" min="0" step="1" value="0"></div></div>
+ <h3 style="margin-top:16px">4. वर्कर और मशीन</h3><div class="form">
+ <div><label>वर्कर संख्या</label><input name="wk" type="number" min="0" value="0"></div>
+ <div><label>घंटे प्रति वर्कर</label><input name="wh" type="number" min="0" step=".25" value="8"></div>
+ <div><label>मशीन चलने के घंटे</label><input name="mh" type="number" min="0" step=".25" value="0"></div></div>
+ <div class="card" id="dprev" style="margin:16px 0 0;background:#f8faf7"></div>
+ <div class="actions"><button ${db.products.length?'':'disabled'}>शीट सेव करें</button></div>${db.products.length?'':'<p class="muted">पहले उत्पाद जोड़ें।</p>'}</form></div>
+ <div class="card"><h3>शीट हिस्ट्री</h3><div class="tablewrap"><table><tr><th>तारीख</th><th>उत्पाद</th><th>माल उपयोग</th><th>पैकिंग उपयोग</th><th>वेस्टेज</th><th>पाउच (अपेक्षित / वास्तविक)</th><th>अंतर</th><th>मैन-घंटे</th><th>मशीन घंटे</th><th>पाउच/घंटा</th><th></th></tr>
+ ${db.daily.map((x,i)=>{const c=dcalc(x);return `<tr><td>${esc(x.date)}</td><td>${esc(nameOf(x.product))}<div class="muted">${esc(x.batch)}</div></td><td>${c.mat.toFixed(2)} kg</td><td>${c.pk.toFixed(2)} kg</td><td>${c.waste.toFixed(2)} kg (${c.wp.toFixed(1)}%)</td><td>${Math.round(c.exp)} / ${c.act}</td><td class="${c.diff<0?'bad':'good'}">${Math.round(c.diff)} (${c.yp.toFixed(1)}%)</td><td>${c.man.toFixed(1)}</td><td>${c.mh}</td><td>${Math.round(c.ph)}</td><td><button class="danger" onclick="delRec('daily',${i})">हटाएँ</button></td></tr>`}).reverse().join('')||'<tr><td colspan="11" class="empty">कोई शीट नहीं</td></tr>'}</table></div></div>`);
+ const f=document.getElementById('df'),get=()=>Object.fromEntries(DK.map(k=>[k,f[k].value]));
+ const prev=()=>{const c=dcalc(get());document.getElementById('dprev').innerHTML=`<div class="grid">
+ <div><div class="muted">माल उपयोग</div><div class="metric">${c.mat.toFixed(2)} kg</div></div>
+ <div><div class="muted">पैकिंग मटेरियल उपयोग</div><div class="metric">${c.pk.toFixed(2)} kg</div></div>
+ <div><div class="muted">वेस्टेज %</div><div class="metric">${c.wp.toFixed(1)}%</div></div>
+ <div><div class="muted">अपेक्षित पाउच</div><div class="metric">${Math.round(c.exp)}</div></div>
+ <div><div class="muted">अंतर</div><div class="metric ${c.diff<0?'bad':'good'}">${Math.round(c.diff)}</div></div>
+ <div><div class="muted">मैन-घंटे</div><div class="metric">${c.man.toFixed(1)}</div></div>
+ <div><div class="muted">पाउच/मशीन घंटा</div><div class="metric">${Math.round(c.ph)}</div></div></div>`};
+ f.oninput=prev;prev();
+ f.onsubmit=e=>{e.preventDefault();const o=get(),c=dcalc(o);
+  if(c.mat<0||c.pk<0){alert('क्लोज़िंग, ओपनिंग से ज़्यादा नहीं हो सकती। आंकड़े जाँचें।');return}
+  const r={date:f.date.value,product:f.product.value,batch:f.batch.value.trim()};DK.forEach(k=>r[k]=+o[k]||0);
+  db.daily.push(r);save();daily()}}
 
 function costing(){
  shell('लागत कैलकुलेटर',`<div class="card"><form id="cf" class="form">
@@ -151,13 +196,14 @@ function csv(name,rows){const t=rows.map(r=>r.map(c=>'"'+String(c??'').replace(/
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv'}));a.download=name+'.csv';a.click()}
 function reports(){
  shell('रिपोर्ट',`<div class="card"><h3>एक्सेल (CSV) में डाउनलोड</h3><div class="actions">
- <button onclick="expPurchase()">खरीद रिपोर्ट</button><button onclick="expPack()">पैकिंग रिपोर्ट</button><button onclick="expStock()">स्टॉक रिपोर्ट</button></div></div>
+ <button onclick="expPurchase()">खरीद रिपोर्ट</button><button onclick="expPack()">पैकिंग रिपोर्ट</button><button onclick="expStock()">स्टॉक रिपोर्ट</button><button onclick="expDaily()">दैनिक शीट रिपोर्ट</button></div></div>
  <div class="card"><h3>सप्लायर के हिसाब से खरीद</h3><div class="tablewrap"><table><tr><th>सप्लायर</th><th>मात्रा (kg)</th><th>रकम</th></tr>
  ${Object.entries(db.purchases.reduce((m,x)=>{const k=x.supplier||'(नाम नहीं)';m[k]=m[k]||[0,0];m[k][0]+=x.qty;m[k][1]+=x.qty*x.rate;return m},{})).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${v[0].toFixed(2)}</td><td>${fmt(v[1])}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">कोई डेटा नहीं</td></tr>'}</table></div></div>`)}
 const expPurchase=()=>csv('khareed',[['तारीख','उत्पाद','सप्लायर','kg','दर','रकम'],...db.purchases.map(x=>[x.date,nameOf(x.product),x.supplier,x.qty,x.rate,x.qty*x.rate])]);
 const expPack=()=>csv('packing',[['तारीख','उत्पाद','kg','साइज g','पैकेट','बैच'],...db.batches.map(x=>[x.date,nameOf(x.product),x.qty,x.size,x.packs,x.batch])]);
 const expStock=()=>csv('stock',[['उत्पाद','खरीद kg','उपयोग kg','शेष kg'],...db.products.map(p=>[p.name,bought(p.id),used(p.id),bought(p.id)-used(p.id)])]);
 
+const expDaily=()=>csv('daily-sheet',[['तारीख','उत्पाद','बैच','माल ओपनिंग','आया','क्लोज़िंग','माल उपयोग','पैकिंग ओपनिंग','पैकिंग क्लोज़िंग','पैकिंग उपयोग','पैकिंग वेस्टेज kg','वेस्टेज %','अपेक्षित पाउच','वास्तविक पाउच','अंतर','वर्कर','घंटे/वर्कर','मैन-घंटे','मशीन घंटे','पाउच/घंटा'],...db.daily.map(x=>{const c=dcalc(x);return[x.date,nameOf(x.product),x.batch,x.mo,x.mr,x.mc,c.mat,x.po,x.pc,c.pk,x.pw,c.wp.toFixed(2),Math.round(c.exp),x.act,Math.round(c.diff),x.wk,x.wh,c.man,x.mh,Math.round(c.ph)]})]);
 function backup(){
  shell('बैकअप',`<div class="notice">डेटा सिर्फ इसी फोन/ब्राउज़र में है। ब्राउज़र का डेटा साफ करने पर सब मिट जाएगा, इसलिए हफ्ते में एक बार बैकअप डाउनलोड करें।</div>
  <div class="card"><h3>बैकअप लें</h3><div class="actions"><button onclick="exportDb()">बैकअप फाइल डाउनलोड करें</button></div></div>
@@ -165,9 +211,8 @@ function backup(){
  <div class="card"><h3>सारा डेटा मिटाएँ</h3><button class="danger" onclick="wipe()">सब हटाएँ</button></div>`);
  document.getElementById('imp').onchange=e=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);
   if(!Array.isArray(d.products)||!Array.isArray(d.purchases)||!Array.isArray(d.batches))throw 0;
-  if(confirm('मौजूदा डेटा बदल दें?')){db=d;save();alert('डेटा वापस आ गया।');go('dashboard')}}catch(x){alert('यह सही बैकअप फाइल नहीं है।')}};r.readAsText(e.target.files[0])}}
+  if(confirm('मौजूदा डेटा बदल दें?')){db=d;db.daily=db.daily||[];save();alert('डेटा वापस आ गया।');go('dashboard')}}catch(x){alert('यह सही बैकअप फाइल नहीं है।')}};r.readAsText(e.target.files[0])}}
 function exportDb(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='sadhna-agro-backup-'+todayISO()+'.json';a.click()}
-function wipe(){if(confirm('सारा डेटा हमेशा के लिए मिट जाएगा। पक्का?')&&confirm('आखिरी बार पूछ रहा हूँ, मिटा दें?')){db={products:[],purchases:[],batches:[]};save();go('dashboard')}}
+function wipe(){if(confirm('सारा डेटा हमेशा के लिए मिट जाएगा। पक्का?')&&confirm('आखिरी बार पूछ रहा हूँ, मिटा दें?')){db={products:[],purchases:[],batches:[],daily:[]};save();go('dashboard')}}
 dashboard();
 </script></body></html>
-
