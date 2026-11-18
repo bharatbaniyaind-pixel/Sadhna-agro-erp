@@ -1,1 +1,173 @@
+<!DOCTYPE html>
+<html lang="hi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sadhna Agro ERP</title>
+<style>
+:root{--g:#173b32;--bg:#f4f6f3;--line:#e2e8e3;--muted:#68756e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px system-ui,sans-serif;color:#1e2925}
+header{background:var(--g);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+h1{margin:0;font-size:21px}header small{color:#dce9df}
+.layout{display:flex;min-height:calc(100vh - 65px)}
+nav{width:205px;background:#fff;border-right:1px solid var(--line);padding:10px}
+nav button{display:block;width:100%;text-align:left;background:none;color:#26332c;margin:3px 0}
+nav button.active,nav button:hover{background:#eaf1eb;color:var(--g)}
+main{padding:20px;max-width:1200px;width:100%;margin:auto}h2{margin:0 0 15px}h3{margin:0 0 10px}
+button{border:0;border-radius:8px;background:var(--g);color:#fff;padding:10px 13px;font:inherit;font-weight:600;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#e9efea;color:var(--g)}.danger{background:#a83434;padding:6px 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;margin-bottom:13px}
+.metric{font-size:26px;font-weight:750;color:var(--g);margin-top:6px}.muted{color:var(--muted);font-size:13px}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
+input,select{width:100%;padding:10px;border:1px solid #cbd6ce;border-radius:8px;background:#fff;font:inherit}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:11px;align-items:end}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted)}
+.tablewrap{overflow:auto}.notice{padding:12px;background:#fff7e6;border:1px solid #f1dba8;border-radius:9px;color:#634b1d;font-size:13px;margin-bottom:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.empty{text-align:center;color:var(--muted);padding:15px}
+.good{color:#1d7a46;font-weight:700}.bad{color:#a83434;font-weight:700}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #2f8f6f;outline-offset:2px}
+@media(max-width:650px){.layout{display:block}nav{width:100%;display:flex;overflow:auto;border:0;border-bottom:1px solid var(--line);padding:5px}nav button{white-space:nowrap;width:auto}main{padding:13px}header{padding:13px}}
+</style></head><body>
+<header><div><h1>🌾 SADHNA AGRO</h1><small>Manufacturing &amp; Packing ERP · Prototype 0.2</small></div><small id="today"></small></header>
+<div class="layout">
+<nav id="nav">
+<button data-page="dashboard" class="active">▦ डैशबोर्ड</button>
+<button data-page="products">▣ उत्पाद मास्टर</button>
+<button data-page="purchase">＋ खरीद एंट्री</button>
+<button data-page="stock">▤ स्टॉक</button>
+<button data-page="packing">□ पैकिंग / उत्पादन</button>
+<button data-page="costing">₹ लागत कैलकुलेटर</button>
+<button data-page="reports">▥ रिपोर्ट</button>
+<button data-page="backup">⚙ बैकअप</button>
+</nav>
+<main id="app"></main>
+</div>
+<script>
+const KEY='sadhna_agro_erp_v1';
+let db;try{db=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){db={}}
+db.products=db.products||[];db.purchases=db.purchases||[];db.batches=db.batches||[];
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){alert('सेव नहीं हो पाया। ब्राउज़र स्टोरेज बंद है।')}};
+const fmt=n=>'₹'+(Number(n)||0).toLocaleString('en-IN',{maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random());
+const todayISO=()=>new Date().toISOString().slice(0,10);
+document.getElementById('today').textContent=new Date().toLocaleDateString('hi-IN',{dateStyle:'medium'});
+const pages={dashboard,products,purchase,stock,packing,costing,reports,backup};
+document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b)go(b.dataset.page)});
+function go(p){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));pages[p]()}
+function shell(t,s){document.getElementById('app').innerHTML='<h2>'+t+'</h2>'+s}
+const nameOf=id=>db.products.find(p=>p.id===id)?.name||'हटाया गया उत्पाद';
+const options=()=>db.products.map(p=>'<option value="'+p.id+'">'+esc(p.name)+' ('+esc(p.category)+')</option>').join('');
+const bought=id=>db.purchases.filter(x=>x.product===id).reduce((s,x)=>s+x.qty,0);
+const used=id=>db.batches.filter(x=>x.product===id).reduce((s,x)=>s+x.qty,0);
+const today=()=>todayISO();
+
+function dashboard(){
+ const q=db.purchases.reduce((s,x)=>s+x.qty,0),p=db.batches.reduce((s,x)=>s+x.qty,0),
+ amt=db.purchases.reduce((s,x)=>s+x.qty*x.rate,0),packs=db.batches.reduce((s,x)=>s+(x.packs||0),0);
+ const low=db.products.filter(x=>bought(x.id)-used(x.id)<5&&bought(x.id)>0);
+ shell('डैशबोर्ड',`<div class="grid">
+ <div class="card"><div class="muted">कुल उत्पाद</div><div class="metric">${db.products.length}</div></div>
+ <div class="card"><div class="muted">कुल खरीदी मात्रा</div><div class="metric">${q.toFixed(2)} kg</div></div>
+ <div class="card"><div class="muted">कुल खरीद रकम</div><div class="metric">${fmt(amt)}</div></div>
+ <div class="card"><div class="muted">कुल पैकिंग मात्रा</div><div class="metric">${p.toFixed(2)} kg</div></div>
+ <div class="card"><div class="muted">कुल पैकेट बने</div><div class="metric">${packs}</div></div></div>
+ ${low.length?`<div class="notice"><b>कम स्टॉक (5 kg से कम):</b> ${low.map(x=>esc(x.name)).join(', ')}</div>`:''}
+ <div class="notice">यह संस्करण डेटा इसी ब्राउज़र/डिवाइस में सेव करता है। Cloud Database, Login और दूसरे डिवाइस से Sync अभी शामिल नहीं हैं। नियमित बैकअप लें।</div>
+ <div class="card"><h3>काम शुरू करें</h3><p class="muted">पहले उत्पाद जोड़ें, फिर खरीद और पैकिंग दर्ज करें।</p>
+ <div class="actions"><button onclick="go('products')">उत्पाद जोड़ें</button><button class="secondary" onclick="go('purchase')">खरीद दर्ज करें</button><button class="secondary" onclick="go('packing')">पैकिंग दर्ज करें</button></div></div>`)}
+
+function products(){
+ shell('उत्पाद मास्टर',`<div class="card"><h3>नया उत्पाद</h3><form id="pf" class="form">
+ <div><label>उत्पाद का नाम *</label><input name="name" required placeholder="जैसे जीरा"></div>
+ <div><label>कैटेगरी</label><select name="category"><option>मसाले</option><option>ड्राई फ्रूट्स</option><option>सीड्स</option><option>डिहाइड्रेटेड प्रोडक्ट्स</option><option>अन्य</option></select></div>
+ <div><label>यूनिट</label><select name="unit"><option>kg</option><option>gram</option><option>piece</option><option>packet</option></select></div>
+ <button>उत्पाद सेव करें</button></form></div>
+ <div class="card"><h3>उत्पाद सूची</h3><div class="tablewrap"><table><tr><th>नाम</th><th>कैटेगरी</th><th>यूनिट</th><th></th></tr>
+ ${db.products.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${esc(p.unit)}</td><td><button class="danger" onclick="delProduct('${p.id}')">हटाएँ</button></td></tr>`).join('')||'<tr><td colspan="4" class="empty">अभी कोई उत्पाद नहीं</td></tr>'}</table></div></div>`);
+ document.getElementById('pf').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),n=f.get('name').trim();
+  if(db.products.some(p=>p.name.toLowerCase()===n.toLowerCase())){alert('यह उत्पाद पहले से मौजूद है।');return}
+  db.products.push({id:uid(),name:n,category:f.get('category'),unit:f.get('unit')});save();products()}}
+function delProduct(id){if(confirm('यह उत्पाद हटाएँ? इसकी खरीद/पैकिंग एंट्री बनी रहेगी।')){db.products=db.products.filter(p=>p.id!==id);save();products()}}
+
+function purchase(){
+ shell('खरीद एंट्री',`<div class="card"><form id="buy" class="form">
+ <div><label>उत्पाद *</label><select name="product" required>${options()}</select></div>
+ <div><label>तारीख</label><input type="date" name="date" value="${today()}"></div>
+ <div><label>मात्रा (kg) *</label><input name="qty" type="number" min=".001" step=".001" required></div>
+ <div><label>दर ₹/kg</label><input name="rate" type="number" min="0" step=".01" value="0"></div>
+ <div><label>सप्लायर</label><input name="supplier" placeholder="सप्लायर नाम"></div>
+ <button ${db.products.length?'':'disabled'}>खरीद सेव करें</button></form>${db.products.length?'':'<p class="muted">पहले उत्पाद जोड़ें।</p>'}</div>
+ <div class="card"><h3>खरीद हिस्ट्री</h3><div class="tablewrap"><table><tr><th>तारीख</th><th>उत्पाद</th><th>सप्लायर</th><th>मात्रा</th><th>दर</th><th>रकम</th><th></th></tr>
+ ${db.purchases.map((x,i)=>`<tr><td>${esc(x.date)}</td><td>${esc(nameOf(x.product))}</td><td>${esc(x.supplier)}</td><td>${x.qty} kg</td><td>${fmt(x.rate)}</td><td>${fmt(x.qty*x.rate)}</td><td><button class="danger" onclick="delRec('purchases',${i})">हटाएँ</button></td></tr>`).reverse().join('')||'<tr><td colspan="7" class="empty">कोई रिकॉर्ड नहीं</td></tr>'}</table></div></div>`);
+ document.getElementById('buy').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);
+  db.purchases.push({product:f.get('product'),date:f.get('date'),qty:+f.get('qty'),rate:+f.get('rate'),supplier:f.get('supplier').trim()});save();purchase()}}
+function delRec(k,i){if(confirm('यह रिकॉर्ड हटाएँ?')){db[k].splice(i,1);save();go(k==='purchases'?'purchase':'packing')}}
+
+function stock(){
+ shell('स्टॉक स्थिति',`<div class="card"><p class="muted">शेष स्टॉक = दर्ज खरीद मात्रा − पैकिंग में उपयोग मात्रा।</p><div class="tablewrap"><table>
+ <tr><th>उत्पाद</th><th>खरीद (kg)</th><th>पैकिंग उपयोग (kg)</th><th>शेष (kg)</th><th>औसत दर</th></tr>
+ ${db.products.map(p=>{const b=bought(p.id),u=used(p.id),pur=db.purchases.filter(x=>x.product===p.id),
+  avg=b?pur.reduce((s,x)=>s+x.qty*x.rate,0)/b:0;
+  return `<tr><td>${esc(p.name)}</td><td>${b.toFixed(3)}</td><td>${u.toFixed(3)}</td><td class="${b-u<0?'bad':''}"><b>${(b-u).toFixed(3)}</b></td><td>${fmt(avg)}/kg</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">पहले उत्पाद जोड़ें</td></tr>'}</table></div></div>`)}
+
+function packing(){
+ shell('पैकिंग / उत्पादन एंट्री',`<div class="card"><form id="pack" class="form">
+ <div><label>उत्पाद *</label><select name="product" required>${options()}</select></div>
+ <div><label>तारीख</label><input type="date" name="date" value="${today()}"></div>
+ <div><label>पैकिंग उपयोग मात्रा (kg) *</label><input name="qty" type="number" min=".001" step=".001" required></div>
+ <div><label>पैक साइज (gram)</label><input name="size" type="number" min="1" value="100"></div>
+ <div><label>पैकेट संख्या</label><input name="packs" type="number" min="0" value="0"></div>
+ <div><label>बैच नंबर</label><input name="batch" placeholder="बैच नंबर"></div>
+ <button ${db.products.length?'':'disabled'}>पैकिंग सेव करें</button></form>${db.products.length?'':'<p class="muted">पहले उत्पाद जोड़ें।</p>'}</div>
+ <div class="card"><h3>पैकिंग रिकॉर्ड</h3><div class="tablewrap"><table><tr><th>तारीख</th><th>उत्पाद</th><th>मात्रा</th><th>साइज</th><th>पैकेट</th><th>बैच</th><th></th></tr>
+ ${db.batches.map((x,i)=>`<tr><td>${esc(x.date)}</td><td>${esc(nameOf(x.product))}</td><td>${x.qty} kg</td><td>${x.size} g</td><td>${x.packs}</td><td>${esc(x.batch)}</td><td><button class="danger" onclick="delRec('batches',${i})">हटाएँ</button></td></tr>`).reverse().join('')||'<tr><td colspan="7" class="empty">कोई रिकॉर्ड नहीं</td></tr>'}</table></div></div>`);
+ document.getElementById('pack').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),pid=f.get('product'),q=+f.get('qty'),left=bought(pid)-used(pid);
+  if(q>left&&!confirm('शेष स्टॉक '+left.toFixed(3)+' kg है, आप '+q+' kg दर्ज कर रहे हैं। फिर भी सेव करें?'))return;
+  db.batches.push({product:pid,date:f.get('date'),qty:q,size:+f.get('size'),packs:+f.get('packs'),batch:f.get('batch').trim()});save();packing()}}
+
+function costing(){
+ shell('लागत कैलकुलेटर',`<div class="card"><form id="cf" class="form">
+ <div><label>कच्चा माल दर ₹/kg</label><input name="rate" type="number" step=".01" value="200"></div>
+ <div><label>वेस्टेज / सफाई नुकसान %</label><input name="waste" type="number" step=".1" value="5"></div>
+ <div><label>पैक साइज (gram)</label><input name="size" type="number" value="100"></div>
+ <div><label>पैकिंग मटेरियल ₹/पैकेट</label><input name="pack" type="number" step=".01" value="1.5"></div>
+ <div><label>लेबर + बिजली ₹/पैकेट</label><input name="labour" type="number" step=".01" value="1"></div>
+ <div><label>MRP ₹/पैकेट</label><input name="mrp" type="number" step=".01" value="10"></div>
+ <div><label>डिस्ट्रीब्यूटर/रिटेलर मार्जिन %</label><input name="trade" type="number" step=".1" value="20"></div></form></div>
+ <div class="card" id="cres"></div>`);
+ const f=document.getElementById('cf'),calc=()=>{const v=n=>+f[n].value||0,
+  raw=v('rate')*(v('size')/1000)/(1-Math.min(v('waste'),99)/100),cost=raw+v('pack')+v('labour'),
+  net=v('mrp')*(1-v('trade')/100),profit=net-cost,pct=net?profit/net*100:0;
+  document.getElementById('cres').innerHTML=`<div class="grid">
+  <div><div class="muted">कच्चा माल/पैकेट</div><div class="metric">${fmt(raw)}</div></div>
+  <div><div class="muted">कुल लागत/पैकेट</div><div class="metric">${fmt(cost)}</div></div>
+  <div><div class="muted">हमें मिलने वाली कीमत</div><div class="metric">${fmt(net)}</div></div>
+  <div><div class="muted">मुनाफा/पैकेट</div><div class="metric ${profit<0?'bad':'good'}">${fmt(profit)}</div></div>
+  <div><div class="muted">मार्जिन</div><div class="metric ${profit<0?'bad':'good'}">${pct.toFixed(1)}%</div></div></div>
+  <p class="muted">1000 पैकेट पर मुनाफा: <b>${fmt(profit*1000)}</b></p>`};
+ f.oninput=calc;calc()}
+
+function csv(name,rows){const t=rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv'}));a.download=name+'.csv';a.click()}
+function reports(){
+ shell('रिपोर्ट',`<div class="card"><h3>एक्सेल (CSV) में डाउनलोड</h3><div class="actions">
+ <button onclick="expPurchase()">खरीद रिपोर्ट</button><button onclick="expPack()">पैकिंग रिपोर्ट</button><button onclick="expStock()">स्टॉक रिपोर्ट</button></div></div>
+ <div class="card"><h3>सप्लायर के हिसाब से खरीद</h3><div class="tablewrap"><table><tr><th>सप्लायर</th><th>मात्रा (kg)</th><th>रकम</th></tr>
+ ${Object.entries(db.purchases.reduce((m,x)=>{const k=x.supplier||'(नाम नहीं)';m[k]=m[k]||[0,0];m[k][0]+=x.qty;m[k][1]+=x.qty*x.rate;return m},{})).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${v[0].toFixed(2)}</td><td>${fmt(v[1])}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">कोई डेटा नहीं</td></tr>'}</table></div></div>`)}
+const expPurchase=()=>csv('khareed',[['तारीख','उत्पाद','सप्लायर','kg','दर','रकम'],...db.purchases.map(x=>[x.date,nameOf(x.product),x.supplier,x.qty,x.rate,x.qty*x.rate])]);
+const expPack=()=>csv('packing',[['तारीख','उत्पाद','kg','साइज g','पैकेट','बैच'],...db.batches.map(x=>[x.date,nameOf(x.product),x.qty,x.size,x.packs,x.batch])]);
+const expStock=()=>csv('stock',[['उत्पाद','खरीद kg','उपयोग kg','शेष kg'],...db.products.map(p=>[p.name,bought(p.id),used(p.id),bought(p.id)-used(p.id)])]);
+
+function backup(){
+ shell('बैकअप',`<div class="notice">डेटा सिर्फ इसी फोन/ब्राउज़र में है। ब्राउज़र का डेटा साफ करने पर सब मिट जाएगा, इसलिए हफ्ते में एक बार बैकअप डाउनलोड करें।</div>
+ <div class="card"><h3>बैकअप लें</h3><div class="actions"><button onclick="exportDb()">बैकअप फाइल डाउनलोड करें</button></div></div>
+ <div class="card"><h3>बैकअप से वापस लाएँ</h3><input type="file" id="imp" accept=".json"><p class="muted">मौजूदा डेटा बदल जाएगा।</p></div>
+ <div class="card"><h3>सारा डेटा मिटाएँ</h3><button class="danger" onclick="wipe()">सब हटाएँ</button></div>`);
+ document.getElementById('imp').onchange=e=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);
+  if(!Array.isArray(d.products)||!Array.isArray(d.purchases)||!Array.isArray(d.batches))throw 0;
+  if(confirm('मौजूदा डेटा बदल दें?')){db=d;save();alert('डेटा वापस आ गया।');go('dashboard')}}catch(x){alert('यह सही बैकअप फाइल नहीं है।')}};r.readAsText(e.target.files[0])}}
+function exportDb(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='sadhna-agro-backup-'+todayISO()+'.json';a.click()}
+function wipe(){if(confirm('सारा डेटा हमेशा के लिए मिट जाएगा। पक्का?')&&confirm('आखिरी बार पूछ रहा हूँ, मिटा दें?')){db={products:[],purchases:[],batches:[]};save();go('dashboard')}}
+dashboard();
+</script></body></html>
 
