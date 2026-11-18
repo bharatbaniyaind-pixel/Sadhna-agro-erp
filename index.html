@@ -2,7 +2,6 @@
 <html lang="hi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sadhna Agro ERP</title>
-<!-- Supabase SDK लोड किया जा रहा है -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--g:#173b32;--bg:#f4f6f3;--line:#e2e8e3;--muted:#68756e}
@@ -22,7 +21,7 @@ button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#e9efea;col
 label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
 input,select{width:100%;padding:10px;border:1px solid #cbd6ce;border-radius:8px;background:#fff;font:inherit}
 .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:11px;align-items:end}
-table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{color:var(--muted)}
 .tablewrap{overflow:auto}.notice{padding:12px;background:#fff7e6;border:1px solid #f1dba8;border-radius:9px;color:#634b1d;font-size:13px;margin-bottom:13px}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.empty{text-align:center;color:var(--muted);padding:15px}
 .good{color:#1d7a46;font-weight:700}.bad{color:#a83434;font-weight:700}
@@ -43,7 +42,6 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:9px;borde
 </div>
 <script>
 // --- SUPABASE CONFIGURATION ---
-// अपनी Supabase डिटेल्स यहाँ डालें
 const SUPABASE_URL = 'YOUR_SUPABASE_URL';
 const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
@@ -56,7 +54,6 @@ let db = { products: [], purchases: [], batches: [], daily: [] };
 
 async function loadData() {
     if (!supabaseClient) {
-        // अगर Supabase सेट नहीं है तो लोकल स्टोरेज फॉールबैक इस्तेमाल होगा
         try { db = JSON.parse(localStorage.getItem('sadhna_agro_erp_cloud')) || db; } catch(e){}
         initApp();
         return;
@@ -139,20 +136,27 @@ const options = () => db.products.map(p => '<option value="' + p.id + '">' + esc
 const bought = id => db.purchases.filter(x => x.product === id).reduce((s, x) => s + x.qty, 0);
 const used = id => db.batches.filter(x => x.product === id).reduce((s, x) => s + x.qty, 0);
 
+// खरीद की कुल रकम (GST सहित) निकालने के लिए हेल्पर फंक्शन
+const purTotal = x => {
+    const base = (Number(x.qty) || 0) * (Number(x.rate) || 0);
+    const gst = Number(x.gst) || 0;
+    return base + (base * gst / 100);
+};
+
 function dashboard() {
     const q = db.purchases.reduce((s, x) => s + x.qty, 0), p = db.batches.reduce((s, x) => s + x.qty, 0),
-          amt = db.purchases.reduce((s, x) => s + x.qty * x.rate, 0), packs = db.batches.reduce((s, x) => s + (x.packs || 0), 0);
+          amt = db.purchases.reduce((s, x) => s + purTotal(x), 0), packs = db.batches.reduce((s, x) => s + (x.packs || 0), 0);
     const low = db.products.filter(x => bought(x.id) - used(x.id) < 5 && bought(x.id) > 0);
     
     document.getElementById('app').innerHTML = `<h2>डैशबोर्ड</h2>
     <div class="grid">
      <div class="card"><div class="muted">कुल उत्पाद</div><div class="metric">${db.products.length}</div></div>
      <div class="card"><div class="muted">कुल खरीदी मात्रा</div><div class="metric">${q.toFixed(2)} kg</div></div>
-     <div class="card"><div class="muted">कुल खरीद रकम</div><div class="metric">${fmt(amt)}</div></div>
+     <div class="card"><div class="muted">कुल खरीद रकम (GST सहित)</div><div class="metric">${fmt(amt)}</div></div>
      <div class="card"><div class="muted">कुल पैकिंग मात्रा</div><div class="metric">${p.toFixed(2)} kg</div></div>
      <div class="card"><div class="muted">कुल पैकेट बने</div><div class="metric">${packs}</div></div></div>
      ${low.length ? `<div class="notice"><b>कम स्टॉक (5 kg से कम):</b> ${low.map(x => esc(x.name)).join(', ')}</div>` : ''}
-     <div class="notice">क्लाउड मोड एक्टिव है। डेटा सुरक्षित रूप से ऑनलाइन सिंक हो रहा है।</div>`;
+     <div class="notice">क्लाउड मोड एक्टिव है। डेटा सुरक्षित रूप से सिंक हो रहा है।</div>`;
 }
 
 function products() {
@@ -177,18 +181,47 @@ function purchase() {
     if(!db.products.length) { document.getElementById('app').innerHTML = `<h2>खरीद एंट्री</h2><div class="notice">कृपया पहले 'उत्पाद मास्टर' में जाकर उत्पाद जोड़ें।</div>`; return; }
     document.getElementById('app').innerHTML = `<h2>खरीद एंट्री</h2>
     <div class="card"><form id="purf" class="form">
+     <div><label>किस से खरीदा (पार्टी) *</label><input name="supplier" required placeholder="सप्लायर / व्यापारी का नाम"></div>
+     <div><label>बिल नंबर *</label><input name="bill_no" required placeholder="जैसे INV-101"></div>
      <div><label>उत्पाद</label><select name="product">${options()}</select></div>
      <div><label>मात्रा (kg)</label><input type="number" step="0.01" name="qty" required placeholder="0.00"></div>
      <div><label>रेट प्रति kg (₹)</label><input type="number" step="0.01" name="rate" required placeholder="0.00"></div>
+     <div><label>GST (%)</label><select name="gst">
+        <option value="0">0% (बिना GST)</option>
+        <option value="5">5%</option>
+        <option value="12">12%</option>
+        <option value="18">18%</option>
+        <option value="28">28%</option>
+     </select></div>
      <div><label>दिनांक</label><input type="date" name="date" value="${todayISO()}"></div>
      <button>खरीद सेव करें</button></form></div>
-    <div class="card"><h3>खरीद इतिहास</h3><div class="tablewrap"><table><tr><th>दिनांक</th><th>उत्पाद</th><th>मात्रा</th><th>रेट</th><th>कुल रकम</th><th></th></tr>
-    ${db.purchases.slice(-20).reverse().map(x => `<tr><td>${x.date}</td><td><b>${nameOf(x.product)}</b></td><td>${x.qty} kg</td><td>${fmt(x.rate)}</td><td>${fmt(x.qty * x.rate)}</td><td><button class="danger" onclick="delPur('${x.id}')">हटाएँ</button></td></tr>`).join('') || '<tr><td colspan="6" class="empty">कोई खरीद एंट्री नहीं</td></tr>'}</table></div></div>`;
+    <div class="card"><h3>खरीद इतिहास</h3><div class="tablewrap"><table>
+    <tr><th>दिनांक</th><th>बिल नं.</th><th>पार्टी (सप्लायर)</th><th>उत्पाद</th><th>मात्रा</th><th>रेट</th><th>GST</th><th>कुल रकम</th><th></th></tr>
+    ${db.purchases.slice(-25).reverse().map(x => `<tr>
+        <td>${x.date}</td>
+        <td>${esc(x.bill_no || '-')}</td>
+        <td>${esc(x.supplier || '-')}</td>
+        <td><b>${nameOf(x.product)}</b></td>
+        <td>${x.qty} kg</td>
+        <td>${fmt(x.rate)}</td>
+        <td>${x.gst || 0}%</td>
+        <td><b>${fmt(purTotal(x))}</b></td>
+        <td><button class="danger" onclick="delPur('${x.id}')">हटाएँ</button></td>
+    </tr>`).join('') || '<tr><td colspan="9" class="empty">कोई खरीद एंट्री नहीं</td></tr>'}</table></div></div>`;
     
     document.getElementById('purf').onsubmit = async e => {
         e.preventDefault();
         const f = new FormData(e.target);
-        await saveData('purchases', { id: uid(), product: f.get('product'), qty: Number(f.get('qty')), rate: Number(f.get('rate')), date: f.get('date') });
+        await saveData('purchases', { 
+            id: uid(), 
+            supplier: f.get('supplier').trim(),
+            bill_no: f.get('bill_no').trim(),
+            product: f.get('product'), 
+            qty: Number(f.get('qty')), 
+            rate: Number(f.get('rate')), 
+            gst: Number(f.get('gst')),
+            date: f.get('date') 
+        });
     };
 }
 window.delPur = id => removeData('purchases', id);
@@ -241,10 +274,12 @@ function daily() {
 window.delDaily = id => removeData('daily', id);
 
 function reports() {
+    const totalAmt = db.purchases.reduce((s, x) => s + purTotal(x), 0);
     document.getElementById('app').innerHTML = `<h2>रिपोर्ट</h2>
     <div class="card"><h3>कुल कारोबार सारांश</h3>
     <p>कुल उत्पाद: <b>${db.products.length}</b></p>
     <p>कुल खरीद प्रविष्टियाँ: <b>${db.purchases.length}</b></p>
+    <p>कुल खरीद खर्च (GST सहित): <b>${fmt(totalAmt)}</b></p>
     <p>कुल पैकिंग बैचेस: <b>${db.batches.length}</b></p></div>`;
 }
 
