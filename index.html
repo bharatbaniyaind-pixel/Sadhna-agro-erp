@@ -7,213 +7,143 @@
 <style>
 :root{--g:#173b32;--bg:#f4f6f3;--line:#e2e8e3;--muted:#68756e}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px system-ui,sans-serif;color:#1e2925}
-header{background:var(--g);color:#fff;padding:15px 20px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-h1{margin:0;font-size:21px}header small{color:#dce9df}.layout{display:flex;min-height:calc(100vh - 65px)}
-nav{width:210px;background:#fff;border-right:1px solid var(--line);padding:10px}
-nav button{display:block;width:100%;text-align:left;background:none;color:#26332c;margin:3px 0;border-radius:6px;padding:9px}
+header{background:var(--g);color:white;padding:14px 18px;display:flex;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:21px;margin:0}header small{color:#dce9df}.layout{display:flex;min-height:calc(100vh - 60px)}
+nav{width:205px;background:white;padding:9px;border-right:1px solid var(--line)}
+nav button{display:block;width:100%;text-align:left;background:none;color:#26332c;margin:3px 0}
 nav button.active,nav button:hover{background:#eaf1eb;color:var(--g)}
-main{padding:20px;max-width:1450px;width:100%;margin:auto}h2{margin:0 0 15px}h3{margin:0 0 10px}
-h4{margin:16px 0 8px;color:var(--g);border-bottom:1px solid var(--line);padding-bottom:4px;font-size:14px}
-button{border:0;border-radius:8px;background:var(--g);color:#fff;padding:10px 13px;font:inherit;font-weight:600;cursor:pointer}
-button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#e9efea;color:var(--g)}.danger{background:#a83434;padding:6px 10px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
-.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;margin-bottom:13px}
-.metric{font-size:25px;font-weight:750;color:var(--g);margin-top:6px}.muted{color:var(--muted);font-size:13px}
-label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px;font-weight:500}
-input,select{width:100%;padding:9px;border:1px solid #cbd6ce;border-radius:8px;background:#fff;font:inherit;font-size:14px}
-.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:11px;align-items:end}
-table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{color:var(--muted);background:#fafcfa}
-.tablewrap{overflow:auto}.notice{padding:12px;background:#fff7e6;border:1px solid #f1dba8;border-radius:9px;color:#634b1d;font-size:13px;margin-bottom:13px}
-.good{color:#1d7a46;font-weight:700}.bad{color:#a83434;font-weight:700}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-.empty{text-align:center;color:var(--muted);padding:15px}.hidden{display:none!important}.right{float:right}
-@media(max-width:700px){.layout{display:block}nav{width:100%;display:flex;overflow:auto;border:0;border-bottom:1px solid var(--line);padding:5px}nav button{white-space:nowrap;width:auto}main{padding:13px}header{padding:13px}}
-</style>
-</head>
+main{padding:18px;width:100%;max-width:1450px;margin:auto}h2{margin:0 0 14px}
+button{border:0;border-radius:8px;background:var(--g);color:white;padding:10px 13px;font:inherit;font-weight:600;cursor:pointer}
+.secondary{background:#e9efea;color:var(--g)}.danger{background:#a83434;padding:6px 9px}
+.card{background:white;border:1px solid var(--line);border-radius:11px;padding:14px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
+.metric{font-size:24px;font-weight:750;color:var(--g)}.muted{color:var(--muted);font-size:13px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+input,select{width:100%;padding:9px;border:1px solid #cbd6ce;border-radius:8px;background:white;font:inherit}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{background:#fafcfa;color:var(--muted)}
+.notice{background:#fff7e6;border:1px solid #f1dba8;border-radius:8px;padding:11px;margin-bottom:12px;font-size:13px}
+h4{margin:16px 0 8px;color:var(--g)}.empty{text-align:center;color:var(--muted);padding:15px}
+@media(max-width:700px){.layout{display:block}nav{width:100%;display:flex;overflow:auto;border:0;border-bottom:1px solid var(--line)}nav button{white-space:nowrap;width:auto}main{padding:12px}}
+</style></head>
 <body>
-<header><div><h1>🌾 SADHNA AGRO</h1><small>Manufacturing &amp; Packing Cloud ERP</small></div><div><small id="today"></small><br><small id="syncStatus">Local mode</small></div></header>
-<div class="layout">
-<nav id="nav">
-<button data-page="dashboard" class="active">▦ डैशबोर्ड</button>
-<button data-page="products">▣ उत्पाद मास्टर</button>
-<button data-page="purchase">＋ खरीद एंट्री</button>
-<button data-page="stock">▤ स्टॉक</button>
-<button data-page="packing">□ पैकिंग / उत्पादन</button>
-<button data-page="daily">🏭 दैनिक उत्पादन शीट</button>
-<button data-page="reports">▥ रिपोर्ट</button>
-<button data-page="settings">⚙ सेटिंग / Cloud</button>
-</nav>
-<main id="app"><div class="card">ERP लोड हो रहा है...</div></main>
-</div>
+<header><div><h1>🌾 SADHNA AGRO</h1><small>Manufacturing & Packing ERP</small></div><div><small id="today"></small><br><small id="status">Local Mode</small></div></header>
+<div class="layout"><nav id="nav">
+<button data-p="dashboard" class="active">▦ डैशबोर्ड</button><button data-p="products">▣ उत्पाद</button>
+<button data-p="purchase">＋ खरीद</button><button data-p="stock">▤ स्टॉक</button>
+<button data-p="packing">□ पैकिंग</button><button data-p="daily">🏭 दैनिक उत्पादन</button>
+<button data-p="reports">▥ रिपोर्ट</button><button data-p="settings">⚙ सेटिंग</button>
+</nav><main id="app">लोड हो रहा है...</main></div>
 <script>
-/* Supabase configuration can also be entered from Settings.
-   Never put a Supabase service_role/secret key in this file. */
-const SUPABASE_URL = '';
-const SUPABASE_PUBLISHABLE_KEY = '';
-const MACHINE_RATE = 120;
-let client = null, cloudUser = null;
-let db = {products:[],purchases:[],batches:[],daily:[]};
-let currentPage = 'dashboard';
-const tables = ['products','purchases','batches','daily'];
-const $ = id => document.getElementById(id);
-const fmt = n => '₹' + (Number(n)||0).toLocaleString('en-IN',{maximumFractionDigits:2});
-const num = n => Number(n)||0;
-const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const uid = () => crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random();
-const todayISO = () => {const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
-$('today').textContent = new Date().toLocaleDateString('hi-IN',{dateStyle:'medium'});
-function setStatus(s){$('syncStatus').textContent=s}
-function readLocal(){try{db=JSON.parse(localStorage.getItem('sadhna_agro_erp_v2'))||db}catch(e){}}
-function writeLocal(){localStorage.setItem('sadhna_agro_erp_v2',JSON.stringify(db))}
-function getConfig(){return {url:localStorage.getItem('sa_url')||SUPABASE_URL,key:localStorage.getItem('sa_key')||SUPABASE_PUBLISHABLE_KEY}}
-async function connectCloud(){
- const c=getConfig();
- if(!c.url||!c.key){client=null;cloudUser=null;return false}
- if(!window.supabase){alert('Supabase library load नहीं हुई। Internet जाँचें।');return false}
- client=window.supabase.createClient(c.url,c.key);
- const {data:{session}}=await client.auth.getSession();
- cloudUser=session?.user||null;
- return true;
+const MACHINE_RATE=120, KEY='sadhna_agro_erp_v2';
+const SUPABASE_URL='https://pbqlgxuegsypormwplbd.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_JZk4q6E4DrU50EQddJKvbg_uUTojO36';
+const $=id=>document.getElementById(id), n=x=>Number(x)||0;
+const money=x=>'₹'+n(x).toLocaleString('en-IN',{maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random();
+const today=()=>{let d=new Date();return new Date(d-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+$('today').textContent=new Date().toLocaleDateString('hi-IN',{dateStyle:'medium'});
+let db={products:[],purchases:[],batches:[],daily:[]}, page='dashboard', sb=null, user=null;
+const tables=['products','purchases','batches','daily'];
+function read(){try{db=JSON.parse(localStorage.getItem(KEY))||db}catch(e){}}
+function write(){localStorage.setItem(KEY,JSON.stringify(db))}
+function status(s){$('status').textContent=s}
+async function cloudConnect(){
+ if(!SUPABASE_URL||!SUPABASE_PUBLISHABLE_KEY||!window.supabase)return;
+ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+ let {data}=await sb.auth.getSession();user=data.session?.user||null;
 }
-async function loadData(){
- readLocal();
+async function syncCloud(){
+ if(!sb||!user){status('Local Mode');return}
  try{
-  if(client&&cloudUser){
-   const {data,error}=await client.from('erp_records').select('id,table_name,payload').eq('user_id',cloudUser.id);
-   if(error)throw error;
-   db={products:[],purchases:[],batches:[],daily:[]};
-   (data||[]).forEach(r=>{if(tables.includes(r.table_name))db[r.table_name].push({...r.payload,id:r.id})});
-   setStatus('☁ Cloud synced · '+cloudUser.email);
-  }else setStatus('Local mode · इस डिवाइस में सेव');
- }catch(e){setStatus('Cloud error');alert('Cloud डेटा लोड नहीं हुआ: '+e.message)}
- initApp();
+  const {data,error}=await sb.from('erp_records').select('id,table_name,payload').eq('user_id',user.id);
+  if(error)throw error;
+  db={products:[],purchases:[],batches:[],daily:[]};
+  (data||[]).forEach(r=>{if(tables.includes(r.table_name))db[r.table_name].push({...r.payload,id:r.id})});
+  write();status('☁ Cloud Synced · '+user.email);
+ }catch(e){status('Cloud error');alert('Cloud sync error: '+e.message)}
 }
-async function saveData(table,item){
- if(!tables.includes(table))return;
- if(client&&cloudUser){
-  const {error}=await client.from('erp_records').insert({id:item.id,user_id:cloudUser.id,table_name:table,payload:item});
-  if(error){alert('सेव त्रुटि: '+error.message);return}
- }else{db[table].push(item);writeLocal();initApp();return}
- db[table].push(item);initApp();
+async function save(t,x){
+ if(sb&&user){let {error}=await sb.from('erp_records').insert({id:x.id,user_id:user.id,table_name:t,payload:x});if(error){alert(error.message);return}}
+ db[t].push(x);write();render();
 }
-async function removeData(table,id){
- if(client&&cloudUser){
-  const {error}=await client.from('erp_records').delete().eq('id',id).eq('user_id',cloudUser.id);
-  if(error){alert('हटाने में त्रुटि: '+error.message);return}
- }else{db[table]=db[table].filter(x=>x.id!==id);writeLocal();initApp();return}
- db[table]=db[table].filter(x=>x.id!==id);initApp();
+async function del(t,id){
+ if(sb&&user){let {error}=await sb.from('erp_records').delete().eq('id',id).eq('user_id',user.id);if(error){alert(error.message);return}}
+ db[t]=db[t].filter(x=>x.id!==id);write();render();
 }
-async function signOut(){if(client)await client.auth.signOut();client=null;cloudUser=null;readLocal();setStatus('Local mode');go('settings')}
-const pages={dashboard,products,purchase,stock,packing,daily,reports,settings};
-$('nav').addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b)go(b.dataset.page)});
-function go(p){currentPage=p;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));pages[p]()}
-function initApp(){if(pages[currentPage])pages[currentPage]()}
-const nameOf=id=>db.products.find(p=>p.id===id)?.name||'हटाया गया उत्पाद';
-const productOptions=()=>db.products.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} (${esc(p.category)})</option>`).join('');
-const bought=id=>db.purchases.filter(x=>x.product===id).reduce((s,x)=>s+num(x.qty),0);
-const used=id=>db.batches.filter(x=>x.product===id).reduce((s,x)=>s+num(x.qty),0);
-const purTotal=x=>num(x.qty)*num(x.rate)*(1+num(x.gst)/100);
-function dashboard(){
- const q=db.purchases.reduce((s,x)=>s+num(x.qty),0),usedKg=db.batches.reduce((s,x)=>s+num(x.qty),0);
- const amt=db.purchases.reduce((s,x)=>s+purTotal(x),0),packs=db.batches.reduce((s,x)=>s+num(x.packs),0);
- const low=db.products.filter(x=>bought(x.id)-used(x.id)<5&&bought(x.id)>0);
+function go(p){page=p;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.p===p));render()}
+$('nav').onclick=e=>{let b=e.target.closest('[data-p]');if(b)go(b.dataset.p)};
+const prodOpts=()=>db.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+const bought=id=>db.purchases.filter(x=>x.product===id).reduce((s,x)=>s+n(x.qty),0);
+const consumed=id=>db.batches.filter(x=>x.product===id).reduce((s,x)=>s+n(x.qty),0);
+function calc(x){
+ let raw=Math.max(0,n(x.mat_open)-n(x.mat_close)), pr=Math.max(0,n(x.print_open)-n(x.print_close));
+ let printCost=(pr+n(x.print_wastage))*n(x.print_rate),lab=n(x.labour_hrs)*n(x.labour_rate),machine=n(x.mach_hrs)*MACHINE_RATE;
+ return {raw,pr,printCost,lab,machine,total:printCost+lab+machine,per:n(x.actual_pouches)?(printCost+lab+machine)/n(x.actual_pouches):0};
+}
+function render(){
+ if(page==='dashboard'){
+ let qty=db.purchases.reduce((s,x)=>s+n(x.qty),0),used=db.batches.reduce((s,x)=>s+n(x.qty),0);
  $('app').innerHTML=`<h2>डैशबोर्ड</h2><div class="grid">
  <div class="card"><div class="muted">कुल उत्पाद</div><div class="metric">${db.products.length}</div></div>
- <div class="card"><div class="muted">कुल खरीदी मात्रा</div><div class="metric">${q.toFixed(2)} kg</div></div>
- <div class="card"><div class="muted">कुल खरीद रकम</div><div class="metric">${fmt(amt)}</div></div>
- <div class="card"><div class="muted">पैकिंग में खपत</div><div class="metric">${usedKg.toFixed(2)} kg</div></div>
- <div class="card"><div class="muted">कुल पैकेट</div><div class="metric">${packs.toLocaleString('en-IN')}</div></div>
+ <div class="card"><div class="muted">कुल खरीदी</div><div class="metric">${qty.toFixed(2)} kg</div></div>
+ <div class="card"><div class="muted">पैकिंग खपत</div><div class="metric">${used.toFixed(2)} kg</div></div>
  <div class="card"><div class="muted">दैनिक उत्पादन रिकॉर्ड</div><div class="metric">${db.daily.length}</div></div></div>
- ${low.length?`<div class="notice"><b>कम स्टॉक (5 kg से कम):</b> ${low.map(x=>esc(x.name)).join(', ')}</div>`:''}
- <div class="card"><b>उत्पादन लागत सेटिंग</b><p class="muted">मशीन खर्च: ${fmt(MACHINE_RATE)} प्रति मशीन घंटा। दैनिक रिपोर्ट में पैकिंग मटेरियल, वेस्टेज, लेबर और मशीन लागत शामिल है।</p></div>`;
+ <div class="card">मशीन खर्च: <b>${money(MACHINE_RATE)} प्रति घंटा</b></div>`;return;
+ }
+ if(page==='products'){
+ $('app').innerHTML=`<h2>उत्पाद मास्टर</h2><div class="card"><form id="f" class="form">
+ <div><label>उत्पाद नाम *</label><input name="name" required></div><div><label>कैटेगरी</label><select name="category"><option>मसाले</option><option>ड्राई फ्रूट्स</option><option>Seeds</option><option>Dehydrated</option><option>अन्य</option></select></div><div><label>यूनिट</label><select name="unit"><option>kg</option><option>gram</option><option>piece</option></select></div><button>सेव करें</button></form></div>
+ <div class="card tablewrap"><table><tr><th>नाम</th><th>कैटेगरी</th><th>यूनिट</th><th></th></tr>${db.products.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.category)}</td><td>${esc(x.unit)}</td><td><button class="danger" onclick="del('products','${x.id}')">हटाएँ</button></td></tr>`).join('')||'<tr><td colspan="4">कोई उत्पाद नहीं</td></tr>'}</table></div>`;
+ $('f').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);save('products',{id:uid(),name:f.get('name').trim(),category:f.get('category'),unit:f.get('unit')})};return;
+ }
+ if(page==='purchase'){
+ if(!db.products.length){$('app').innerHTML='<h2>खरीद</h2>पहले उत्पाद जोड़ें';return}
+ $('app').innerHTML=`<h2>खरीद एंट्री</h2><div class="card"><form id="f" class="form">
+ <div><label>सप्लायर</label><input name="supplier" required></div><div><label>बिल नंबर</label><input name="bill" required></div><div><label>उत्पाद</label><select name="product">${prodOpts()}</select></div>
+ <div><label>मात्रा kg</label><input name="qty" type="number" step=".001" min=".001" required></div><div><label>रेट ₹/kg</label><input name="rate" type="number" step=".01" required></div>
+ <div><label>GST %</label><select name="gst"><option>0</option><option>5</option><option>12</option><option>18</option><option>28</option></select></div><div><label>दिनांक</label><input name="date" type="date" value="${today()}"></div><button>खरीद सेव करें</button></form></div>
+ <div class="card tablewrap"><table><tr><th>दिनांक</th><th>बिल</th><th>सप्लायर</th><th>मात्रा</th><th>कुल</th><th></th></tr>${db.purchases.map(x=>`<tr><td>${x.date}</td><td>${esc(x.bill)}</td><td>${esc(x.supplier)}</td><td>${n(x.qty)} kg</td><td>${money(n(x.qty)*n(x.rate)*(1+n(x.gst)/100))}</td><td><button class="danger" onclick="del('purchases','${x.id}')">हटाएँ</button></td></tr>`).join('')}</table></div>`;
+ $('f').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);save('purchases',{id:uid(),supplier:f.get('supplier'),bill:f.get('bill'),product:f.get('product'),qty:n(f.get('qty')),rate:n(f.get('rate')),gst:n(f.get('gst')),date:f.get('date')})};return;
+ }
+ if(page==='stock'){
+ $('app').innerHTML=`<h2>स्टॉक</h2><div class="card tablewrap"><table><tr><th>उत्पाद</th><th>खरीद kg</th><th>पैकिंग उपयोग kg</th><th>शेष kg</th></tr>${db.products.map(p=>`<tr><td>${esc(p.name)}</td><td>${bought(p.id).toFixed(3)}</td><td>${consumed(p.id).toFixed(3)}</td><td>${(bought(p.id)-consumed(p.id)).toFixed(3)}</td></tr>`).join('')}</table></div>`;return;
+ }
+ if(page==='packing'){
+ if(!db.products.length){$('app').innerHTML='<h2>पैकिंग</h2>पहले उत्पाद जोड़ें';return}
+ $('app').innerHTML=`<h2>पैकिंग / उत्पादन</h2><div class="card"><form id="f" class="form"><div><label>उत्पाद</label><select name="product">${prodOpts()}</select></div><div><label>खपत kg</label><input name="qty" type="number" step=".001" required></div><div><label>पैकेट संख्या</label><input name="packs" type="number" required></div><div><label>दिनांक</label><input name="date" type="date" value="${today()}"></div><button>सेव करें</button></form></div>
+ <div class="card tablewrap"><table><tr><th>दिनांक</th><th>उत्पाद</th><th>खपत</th><th>पैकेट</th><th></th></tr>${db.batches.map(x=>`<tr><td>${x.date}</td><td>${esc(db.products.find(p=>p.id===x.product)?.name||'')}</td><td>${x.qty} kg</td><td>${x.packs}</td><td><button class="danger" onclick="del('batches','${x.id}')">हटाएँ</button></td></tr>`).join('')}</table></div>`;
+ $('f').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);save('batches',{id:uid(),product:f.get('product'),qty:n(f.get('qty')),packs:n(f.get('packs')),date:f.get('date')})};return;
+ }
+ if(page==='daily'){
+ const options=db.products.map(p=>`<option>${esc(p.name)}</option>`).join('')+'<option>अन्य</option>';
+ $('app').innerHTML=`<h2>दैनिक उत्पादन और लागत शीट</h2><div class="notice">मशीन खर्च स्वतः ₹120 प्रति मशीन घंटा। Material की मात्रा kg में और Printing Material kg या pcs में एक ही यूनिट के अनुसार दर्ज करें।</div>
+ <div class="card"><form id="f">
+ <h4>1. सामान्य विवरण</h4><div class="form"><div><label>दिनांक</label><input name="date" type="date" value="${today()}" required></div><div><label>उत्पाद / गतिविधि</label><select name="product_name">${options}</select></div><div><label>नोट</label><input name="note"></div><div><label>Actual पाउच</label><input name="actual_pouches" type="number" min="0" required></div><div><label>Estimated पाउच</label><input name="estimated_pouches" type="number" min="0" required></div></div>
+ <h4>2. Raw Material</h4><div class="form"><div><label>Material Opening (kg)</label><input name="mat_open" type="number" step=".001" required></div><div><label>Material Closing (kg)</label><input name="mat_close" type="number" step=".001" required></div><div><label>पाउच वजन (gram)</label><input name="pouch_wt" type="number" step=".1" required></div></div>
+ <h4>3. Printing / Packing Material</h4><div class="form"><div><label>Printing Opening (kg/pcs)</label><input name="print_open" type="number" step=".001" required></div><div><label>Printing Closing (kg/pcs)</label><input name="print_close" type="number" step=".001" required></div><div><label>Printing Rate ₹/kg या pcs</label><input name="print_rate" type="number" step=".01" required></div><div><label>Printing Wastage</label><input name="print_wastage" type="number" step=".001" value="0" required></div></div>
+ <h4>4. Labour & Machinery</h4><div class="form"><div><label>Labour Hours</label><input name="labour_hrs" type="number" step=".25" required></div><div><label>Labour Rate ₹/hour</label><input name="labour_rate" type="number" step=".01" required></div><div><label>Machine Hours</label><input name="mach_hrs" type="number" step=".25" required></div><div><label>Machine Rate</label><input value="₹120/hour" readonly></div><button>दैनिक रिपोर्ट सेव करें</button></div></form></div>
+ <div class="card tablewrap"><h3>दैनिक रिकॉर्ड</h3><table><tr><th>दिनांक</th><th>उत्पाद</th><th>Raw Open/Close</th><th>Raw Used</th><th>Pouch g</th><th>Actual/Est.</th><th>Print Open/Close</th><th>Print Used</th><th>Wastage</th><th>Print Cost</th><th>Labour</th><th>Machine</th><th>Total</th><th>₹/Pouch</th><th></th></tr>
+ ${db.daily.map(x=>{let c=calc(x);return `<tr><td>${x.date}</td><td>${esc(x.product_name)}</td><td>${x.mat_open}/${x.mat_close}</td><td>${c.raw.toFixed(3)}</td><td>${x.pouch_wt}</td><td>${x.actual_pouches}/${x.estimated_pouches}</td><td>${x.print_open}/${x.print_close}</td><td>${c.pr.toFixed(3)}</td><td>${x.print_wastage}</td><td>${money(c.printCost)}</td><td>${money(c.lab)}</td><td>${money(c.machine)}</td><td>${money(c.total)}</td><td>${money(c.per)}</td><td><button class="danger" onclick="del('daily','${x.id}')">हटाएँ</button></td></tr>`}).join('')||'<tr><td colspan="15">कोई रिकॉर्ड नहीं</td></tr>'}</table></div>`;
+ $('f').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),x={id:uid()};for(let k of ['date','product_name','note'])x[k]=f.get(k);for(let k of ['actual_pouches','estimated_pouches','mat_open','mat_close','pouch_wt','print_open','print_close','print_rate','print_wastage','labour_hrs','labour_rate','mach_hrs'])x[k]=n(f.get(k));if(x.mat_close>x.mat_open||x.print_close>x.print_open){alert('Closing quantity Opening से अधिक नहीं हो सकती');return}save('daily',x)};return;
+ }
+ if(page==='reports'){
+ $('app').innerHTML=`<h2>दैनिक रिपोर्ट</h2><div class="card"><div class="form"><div><label>From Date</label><input type="date" id="from"></div><div><label>To Date</label><input type="date" id="to"></div><button id="filter">रिपोर्ट देखें</button></div></div><div id="report"></div>`;
+ const show=()=>{let rows=db.daily.filter(x=>(!$('from').value||x.date>=$('from').value)&&(!$('to').value||x.date<=$('to').value));let t=rows.reduce((a,x)=>{let c=calc(x);a.actual+=n(x.actual_pouches);a.est+=n(x.estimated_pouches);a.raw+=c.raw;a.print+=c.pr;a.cost+=c.total;return a},{actual:0,est:0,raw:0,print:0,cost:0});
+ $('report').innerHTML=`<div class="grid">${[['Actual पाउच',t.actual],['Estimated पाउच',t.est],['Material Used kg',t.raw.toFixed(3)],['Printing Used',t.print.toFixed(3)],['कुल खर्च',money(t.cost)],['औसत ₹/पाउच',money(t.actual?t.cost/t.actual:0)]].map(a=>`<div class="card"><div class="muted">${a[0]}</div><div class="metric">${a[1]}</div></div>`).join('')}</div><div class="card tablewrap"><table><tr><th>दिनांक</th><th>उत्पाद</th><th>Actual</th><th>Estimated</th><th>Material kg</th><th>Printing</th><th>Wastage</th><th>Total Cost</th></tr>${rows.map(x=>{let c=calc(x);return `<tr><td>${x.date}</td><td>${esc(x.product_name)}</td><td>${x.actual_pouches}</td><td>${x.estimated_pouches}</td><td>${c.raw.toFixed(3)}</td><td>${c.pr.toFixed(3)}</td><td>${x.print_wastage}</td><td>${money(c.total)}</td></tr>`}).join('')}</table></div>`};
+ $('filter').onclick=show;show();return;
+ }
+ if(page==='settings'){
+ $('app').innerHTML=`<h2>सेटिंग / Cloud</h2><div class="notice">Cloud sync के लिए Supabase में erp_records टेबल और सही RLS policy जरूरी है। केवल Publishable Key इस्तेमाल करें। Secret key को वेबसाइट में कभी न डालें।</div><div class="card"><h3>Supabase Login</h3><p class="muted">Project URL और Publishable Key इस संस्करण में कॉन्फ़िगर हैं।</p><div class="form"><div><label>ईमेल</label><input id="email" type="email" placeholder="आपका ईमेल"></div><button id="otp">Login link भेजें</button><button id="sync" class="secondary">डेटा Sync करें</button><button id="logout" class="secondary">Sign out</button></div><p class="muted">ईमेल में आया login link खोलें, फिर ERP में लौटकर Sync दबाएँ।</p></div><div class="card"><h3>Local Backup</h3><button id="backup">JSON Backup डाउनलोड</button></div><div class="card">Machine cost: ${money(MACHINE_RATE)} / hour</div>`;
+ $('otp').onclick=async()=>{try{if(!sb)await cloudConnect();let {error}=await sb.auth.signInWithOtp({email:$('email').value.trim(),options:{emailRedirectTo:location.href.split('#')[0]}});if(error)throw error;alert('Login link ईमेल पर भेज दिया गया।')}catch(e){alert(e.message)}};
+ $('sync').onclick=async()=>{await cloudConnect();await syncCloud();render()};
+ $('logout').onclick=async()=>{if(sb)await sb.auth.signOut();user=null;status('Local Mode');alert('Sign out हो गया')};
+ $('backup').onclick=()=>{let a=document.createElement('a'),blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download='sadhna-agro-backup-'+today()+'.json';a.click();URL.revokeObjectURL(a.href)};return;
+ }
 }
-function products(){
- $('app').innerHTML=`<h2>उत्पाद मास्टर</h2><div class="card"><h3>नया उत्पाद</h3><form id="pf" class="form">
- <div><label>उत्पाद का नाम *</label><input name="name" required placeholder="जैसे जीरा"></div>
- <div><label>कैटेगरी</label><select name="category"><option>मसाले</option><option>ड्राई फ्रूट्स</option><option>सीड्स</option><option>डिहाइड्रेटेड प्रोडक्ट्स</option><option>अन्य</option></select></div>
- <div><label>यूनिट</label><select name="unit"><option>kg</option><option>gram</option><option>piece</option><option>packet</option></select></div><button>उत्पाद सेव करें</button></form></div>
- <div class="card"><h3>उत्पाद सूची</h3><div class="tablewrap"><table><tr><th>नाम</th><th>कैटेगरी</th><th>यूनिट</th><th></th></tr>
- ${db.products.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${esc(p.unit)}</td><td><button class="danger" onclick="delProduct('${p.id}')">हटाएँ</button></td></tr>`).join('')||'<tr><td colspan="4" class="empty">अभी कोई उत्पाद नहीं</td></tr>'}</table></div></div>`;
- $('pf').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await saveData('products',{id:uid(),name:f.get('name').trim(),category:f.get('category'),unit:f.get('unit')})};
-}
-window.delProduct=id=>{if(confirm('यह उत्पाद हटाएँ?'))removeData('products',id)};
-function purchase(){
- if(!db.products.length){$('app').innerHTML='<h2>खरीद एंट्री</h2><div class="notice">पहले उत्पाद मास्टर में उत्पाद जोड़ें।</div>';return}
- $('app').innerHTML=`<h2>खरीद एंट्री</h2><div class="card"><form id="purf" class="form">
- <div><label>सप्लायर *</label><input name="supplier" required></div><div><label>बिल नंबर *</label><input name="bill_no" required></div>
- <div><label>उत्पाद</label><select name="product">${productOptions()}</select></div><div><label>मात्रा (kg)</label><input type="number" min="0.001" step="0.001" name="qty" required></div>
- <div><label>रेट प्रति kg (₹)</label><input type="number" min="0" step="0.01" name="rate" required></div>
- <div><label>GST (%)</label><select name="gst"><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18">18%</option><option value="28">28%</option></select></div>
- <div><label>दिनांक</label><input type="date" name="date" value="${todayISO()}" required></div><button>खरीद सेव करें</button></form></div>
- <div class="card"><h3>खरीद इतिहास</h3><div class="tablewrap"><table><tr><th>दिनांक</th><th>बिल</th><th>सप्लायर</th><th>उत्पाद</th><th>मात्रा</th><th>रेट</th><th>GST</th><th>कुल</th><th></th></tr>
- ${db.purchases.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,50).map(x=>`<tr><td>${x.date}</td><td>${esc(x.bill_no)}</td><td>${esc(x.supplier)}</td><td>${esc(nameOf(x.product))}</td><td>${num(x.qty)} kg</td><td>${fmt(x.rate)}</td><td>${num(x.gst)}%</td><td><b>${fmt(purTotal(x))}</b></td><td><button class="danger" onclick="delPur('${x.id}')">हटाएँ</button></td></tr>`).join('')||'<tr><td colspan="9" class="empty">कोई खरीद नहीं</td></tr>'}</table></div></div>`;
- $('purf').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await saveData('purchases',{id:uid(),supplier:f.get('supplier').trim(),bill_no:f.get('bill_no').trim(),product:f.get('product'),qty:num(f.get('qty')),rate:num(f.get('rate')),gst:num(f.get('gst')),date:f.get('date')})};
-}
-window.delPur=id=>{if(confirm('खरीद रिकॉर्ड हटाएँ?'))removeData('purchases',id)};
-function stock(){
- $('app').innerHTML=`<h2>स्टॉक स्थिति</h2><div class="card"><div class="tablewrap"><table><tr><th>उत्पाद</th><th>खरीद (kg)</th><th>पैकिंग उपयोग (kg)</th><th>शेष (kg)</th></tr>
- ${db.products.map(p=>{const b=bought(p.id),u=used(p.id),r=b-u;return `<tr><td><b>${esc(p.name)}</b></td><td>${b.toFixed(3)}</td><td>${u.toFixed(3)}</td><td class="${r<0?'bad':'good'}">${r.toFixed(3)}</td></tr>`}).join('')||'<tr><td colspan="4" class="empty">कोई उत्पाद उपलब्ध नहीं</td></tr>'}</table></div></div>`;
-}
-function packing(){
- if(!db.products.length){$('app').innerHTML='<h2>पैकिंग / उत्पादन</h2><div class="notice">पहले उत्पाद जोड़ें।</div>';return}
- $('app').innerHTML=`<h2>पैकिंग / उत्पादन</h2><div class="card"><form id="packf" class="form">
- <div><label>उत्पाद</label><select name="product">${productOptions()}</select></div><div><label>खपत मात्रा (kg)</label><input type="number" min="0.001" step="0.001" name="qty" required></div>
- <div><label>पैकेट संख्या</label><input type="number" min="1" step="1" name="packs" required></div><div><label>दिनांक</label><input type="date" name="date" value="${todayISO()}" required></div><button>पैकिंग सेव करें</button></form></div>
- <div class="card"><h3>पैकिंग इतिहास</h3><div class="tablewrap"><table><tr><th>दिनांक</th><th>उत्पाद</th><th>खपत</th><th>पैकेट</th><th></th></tr>
- ${db.batches.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${x.date}</td><td>${esc(nameOf(x.product))}</td><td>${num(x.qty)} kg</td><td>${num(x.packs)}</td><td><button class="danger" onclick="delBatch('${x.id}')">हटाएँ</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">कोई रिकॉर्ड नहीं</td></tr>'}</table></div></div>`;
- $('packf').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await saveData('batches',{id:uid(),product:f.get('product'),qty:num(f.get('qty')),packs:num(f.get('packs')),date:f.get('date')})};
-}
-window.delBatch=id=>{if(confirm('पैकिंग रिकॉर्ड हटाएँ?'))removeData('batches',id)};
-function daily(){
- const opts=db.products.map(p=>`<option>${esc(p.name)}</option>`).join('')+'<option>अन्य</option>';
- $('app').innerHTML=`<h2>दैनिक उत्पादन और लागत शीट</h2>
- <div class="notice">मशीन खर्च स्वतः ${fmt(MACHINE_RATE)} प्रति मशीन घंटा जोड़ा जाएगा। Printing material की यूनिट kg या pcs में दर्ज करें और उसी के अनुसार रेट भरें।</div>
- <div class="card"><form id="dailyf">
- <h4>1. सामान्य विवरण</h4><div class="form">
- <div><label>दिनांक *</label><input type="date" name="date" value="${todayISO()}" required></div>
- <div><label>उत्पाद / गतिविधि *</label><select name="product_name">${opts||'<option>सामान्य</option>'}</select></div>
- <div><label>कार्य / बैच नोट</label><input name="note" placeholder="जैसे 500g जीरा पैकिंग"></div>
- <div><label>कुल तैयार पाउच (Actual) *</label><input type="number" min="0" step="1" name="actual_pouches" required></div>
- <div><label>अनुमानित पाउच (Estimated) *</label><input type="number" min="0" step="1" name="estimated_pouches" required></div></div>
- <h4>2. Raw Material Stock</h4><div class="form">
- <div><label>Material Opening (kg) *</label><input type="number" step="0.001" name="mat_open" required></div>
- <div><label>Material Closing (kg) *</label><input type="number" step="0.001" name="mat_close" required></div>
- <div><label>प्रति पाउच वजन (gram) *</label><input type="number" step="0.1" name="pouch_wt" required></div></div>
- <h4>3. Printing / Packing Material</h4><div class="form">
- <div><label>Printing Material Opening (kg/pcs) *</label><input type="number" step="0.001" name="print_open" required></div>
- <div><label>Printing Material Closing (kg/pcs) *</label><input type="number" step="0.001" name="print_close" required></div>
- <div><label>Printing Material Rate (₹/kg या pcs) *</label><input type="number" step="0.01" name="print_rate" required></div>
- <div><label>Printing Material Wastage (kg/pcs) *</label><input type="number" step="0.001" name="print_wastage" value="0" required></div></div>
- <h4>4. Labour &amp; Machinery</h4><div class="form">
- <div><label>Labour Hours *</label><input type="number" min="0" step="0.25" name="labour_hrs" required></div>
- <div><label>Labour Rate (₹/hour) *</label><input type="number" min="0" step="0.01" name="labour_rate" required></div>
- <div><label>Machine Hours *</label><input type="number" min="0" step="0.25" name="mach_hrs" required></div>
- <div><label>Machine Rate (₹/hour)</label><input value="${MACHINE_RATE}" readonly></div>
- <div><button type="submit">दैनिक रिपोर्ट सेव करें</button></div></div></form></div>
- <div class="card"><h3>दैनिक उत्पादन रिकॉर्ड</h3><div class="tablewrap"><table>
- <tr><th>दिनांक</th><th>उत्पाद / विवरण</th><th>Raw Open → Close</th><th>Raw Used</th><th>पाउच वजन</th><th>Actual / Est.</th><th>Printing Open → Close</th><th>Printing Used</th><th>Wastage</th><th>Printing Cost</th><th>Labour Cost</th><th>Machine Cost</th><th>Total Cost</th><th>Cost/Pouch</th><th></th></tr>
- ${db.daily.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>{const c=calcDaily(x);return `<tr>
- <td>${x.date}</td><td><b>${esc(x.product_name)}</b><br><small>${esc(x.note||'')}</small></td>
- <td>${num(x.mat_open)} → ${num(x.mat_close)} kg</td><td>${c.matUsed.toFixed(3)} kg</td><td>${num(x.pouch_wt)} g</td>
- <td><b>${num(x.actual_pouches)}</b> / ${num(x.estimated_pouches)}</td>
- <td>${num(x.print_open)} → ${num(x.print_close)}</td><td>${c.printUsed.toFixed(3)}</td><td>${num(x.print_wastage)}</td>
- <td>${fmt(c.printCost)}</td><td>${fmt(c.labCost)}</td><td>${fmt(c.machineCost)}</td><td><b>${fmt(c.total)}</b></td><td>${fmt(c.perPouch)}</td>
- <td><button class="danger" onclick="delDaily('${x.id}')">हटाएँ</button></td></tr>`}).join('')||'<tr><td colspan="15" class="empty">अभी कोई दैनिक रिकॉर्ड नहीं है</td></tr>'}
- </table></div></div>`;
- $('dailyf').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const x={id:uid(),date:f.get('date'),product_name:f.get('product_name'),note:f.get('note').trim(),actual_pouches:num(f.get('actual_pouches')),estimated_pouches:num(f.get('estimated_pouches')),mat_open:num(f.get('mat_open')),mat_close:num(f.get('mat_close')),pouch_wt:num(f.get('pouch_wt')),print_open:num(f.get('print_open')),print_close:num(f.get('print_close')),print_rate:num(f.get('print_rate')),print_wastage:num(f.get('print_wastage')),labour_hrs:num(f.get('labour_hrs')),labour_rate:num(f.get('labour_rate')),mach_hrs:num(f.get('mach_hrs')),machine_rate:MACHINE_RATE};if(x.mat_close>x.mat_open){alert('Raw Material Closing, Opening से अधिक नहीं हो सकता।');return}if(x.print_close>x.print_open){alert('Printing Material Closing, Opening से अधिक नहीं हो सकता।');return}await saveData('daily',x)};
-}
-function calcDaily(x){
- const matUsed=Math.max(0,num(x.mat_open)-num(x.mat_close));
- const printUsed=Math.max(0,num(x.print_open)-num(x.print_close));
- const printCost=(printUsed+num(x.print_wastage))*num(x.print_rate);
- const labCost=num(x.labour_hrs)*num(x.labour_rate);
- const machineCost=num(x.mach_hrs)*MACHINE_RATE;
- const total=printCost+labCost+machineCost;
- return {matUsed,printUsed,printCost,labCost,machineCost,total,perPouch:num(x.actual_pouches)?total/num(x.actual_pouches):0};
-}
-window.delDaily=id=>{if(confirm('दैनिक रिकॉर्ड हटाएँ?'))removeData('daily',id)};
-function reports(){
- const from=$('fromDate')?.value||'',to=$('toDate')?.value||'';
- const rows=db.daily.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to));
- const totals=rows.reduce((a,x)=>{const c=calcDaily(x);a.actual+=num(x.actual_pouches);a.est+=num(x.estimated_pouches);a.cost+=c.total;a.raw+=c.matUsed;a.print+=c.printUsed;return a},{actual:0,est:0,cost:0,raw:0,print:0});
- $('app').innerHTML=`<h2>रिपोर्ट</h2><div class="card"><div class="form">
- <div><label>Fro
+window.del=del;
+read();render();
+cloudConnect().then(()=>syncCloud()).then(()=>render()).catch(e=>{status('Local Mode');console.log(e)});
+</script></body></html>
