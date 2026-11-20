@@ -555,7 +555,7 @@ try{
 if(!sb)await cloudConnect();
 let {error}=await sb.auth.signInWithOtp({
 email:$('email').value.trim(),
-options:{emailRedirectTo:location.href.split('#')[0]}
+options:{emailRedirectTo:'https://bharatbaniyaind-pixel.github.io/Sadhna-agro-erp/'}
 });
 if(error)throw error;
 alert('Login Link ईमेल पर भेज दिया गया।');
