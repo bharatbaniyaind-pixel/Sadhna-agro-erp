@@ -55,6 +55,37 @@ const today=()=>{let d=new Date();return new Date(d-d.getTimezoneOffset()*60000)
 $('today').textContent=new Date().toLocaleDateString('hi-IN',{dateStyle:'medium'});
 const tables=['products','purchases','batches','daily','dispatches'];
 let db={products:[],purchases:[],batches:[],daily:[],dispatches:[]},page='dashboard',sb=null,user=null;
+
+// Google Sheets sync configuration. Set the deployed Apps Script Web App URL in Settings.
+const GOOGLE_SCRIPT_TOKEN = "SADHNA-AGRO-CHANGE-THIS-TOKEN";
+const GOOGLE_SCRIPT_URL_KEY = "sadhna_google_script_url";
+function googleScriptUrl(){ return localStorage.getItem(GOOGLE_SCRIPT_URL_KEY) || ""; }
+async function googleSyncRecord(table, record){
+ const url=googleScriptUrl();
+ if(!url.startsWith("https://script.google.com/")) return;
+ const payload={token:GOOGLE_SCRIPT_TOKEN,records:[{table:table,record:record}]};
+ try{
+  await fetch(url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
+  console.log("Google Sheets sync request sent");
+ }catch(error){console.error("Google Sheets sync error",error)}
+}
+async function googleSyncAll(){
+ const url=googleScriptUrl();
+ if(!url.startsWith("https://script.google.com/")){
+  alert("पहले Settings में Google Apps Script Web App URL सेव करें।");return;
+ }
+ const records=[];
+ tables.forEach(table=>db[table].forEach(record=>records.push({table:table,record:record})));
+ const batchSize=100;
+ try{
+  for(let i=0;i<records.length;i+=batchSize){
+   await fetch(url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({token:GOOGLE_SCRIPT_TOKEN,records:records.slice(i,i+batchSize)})});
+  }
+  alert("Google Sheets Sync requests भेज दिए गए। रिकॉर्ड की वास्तविक पुष्टि Apps Script/Sheet में करें।");
+ }catch(error){console.error("Google Sheets bulk sync error",error);alert("Google Sheets sync request में समस्या आई। Console देखें।")}
+}
+
 function read(){try{let saved=JSON.parse(localStorage.getItem(KEY)||'{}');db={...db,...saved};tables.forEach(t=>{if(!Array.isArray(db[t]))db[t]=[]})}catch(e){}}
 function write(){localStorage.setItem(KEY,JSON.stringify(db))}
 function status(s){$('status').textContent=s}
@@ -67,9 +98,27 @@ async function syncCloud(){
  db=fresh;write();status('☁ Cloud Synced')
  }catch(e){status('Cloud error');console.log(e)}
 }
-async function save(t,x){
- if(sb&&user){let {error}=await sb.from('erp_records').insert({id:x.id,user_id:user.id,table_name:t,payload:x});if(error){alert('Cloud Error: '+error.message);return}}
- db[t].push(x);write();render()
+async function save(t, x) {
+  if (sb && user) {
+    const { error } = await sb.from("erp_records").insert({
+      id: x.id,
+      user_id: user.id,
+      table_name: t,
+      payload: x
+    });
+
+    if (error) {
+      alert("Cloud Error: " + error.message);
+      return;
+    }
+  }
+
+  db[t].push(x);
+  write();
+
+  googleSyncRecord(t, x);
+
+  render();
 }
 async function del(t,id){
  if(!confirm('क्या आप यह रिकॉर्ड हटाना चाहते हैं?'))return;
@@ -167,70 +216,4 @@ function render(){
  actual.oninput=preview;preview();
  form.onsubmit=e=>{e.preventDefault();let f=new FormData(form),x={id:uid()};
  ['date','product_name','note'].forEach(k=>x[k]=f.get(k));
- ['actual_pouches','estimated_pouches','pouch_wt','mat_open','mat_close','raw_rate','print_open','print_close','print_rate','print_wastage','other_printing_cost','labour_hrs','labour_rate','mach_hrs','packing_cost','outer_rate','bori_rate','dengler_cost','marketing_cost','interest_rate','interest_days','gst_rate'].forEach(k=>x[k]=n(f.get(k)));
- if(x.mat_close>x.mat_open||x.print_close>x.print_open){alert('Closing quantity Opening से अधिक नहीं हो सकती');return}
- save('daily',x)
- };return
- }
- if(page==='dispatch'){
- if(!db.products.length){$('app').innerHTML='<h2>Factory → Godown Dispatch</h2>पहले उत्पाद जोड़ें';return}
- $('app').innerHTML=`<h2>🚚 Factory → Godown Dispatch Register</h2><div class="card"><form id="f" class="form">
- <div><label>Dispatch Date</label><input name="date" type="date" value="${today()}" required></div><div><label>Product</label><select name="product">${productOptions()}</select></div><div><label>Quantity KG</label><input name="qty" type="number" step=".001" required></div><div><label>Godown / Receiver</label><input name="receiver" required></div><div><label>Vehicle Number</label><input name="vehicle"></div><div><label>Challan Number</label><input name="challan"></div><div><label>Remarks</label><input name="remarks"></div><button>Dispatch सेव करें</button></form></div>
- <div class="card tablewrap"><table><tr><th>Date</th><th>Product</th><th>Quantity KG</th><th>Godown</th><th>Vehicle</th><th>Challan</th><th>Remarks</th><th></th></tr>${db.dispatches.map(x=>`<tr><td>${x.date}</td><td>${esc(productName(x.product))}</td><td>${n(x.qty).toFixed(3)}</td><td>${esc(x.receiver)}</td><td>${esc(x.vehicle)}</td><td>${esc(x.challan)}</td><td>${esc(x.remarks)}</td><td><button class="danger" onclick="del('dispatches','${x.id}')">हटाएँ</button></td></tr>`).join('')||'<tr><td colspan="8">अभी कोई Dispatch नहीं</td></tr>'}</table></div>`;
- $('f').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);save('dispatches',{id:uid(),date:f.get('date'),product:f.get('product'),qty:n(f.get('qty')),receiver:f.get('receiver'),vehicle:f.get('vehicle'),challan:f.get('challan'),remarks:f.get('remarks')})};return
- }
- if(page==='reports'){
- const month=monthStart();
- $('app').innerHTML=`<h2>Monthly Product Report</h2><div class="card no-print"><div class="form"><div><label>महीना</label><input type="month" id="month" value="${month}"></div><div><label>उत्पाद</label><select id="productFilter"><option value="all">सभी उत्पाद</option>${[...new Set(db.daily.map(x=>x.product_name))].filter(Boolean).map(x=>`<option>${esc(x)}</option>`).join('')}</select></div><button id="showReport">रिपोर्ट देखें</button></div><div class="actions"><button id="excel">Excel डाउनलोड</button><button id="pdf">PDF डाउनलोड</button></div></div><div id="reportArea"></div>`;
- const makeReport=()=>{
-  const m=$('month').value,prod=$('productFilter').value;
-  const rows=db.daily.filter(x=>(!m||String(x.date||'').startsWith(m))&&(prod==='all'||x.product_name===prod));
-  const dispatchRows=db.dispatches.filter(x=>(!m||String(x.date||'').startsWith(m))&&(prod==='all'||productName(x.product)===prod));
-  const purchases=db.purchases.filter(x=>(!m||String(x.date||'').startsWith(m))&&(prod==='all'||productName(x.product)===prod));
-  const sums={actual:0,est:0,kg:0,raw:0,rawCost:0,printUsed:0,printWaste:0,printCost:0,otherPrint:0,labour:0,machine:0,packing:0,outerCount:0,outer:0,boriCount:0,bori:0,dengler:0,marketing:0,interest:0,gst:0,final:0};
-  rows.forEach(x=>{let c=calc(x);sums.actual+=n(x.actual_pouches);sums.est+=n(x.estimated_pouches);sums.kg+=c.outputKg;sums.raw+=c.raw;sums.rawCost+=c.rawCost;sums.printUsed+=c.printUsed;sums.printWaste+=c.printWastage;sums.printCost+=c.printMaterialExpense;sums.otherPrint+=c.otherPrinting;sums.labour+=c.labour;sums.machine+=c.machine;sums.packing+=c.packing;sums.outerCount+=c.outerCount;sums.outer+=c.outerExpense;sums.boriCount+=c.boriCount;sums.bori+=c.boriExpense;sums.dengler+=c.dengler;sums.marketing+=c.marketing;sums.interest+=c.interest;sums.gst+=c.gst;sums.final+=c.finalCost});
-  const per=sums.actual?sums.final/sums.actual:0;
-  const expenseRows=[['Raw Material Expense',sums.rawCost],['Printing Material Expense',sums.printCost],['Printing Wastage Quantity',sums.printWaste],['Other Printing Expense',sums.otherPrint],['Labour Expense',sums.labour],['Machine Expense',sums.machine],['Packing Material Expense',sums.packing],['LD Outer Expense',sums.outer],['Bori Expense',sums.bori],['Dengler Expense',sums.dengler],['Marketing Expense',sums.marketing],['Interest Expense',sums.interest],['GST',sums.gst]];
-  $('reportArea').innerHTML=`<div id="printReport"><div class="card"><h3>SADHNA AGRO — ${esc(m||'All Months')} Monthly Report</h3><p>Product: <b>${esc(prod==='all'?'All Products':prod)}</b></p><div class="grid">
-  <div class="card"><div class="muted">Production Actual Pouches</div><div class="metric">${sums.actual}</div></div><div class="card"><div class="muted">Estimated Pouches</div><div class="metric">${sums.est}</div></div><div class="card"><div class="muted">Finished Output KG</div><div class="metric">${sums.kg.toFixed(3)}</div></div><div class="card"><div class="muted">Total Final Cost</div><div class="metric">${money(sums.final)}</div></div><div class="card"><div class="muted">Cost Per Pouch</div><div class="metric">${money(per)}</div></div></div></div>
-  <div class="card tablewrap"><h3>सभी खर्चों का विवरण</h3><table><tr><th>Expense Head</th><th>Amount / Quantity</th></tr>${expenseRows.map(([k,v])=>`<tr><td>${k}</td><td>${k==='Printing Wastage Quantity'?v.toFixed(3):money(v)}</td></tr>`).join('')}<tr><th>Total Final Cost</th><th>${money(sums.final)}</th></tr><tr><th>Cost Per Pouch</th><th>${money(per)}</th></tr></table></div>
-  <div class="card tablewrap"><h3>उत्पादन रिकॉर्ड</h3><table><tr><th>Date</th><th>Product</th><th>Actual</th><th>Estimated</th><th>Raw Used kg</th><th>Printing Used</th><th>LD Outer Qty</th><th>Bori Qty</th><th>Final Cost</th><th>₹/Pouch</th></tr>${rows.map(x=>{let c=calc(x);return `<tr><td>${x.date}</td><td>${esc(x.product_name)}</td><td>${x.actual_pouches}</td><td>${x.estimated_pouches}</td><td>${c.raw.toFixed(3)}</td><td>${c.printUsed.toFixed(3)}</td><td>${c.outerCount}</td><td>${c.boriCount}</td><td>${money(c.finalCost)}</td><td>${money(c.perPouch)}</td></tr>`}).join('')||'<tr><td colspan="10">इस महीने कोई उत्पादन रिकॉर्ड नहीं</td></tr>'}</table></div>
-  <div class="card tablewrap"><h3>Factory → Godown Dispatch</h3><table><tr><th>Date</th><th>Product</th><th>Quantity KG</th><th>Godown</th><th>Challan</th></tr>${dispatchRows.map(x=>`<tr><td>${x.date}</td><td>${esc(productName(x.product))}</td><td>${n(x.qty).toFixed(3)}</td><td>${esc(x.receiver)}</td><td>${esc(x.challan)}</td></tr>`).join('')||'<tr><td colspan="5">कोई Dispatch नहीं</td></tr>'}</table></div>
-  <div class="card tablewrap"><h3>Purchase Summary</h3><table><tr><th>Date</th><th>Product</th><th>Supplier</th><th>Qty KG</th><th>Rate</th><th>Total</th></tr>${purchases.map(x=>`<tr><td>${x.date}</td><td>${esc(productName(x.product))}</td><td>${esc(x.supplier)}</td><td>${n(x.qty).toFixed(3)}</td><td>${money(x.rate)}</td><td>${money(n(x.qty)*n(x.rate)*(1+n(x.gst)/100))}</td></tr>`).join('')||'<tr><td colspan="6">कोई खरीद रिकॉर्ड नहीं</td></tr>'}</table></div></div>`;
-  window.currentReport={rows,dispatchRows,purchases,sums,expenseRows,m,prod};
- };
- $('showReport').onclick=makeReport;makeReport();
- $('excel').onclick=()=>{if(!window.XLSX){alert('Excel लाइब्रेरी लोड नहीं हुई। इंटरनेट चालू करके फिर प्रयास करें।');return}let r=window.currentReport;
-  const wb=XLSX.utils.book_new();
-  const summary=[['Sadhna Agro Monthly Product Report',r.m],['Product',r.prod],['Actual Pouches',r.sums.actual],['Estimated Pouches',r.sums.est],['Output KG',r.sums.kg],['Total Final Cost',r.sums.final],['Cost Per Pouch',r.sums.actual?r.sums.final/r.sums.actual:0],[],['Expense Head','Amount'],...r.expenseRows];
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(summary),'Expense Summary');
-  const prod=[['Date','Product','Actual Pouches','Estimated Pouches','Raw Used KG','Raw Expense','Printing Used','Printing Material Expense','Other Printing Expense','Labour','Machine','Packing','LD Outer Qty','LD Outer Expense','Bori Qty','Bori Expense','Dengler','Marketing','Interest','GST','Final Cost','Cost Per Pouch']];
-  r.rows.forEach(x=>{let c=calc(x);prod.push([x.date,x.product_name,x.actual_pouches,x.estimated_pouches,c.raw,c.rawCost,c.printUsed,c.printMaterialExpense,c.otherPrinting,c.labour,c.machine,c.packing,c.outerCount,c.outerExpense,c.boriCount,c.boriExpense,c.dengler,c.marketing,c.interest,c.gst,c.finalCost,c.perPouch])});
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(prod),'Production');
-  const dis=[['Date','Product','Quantity KG','Godown','Vehicle','Challan','Remarks'],...r.dispatchRows.map(x=>[x.date,productName(x.product),x.qty,x.receiver,x.vehicle,x.challan,x.remarks])];
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(dis),'Dispatch');
-  const pur=[['Date','Product','Supplier','Bill','Qty KG','Rate','GST','Total'],...r.purchases.map(x=>[x.date,productName(x.product),x.supplier,x.bill,x.qty,x.rate,x.gst,n(x.qty)*n(x.rate)*(1+n(x.gst)/100)])];
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pur),'Purchases');
-  XLSX.writeFile(wb,`Sadhna-Agro-Monthly-Report-${r.m||'all'}.xlsx`)
- };
- $('pdf').onclick=async()=>{if(!window.html2pdf){alert('PDF लाइब्रेरी लोड नहीं हुई। इंटरनेट चालू करके फिर प्रयास करें।');return}
-  const el=$('printReport');await html2pdf().set({margin:8,filename:`Sadhna-Agro-Report-${$('month').value||'all'}.pdf`,image:{type:'jpeg',quality:.96},html2canvas:{scale:1.5,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}}).from(el).save()
- };return
- }
- if(page==='settings'){
- $('app').innerHTML=`<h2>सेटिंग / Cloud</h2><div class="notice">Cloud Sync के लिए Supabase में erp_records टेबल और सही RLS policy जरूरी है। Publishable Key इस्तेमाल करें। Secret Key वेबसाइट में कभी न डालें।</div>
- <div class="card"><h3>Supabase Login</h3><div class="form"><div><label>ईमेल</label><input id="email" type="email" placeholder="आपका ईमेल"></div><button id="otp">Login Link भेजें</button><button id="sync" class="secondary">डेटा Sync करें</button><button id="logout" class="secondary">Sign out</button></div><p class="muted">ईमेल में आया Login Link खोलें, फिर ERP में लौटकर Sync दबाएँ।</p></div>
- <div class="card"><h3>Local Backup</h3><div class="actions"><button id="backup">JSON Backup डाउनलोड</button><button id="restore" class="secondary">Backup Restore</button><input id="backupFile" type="file" accept="application/json" style="display:none"></div></div><div class="card">Machine Cost: ${money(MACHINE_RATE)} / Hour</div>`;
- $('otp').onclick=async()=>{try{if(!sb)await cloudConnect();let {error}=await sb.auth.signInWithOtp({email:$('email').value.trim(),options:{emailRedirectTo:'https://bharatbaniyaind-pixel.github.io/Sadhna-agro-erp/'}});if(error)throw error;alert('Login Link ईमेल पर भेज दिया गया।')}catch(e){alert(e.message)}};
- $('sync').onclick=async()=>{await cloudConnect();await syncCloud();render()};
- $('logout').onclick=async()=>{if(sb)await sb.auth.signOut();user=null;status('Local Mode');alert('Sign out हो गया')};
- $('backup').onclick=()=>{let a=document.createElement('a'),blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download='sadhna-agro-backup-'+today()+'.json';a.click();URL.revokeObjectURL(a.href)};
- $('restore').onclick=()=>$('backupFile').click();
- $('backupFile').onchange=async e=>{let file=e.target.files[0];if(!file)return;try{let obj=JSON.parse(await file.text());tables.forEach(t=>{if(Array.isArray(obj[t]))db[t]=obj[t]});write();alert('Backup Restore हो गया');render()}catch(err){alert('Backup फाइल सही नहीं है')}};
- return
- }
-}
-window.del=del;read();render();
-cloudConnect().then(()=>syncCloud()).then(()=>render()).catch(e=>{status('Local Mode');console.log(e)});
-</script>
-</body></html>
+ ['actual_pouches','estimated_pouches','pouch_wt','mat_open','mat_close','raw_rate','print_open','print_close','print_rate','print_wastage','other_printing_cost','labour_hrs','labour_rate','mach_hrs','packing_cost','outer_rate','bori_rate','dengler_cost','marketing_cost','interest_rate','interest_days','gst_rate'].forEach(k=>x[k]=n(f.get(k
