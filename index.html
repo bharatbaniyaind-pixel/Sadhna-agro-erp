@@ -3,232 +3,1821 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sadhna Agro ERP</title>
+<title>SADHNA AGRO — Manufacturing & Packing ERP</title>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-:root{--g:#173b32;--bg:#f4f6f3;--line:#e2e8e3;--muted:#68756e}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px system-ui,sans-serif;color:#1e2925}
-header{background:var(--g);color:white;padding:14px 18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-h1{font-size:21px;margin:0}header small{color:#dce9df}.layout{display:flex;min-height:calc(100vh - 60px)}
-nav{width:210px;background:white;padding:9px;border-right:1px solid var(--line)}
-nav button{display:block;width:100%;text-align:left;background:none;color:#26332c;margin:3px 0}
-nav button.active,nav button:hover{background:#eaf1eb;color:var(--g)}
-main{padding:18px;width:100%;max-width:1600px;margin:auto}h2{margin:0 0 14px}
-button{border:0;border-radius:8px;background:var(--g);color:white;padding:10px 13px;font:inherit;font-weight:600;cursor:pointer}
-.secondary{background:#e9efea;color:var(--g)}.danger{background:#a83434;padding:6px 9px}
-.card{background:white;border:1px solid var(--line);border-radius:11px;padding:14px;margin-bottom:12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
-.metric{font-size:23px;font-weight:750;color:var(--g)}.muted{color:var(--muted);font-size:13px}
-label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
-input,select{width:100%;padding:9px;border:1px solid #cbd6ce;border-radius:8px;background:white;font:inherit}
-.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
-.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}
-td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
-th{background:#fafcfa;color:var(--muted)}.notice{background:#fff7e6;border:1px solid #f1dba8;border-radius:8px;padding:11px;margin-bottom:12px;font-size:13px}
-h4{margin:16px 0 8px;color:var(--g)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-@media(max-width:700px){.layout{display:block}nav{width:100%;display:flex;overflow:auto;border:0;border-bottom:1px solid var(--line)}
-nav button{white-space:nowrap;width:auto}main{padding:12px}}
-@media print{header,nav,.no-print{display:none!important}.layout,main{display:block;width:100%;padding:0}.card{break-inside:avoid}}
+:root{--g:#173b32;--g2:#23574a;--bg:#f2f5f2;--line:#d8e0db;--muted:#5b6962;--warn:#b45309;--err:#a83434;--ok:#15803d;--card:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font:14px/1.45 system-ui,-apple-system,sans-serif;color:#1a2620}
+header{background:var(--g);color:#fff;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:30;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+header h1{font-size:18px;margin:0}
+header small{color:#d3e5d9;font-size:11.5px}
+.hdr-badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pill{background:rgba(255,255,255,.15);padding:4px 9px;border-radius:16px;font-size:11.5px;font-weight:600}
+.pill.ok{background:#15803d}.pill.err{background:#a83434}.pill.warn{background:#b45309}
+.layout{display:flex;min-height:calc(100vh - 56px)}
+nav{width:235px;background:var(--card);border-right:1px solid var(--line);padding:8px;flex-shrink:0;overflow-y:auto}
+nav .grp{font-size:10.5px;font-weight:700;color:var(--muted);padding:10px 8px 3px;text-transform:uppercase;letter-spacing:.5px}
+nav button{display:block;width:100%;text-align:left;background:none;color:#23322a;padding:7px 9px;border-radius:7px;margin:2px 0;font-size:12.5px;font-weight:500}
+nav button.active,nav button:hover{background:#e6efe9;color:var(--g);font-weight:700}
+main{padding:16px;width:100%;max-width:1650px;margin:0 auto;overflow-x:hidden}
+h2{margin:0 0 12px;font-size:18px;color:var(--g);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+h3{margin:0 0 10px;font-size:15px;color:var(--g)}
+h4{margin:14px 0 8px;color:var(--g);border-bottom:1px solid var(--line);padding-bottom:4px;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+button{border:0;border-radius:7px;background:var(--g);color:#fff;padding:8px 12px;font:inherit;font-weight:600;cursor:pointer}
+button:hover{background:var(--g2)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.secondary{background:#e6ede8;color:var(--g)}
+.secondary:hover{background:#d4e0d8}
+.danger{background:var(--err);padding:4px 8px;font-size:11.5px}
+.sm-btn{padding:4px 8px;font-size:11.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin-bottom:12px}
+.metric{font-size:20px;font-weight:750;color:var(--g);margin-top:3px}
+.muted{color:var(--muted);font-size:12px}
+label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:3px;font-weight:600}
+input,select{width:100%;padding:7px 9px;border:1px solid #c3cfc7;border-radius:7px;background:#fff;font:inherit;color:#1a2620}
+input:focus,select:focus{outline:none;border-color:var(--g)}
+input[readonly]{background:#f0f4f1;color:#44524b;font-weight:600}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;align-items:end}
+.line-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr auto;gap:7px;align-items:end;background:#f8faf8;padding:8px;border:1px solid var(--line);border-radius:7px;margin-bottom:6px}
+.print-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 1fr auto;gap:7px;align-items:end;background:#f8faf8;padding:8px;border:1px solid var(--line);border-radius:7px;margin-bottom:6px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{background:#f6f9f7;color:var(--muted);font-weight:700}
+tr.cancelled td{text-decoration:line-through;opacity:.55;background:#fff5f5}
+.notice{background:#fff8eb;border:1px solid #f0d7a3;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#6b4608}
+.badge{display:inline-block;padding:2px 7px;border-radius:12px;font-size:11px;font-weight:700}
+.b-ok{background:#dcfce7;color:var(--ok)}
+.b-warn{background:#fef3c7;color:var(--warn)}
+.b-err{background:#fee2e2;color:var(--err)}
+.b-info{background:#e0f2fe;color:#0369a1}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.summary-panel{background:#f3f8f4;border:1px solid #c9dcd0;border-radius:8px;padding:10px;margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}
+@media(max-width:860px){
+  .layout{display:block}
+  nav{width:100%;display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:6px}
+  nav .grp{display:none}
+  nav button{white-space:nowrap;width:auto}
+  .line-row,.print-row{grid-template-columns:1fr 1fr}
+  main{padding:10px}
+}
+@media print{
+  header,nav,.no-print{display:none!important}
+  .layout,main{display:block;width:100%;padding:0}
+  .card{break-inside:avoid;border:1px solid #aaa}
+}
 </style>
 </head>
 <body>
-<header><div><h1>🌾 SADHNA AGRO</h1><small>Manufacturing & Packing ERP</small></div><div><small id="today"></small><br><small id="status">Local Mode</small></div></header>
+<header>
+  <div>
+    <h1>🌾 SADHNA AGRO ERP</h1>
+    <small>Manufacturing, Multi-Material Costing, Stock & Dispatch System</small>
+  </div>
+  <div class="hdr-badges">
+    <span class="pill" id="dateBadge"></span>
+    <span class="pill" id="userBadge">Local User (Admin)</span>
+    <span class="pill" id="syncBadge">Local Mode</span>
+    <span class="pill" id="queueBadge">Queue: 0</span>
+  </div>
+</header>
+
 <div class="layout">
-<nav id="nav">
-<button data-p="dashboard" class="active">▦ डैशबोर्ड</button><button data-p="products">▣ उत्पाद</button>
-<button data-p="purchase">＋ खरीद</button><button data-p="stock">▤ स्टॉक</button>
-<button data-p="packing">□ पैकिंग</button><button data-p="daily">🏭 दैनिक उत्पादन</button>
-<button data-p="dispatch">🚚 Factory → Godown</button><button data-p="reports">▥ Monthly Reports</button>
-<button data-p="settings">⚙ सेटिंग</button></nav><main id="app">लोड हो रहा है...</main>
+  <nav id="nav">
+    <div class="grp">मुख्य (Overview)</div>
+    <button data-p="dashboard" class="active">1. Dashboard</button>
+    <div class="grp">मास्टर्स (Masters)</div>
+    <button data-p="m_product">2. Product Master</button>
+    <button data-p="m_raw">3. Raw Material Master</button>
+    <button data-p="m_print">4. Printing Material Master</button>
+    <button data-p="m_packing">5. Packing Material Master</button>
+    <button data-p="m_supplier">6. Supplier & Party Master</button>
+    <div class="grp">खरीद व इन्वेंटरी</div>
+    <button data-p="purchase">7. Purchase Management</button>
+    <button data-p="opening">8. Opening Stock</button>
+    <button data-p="ledger">9. Stock Ledger (Live)</button>
+    <div class="grp">उत्पादन व लागत</div>
+    <button data-p="production">10. Daily Production</button>
+    <button data-p="costing">11. Production Costing</button>
+    <div class="grp">डिस्पैच, गोदाम व बिक्री</div>
+    <button data-p="dispatch">12. Factory → Godown Dispatch</button>
+    <button data-p="godown">13. Godown Stock</button>
+    <button data-p="sales">14. Sales & Sales Return</button>
+    <button data-p="expenses">15. Expenses & Accounts</button>
+    <div class="grp">रिपोर्ट व प्रशासन</div>
+    <button data-p="reports">16. Monthly Reports (Excel/PDF)</button>
+    <button data-p="users">17. User Management</button>
+    <button data-p="cloud">18. Cloud Sync & Backup</button>
+    <button data-p="audit">19. Settings & Audit Log</button>
+  </nav>
+  <main id="app">ERP लोड हो रहा है...</main>
 </div>
 
 <script>
-(function(){
-  function showBootError(message){
-    var app=document.getElementById('app');
-    if(!app) return;
-    app.innerHTML='<div class="card"><h2>ERP शुरू नहीं हो पाया</h2><p style="color:#a83434;white-space:pre-wrap">'+
-      String(message).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})+
-      '</p><p>कृपया यह संदेश भेजें ताकि समस्या ठीक की जा सके।</p><button onclick="location.reload()">फिर से खोलें</button></div>';
-  }
-  window.addEventListener('error',function(e){
-    showBootError((e.message||'JavaScript error')+(e.filename?'\n'+e.filename+':'+e.lineno:''));
-  });
-  window.addEventListener('unhandledrejection',function(e){
-    var reason=e.reason;
-    showBootError('Async error: '+(reason&&reason.message?reason.message:String(reason)));
-  });
-  window.__sadhnaShowBootError=showBootError;
-})();
-</script>
+/* ============================================================================
+   SADHNA AGRO PRODUCTION ERP CORE
+   ============================================================================ */
+const SUPABASE_URL = 'https://pbqlgxuegsypormwplbd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_JZk4q6E4DrU50EQddJKvbg_uUTojO36';
+const DB_KEY = 'sadhna_agro_erp_v4_prod';
+const LEGACY_KEYS = ['sadhna_agro_erp_v2', 'sadhna_agro_erp_v3', 'sadhna_agro_erp_prod_v1'];
+const QUEUE_KEY = 'sadhna_agro_queue_v4';
+const CFG_KEY = 'sadhna_agro_cfg_v4';
 
-<script>
-const MACHINE_RATE=120, KEY='sadhna_agro_erp_v2';
-const SUPABASE_URL='https://pbqlgxuegsypormwplbd.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable_JZk4q6E4DrU50EQddJKvbg_uUTojO36';
-const $=id=>document.getElementById(id), n=x=>Number(x)||0;
-const money=x=>'₹'+n(x).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
-const uid=()=>crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random();
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const today=()=>{let d=new Date();return new Date(d-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
-$('today').textContent=new Date().toLocaleDateString('hi-IN',{dateStyle:'medium'});
-const tables=['products','purchases','batches','daily','dispatches'];
-let db={products:[],purchases:[],batches:[],daily:[],dispatches:[]},page='dashboard',sb=null,user=null;
+const $ = id => document.getElementById(id);
+const n = v => { const x = Number(v); return Number.isFinite(x) ? x : 0; };
+const r2 = v => Math.round((n(v) + Number.EPSILON) * 100) / 100;
+const r3 = v => Math.round((n(v) + Number.EPSILON) * 1000) / 1000;
+const money = v => '₹' + n(v).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('tx-' + Date.now() + '-' + Math.random().toString(36).slice(2,9));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
+const curMonth = () => today().slice(0,7);
 
-// Google Sheets sync configuration. Set the deployed Apps Script Web App URL in Settings.
-const GOOGLE_SCRIPT_TOKEN = "SADHNA-AGRO-CHANGE-THIS-TOKEN";
-const GOOGLE_SCRIPT_URL_KEY = "sadhna_google_script_url";
-function googleScriptUrl(){ return localStorage.getItem(GOOGLE_SCRIPT_URL_KEY) || ""; }
-async function googleSyncRecord(table, record){
- const url=googleScriptUrl();
- if(!url.startsWith("https://script.google.com/")) return;
- const payload={token:GOOGLE_SCRIPT_TOKEN,records:[{table:table,record:record}]};
- try{
-  await fetch(url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
-  console.log("Google Sheets sync request sent");
- }catch(error){console.error("Google Sheets sync error",error)}
-}
-async function googleSyncAll(){
- const url=googleScriptUrl();
- if(!url.startsWith("https://script.google.com/")){
-  alert("पहले Settings में Google Apps Script Web App URL सेव करें।");return;
- }
- const records=[];
- tables.forEach(table=>db[table].forEach(record=>records.push({table:table,record:record})));
- const batchSize=100;
- try{
-  for(let i=0;i<records.length;i+=batchSize){
-   await fetch(url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body:JSON.stringify({token:GOOGLE_SCRIPT_TOKEN,records:records.slice(i,i+batchSize)})});
-  }
-  alert("Google Sheets Sync requests भेज दिए गए। रिकॉर्ड की वास्तविक पुष्टि Apps Script/Sheet में करें।");
- }catch(error){console.error("Google Sheets bulk sync error",error);alert("Google Sheets sync request में समस्या आई। Console देखें।")}
-}
+let cfg = {
+  machineRate: 120,
+  interestRate: 9.5,
+  interestDays: 30,
+  gstRate: 18,
+  activeRole: 'admin',
+  allowNegativeStockAdmin: false,
+  gsUrl: '',
+  gsToken: 'SADHNA-AGRO-2026-SECURE',
+  lastSyncStatus: 'Not Synced',
+  lastDailyBackup: '',
+  migrated: false
+};
 
-function read(){try{let saved=JSON.parse(localStorage.getItem(KEY)||'{}');db={...db,...saved};tables.forEach(t=>{if(!Array.isArray(db[t]))db[t]=[]})}catch(e){}}
-function write(){localStorage.setItem(KEY,JSON.stringify(db))}
-function status(s){$('status').textContent=s}
-async function cloudConnect(){if(!window.supabase)return;sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);let {data}=await sb.auth.getSession();user=data.session?.user||null}
-async function syncCloud(){
- if(!sb||!user){status('Local Mode');return}
- try{const {data,error}=await sb.from('erp_records').select('id,table_name,payload').eq('user_id',user.id);if(error)throw error;
- let fresh={products:[],purchases:[],batches:[],daily:[],dispatches:[]};
- (data||[]).forEach(r=>{if(tables.includes(r.table_name))fresh[r.table_name].push({...r.payload,id:r.id})});
- db=fresh;write();status('☁ Cloud Synced')
- }catch(e){status('Cloud error');console.log(e)}
-}
-async function save(t, x) {
-  if (sb && user) {
-    const { error } = await sb.from("erp_records").insert({
-      id: x.id,
-      user_id: user.id,
-      table_name: t,
-      payload: x
+let store = {
+  masters: [],      // {id, master_type:'product'|'raw'|'print'|'packing', code, name, category, unit, pouch_wt_g, gst_rate, default_rate, min_stock, status, updated_at}
+  parties: [],      // {id, party_type:'supplier'|'customer', name, phone, gstin, address, status, updated_at}
+  transactions: [], // {id, tx_type, tx_number, tx_date, status:'active'|'cancelled', payload, created_by, created_at, updated_at}
+  users: [          // Local & Cloud User Permissions directory
+    {id:'u-admin', name:'Akshay Bajaj Jain (Admin)', email:'admin@sadhnaagro.local', role:'admin', can_override_negative_stock:true}
+  ],
+  auditLogs: []     // {id, actor_email, actor_role, action, module, tx_id, summary, created_at}
+};
+
+let syncQueue = []; // [{op:'master'|'party'|'tx'|'audit', id, data, retries, lastError}]
+let page = 'dashboard';
+let sb = null, authUser = null, syncing = false;
+
+// Role access matrix
+const ROLE_ACCESS = {
+  admin:      { master:true, purchase:true, opening:true, production:true, dispatch:true, sales:true, expense:true, editDel:true, users:true, settings:true },
+  production: { master:false, purchase:false, opening:false, production:true, dispatch:true, sales:false, expense:false, editDel:false, users:false, settings:false },
+  store:      { master:true, purchase:true, opening:true, production:false, dispatch:true, sales:false, expense:false, editDel:false, users:false, settings:false },
+  accountant: { master:false, purchase:true, opening:false, production:false, dispatch:false, sales:true, expense:true, editDel:true, users:false, settings:true }
+};
+const hasPerm = p => !!(ROLE_ACCESS[cfg.activeRole] && ROLE_ACCESS[cfg.activeRole][p]);
+
+// --- STORAGE & SAFE LEGACY MIGRATION ---
+function loadStorage(){
+  try{
+    cfg = {...cfg, ...JSON.parse(localStorage.getItem(CFG_KEY) || '{}')};
+    const raw = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+    ['masters','parties','transactions','users','auditLogs'].forEach(k => {
+      if(Array.isArray(raw[k])){
+        const map = new Map();
+        raw[k].forEach(item => { if(item && item.id) map.set(item.id, item); });
+        store[k] = Array.from(map.values());
+      }
     });
+    syncQueue = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
+    if(!Array.isArray(syncQueue)) syncQueue = [];
 
-    if (error) {
-      alert("Cloud Error: " + error.message);
-      return;
+    // Migrate old local data safely without deleting old storage keys
+    if(!cfg.migrated){
+      LEGACY_KEYS.forEach(lk => {
+        const old = JSON.parse(localStorage.getItem(lk) || 'null');
+        if(!old) return;
+        const list = old.products || old.items || [];
+        list.forEach(p => {
+          if(p.id && !store.masters.some(m => m.id === p.id)){
+            const mt = p.item_type === 'raw' || p.type === 'raw' ? 'raw'
+                     : p.item_type === 'print' || p.type === 'print' ? 'print'
+                     : p.item_type === 'packing' ? 'packing' : 'product';
+            store.masters.push({
+              id: p.id, master_type: mt, code: p.code || '', name: p.name,
+              category: p.category || 'General', unit: p.unit || 'kg',
+              pouch_wt_g: n(p.pouch_wt_g), gst_rate: n(p.gst_rate ?? 18),
+              default_rate: n(p.sale_rate), min_stock: n(p.min_stock),
+              status: 'active', updated_at: new Date().toISOString()
+            });
+          }
+        });
+        (old.purchases || []).forEach(pur => {
+          if(pur.id && !store.transactions.some(t => t.id === pur.id)){
+            const base = r2(n(pur.qty)*n(pur.rate));
+            const gstAmt = r2(base * n(pur.gst)/100);
+            store.transactions.push({
+              id: pur.id, tx_type:'purchase', tx_number: pur.bill || 'MIG-PUR', tx_date: pur.date || today(),
+              status:'active', created_by:'Legacy-Import', created_at:new Date().toISOString(), updated_at:new Date().toISOString(),
+              payload:{ item_id: pur.product, party_name: pur.supplier || 'Supplier', qty: n(pur.qty), rate: n(pur.rate), gst_rate: n(pur.gst), base_amount: base, gst_amount: gstAmt, grand_total: r2(base+gstAmt) }
+            });
+          }
+        });
+      });
+      cfg.migrated = true;
+      addAudit('MIGRATE', 'System', 'LEGACY', 'पुराना Local Data सुरक्षित रूप से नए ERP में आयात किया गया');
+      persist();
     }
+  }catch(e){ console.error('Storage load error:', e); }
+  refreshBadges();
+}
+
+function persist(){
+  localStorage.setItem(DB_KEY, JSON.stringify(store));
+  localStorage.setItem(QUEUE_KEY, JSON.stringify(syncQueue));
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  refreshBadges();
+}
+
+function refreshBadges(){
+  $('dateBadge').textContent = new Date().toLocaleDateString('hi-IN', {dateStyle:'medium'});
+  $('userBadge').textContent = `${authUser ? authUser.email : 'Local'} (${cfg.activeRole.toUpperCase()})`;
+  $('queueBadge').textContent = `Pending Queue: ${syncQueue.length}`;
+  const sbEl = $('syncBadge');
+  sbEl.textContent = cfg.lastSyncStatus;
+  sbEl.className = 'pill ' + (cfg.lastSyncStatus.includes('Synced') ? 'ok' : cfg.lastSyncStatus.includes('Fail') ? 'err' : 'warn');
+}
+
+function addAudit(action, module, txId, summary){
+  const entry = {
+    id: uid(),
+    actor_email: authUser?.email || 'Local-Operator',
+    actor_role: cfg.activeRole,
+    action, module, tx_id: String(txId), summary,
+    created_at: new Date().toISOString()
+  };
+  store.auditLogs.unshift(entry);
+  if(store.auditLogs.length > 1500) store.auditLogs.length = 1500;
+  syncQueue.push({op:'audit', id: entry.id, data: entry, retries:0, lastError:''});
+}
+
+function queueUpsert(op, id, data){
+  syncQueue = syncQueue.filter(q => !(q.op === op && q.id === id));
+  syncQueue.push({op, id, data, retries:0, lastError:''});
+  persist();
+}
+
+// --- MULTI-MATERIAL PRODUCTION COSTING ENGINE ---
+function evaluateProduction(p){
+  const estPouches = Math.max(0, n(p.estimated_pouches));
+  const actualPouches = Math.max(0, n(p.actual_pouches));
+  const pouchWtG = Math.max(0, n(p.pouch_wt_g));
+  const outputKg = r3((actualPouches * pouchWtG) / 1000);
+
+  // Packet = 36 pouches | Bori = 20 packets = 720 pouches
+  const packets = r2(actualPouches / 36);
+  const boris = r3(actualPouches / 720);
+  const outerCount = Math.ceil(actualPouches / 36);
+  const boriCount = Math.ceil(actualPouches / 720);
+
+  // Multiple Raw Materials
+  const rawLines = Array.isArray(p.raw_lines) ? p.raw_lines : [];
+  let totalRawQty = 0, totalRawCost = 0;
+  const evaluatedRaw = rawLines.map(line => {
+    const consumed = Math.max(0, r3(n(line.open) - n(line.close)));
+    const cost = r2(consumed * n(line.rate));
+    totalRawQty = r3(totalRawQty + consumed);
+    totalRawCost = r2(totalRawCost + cost);
+    return {...line, consumed, cost};
+  });
+
+  // Multiple Printing Materials (Distinguishing Total Opening-Closing Consumption vs Wastage)
+  // Note: In roll/sheet weighing, Opening - Closing = Total Physical Material Used (which already includes wastage).
+  // Wastage Qty is tracked separately for efficiency & cost attribution without double-deducting stock!
+  const printLines = Array.isArray(p.print_lines) ? p.print_lines : [];
+  let totalPrintUsed = 0, totalPrintWastage = 0, totalPrintGoodUsed = 0;
+  let totalPrintGoodCost = 0, totalPrintWastageCost = 0;
+
+  const evaluatedPrint = printLines.map(line => {
+    const physicalUsed = Math.max(0, r3(n(line.open) - n(line.close)));
+    const wastageQty = Math.min(physicalUsed, Math.max(0, r3(n(line.wastage))));
+    const netGoodUsed = Math.max(0, r3(physicalUsed - wastageQty));
+    const goodCost = r2(netGoodUsed * n(line.rate));
+    const wasteCost = r2(wastageQty * n(line.rate));
+
+    totalPrintUsed = r3(totalPrintUsed + physicalUsed);
+    totalPrintWastage = r3(totalPrintWastage + wastageQty);
+    totalPrintGoodUsed = r3(totalPrintGoodUsed + netGoodUsed);
+    totalPrintGoodCost = r2(totalPrintGoodCost + goodCost);
+    totalPrintWastageCost = r2(totalPrintWastageCost + wasteCost);
+
+    return {...line, physicalUsed, wastageQty, netGoodUsed, goodCost, wasteCost};
+  });
+
+  const otherPrintCost = r2(n(p.other_printing_cost));
+  const labourHrs = n(p.labour_hrs);
+  const labourRate = n(p.labour_rate);
+  const labourCost = r2(labourHrs * labourRate);
+
+  const machHrs = n(p.mach_hrs);
+  const machRate = p.machine_rate !== undefined ? n(p.machine_rate) : cfg.machineRate;
+  const machineCost = r2(machHrs * machRate);
+
+  const packingCost = r2(n(p.packing_cost));
+  const outerRate = n(p.outer_rate);
+  const boriRate = n(p.bori_rate);
+  const outerCost = r2(outerCount * outerRate);
+  const boriCost = r2(boriCount * boriRate);
+  const denglerCost = r2(n(p.dengler_cost));
+  const marketingCost = r2(n(p.marketing_cost));
+
+  const directOperationalCost = r2(
+    totalRawCost + totalPrintGoodCost + totalPrintWastageCost + otherPrintCost +
+    labourCost + machineCost + packingCost + outerCost + boriCost + denglerCost + marketingCost
+  );
+
+  const intRate = p.interest_rate !== undefined ? n(p.interest_rate) : cfg.interestRate;
+  const intDays = p.interest_days !== undefined ? n(p.interest_days) : cfg.interestDays;
+  const interestCost = r2((directOperationalCost * intRate * intDays) / 36500);
+
+  const netProductionCost = r2(directOperationalCost + interestCost); // Real cost excluding refundable GST ITC
+  const gstRate = p.gst_rate !== undefined ? n(p.gst_rate) : cfg.gstRate;
+  const itcEligible = p.itc_eligible !== false; // Default true: GST on inputs is ITC
+  const gstAmount = r2((netProductionCost * gstRate) / 100);
+  const grossCostWithGst = r2(netProductionCost + gstAmount);
+
+  // If ITC is eligible, real economic cost is netProductionCost; if not eligible, GST is absorbed in cost
+  const effectiveFinalCost = itcEligible ? netProductionCost : grossCostWithGst;
+
+  return {
+    estPouches, actualPouches, pouchWtG, outputKg,
+    packets, boris, outerCount, boriCount,
+    evaluatedRaw, totalRawQty, totalRawCost,
+    evaluatedPrint, totalPrintUsed, totalPrintWastage, totalPrintGoodUsed, totalPrintGoodCost, totalPrintWastageCost,
+    otherPrintCost, labourHrs, labourRate, labourCost,
+    machHrs, machRate, machineCost,
+    packingCost, outerRate, outerCost, boriRate, boriCost,
+    denglerCost, marketingCost,
+    directOperationalCost, intRate, intDays, interestCost,
+    netProductionCost, gstRate, itcEligible, gstAmount, grossCostWithGst, effectiveFinalCost,
+    costPerPouch: actualPouches ? r2(effectiveFinalCost / actualPouches) : 0,
+    costPerPacket: packets ? r2(effectiveFinalCost / packets) : 0,
+    costPerKg: outputKg ? r2(effectiveFinalCost / outputKg) : 0
+  };
+}
+
+// --- AUTOMATIC DOUBLE-ENTRY-PROOF STOCK LEDGER ---
+function buildStockLedger(excludeTxId = null){
+  const map = new Map();
+  store.masters.filter(m => m.status === 'active').forEach(m => {
+    map.set(m.id, {
+      ...m,
+      opening: 0,
+      purchased: 0,
+      purchaseReturn: 0,
+      consumed: 0,
+      produced: 0,
+      dispatched: 0,
+      sold: 0,
+      saleReturn: 0,
+      factoryStock: 0,
+      godownStock: 0,
+      movements: []
+    });
+  });
+
+  const activeTxs = store.transactions
+    .filter(t => t.status === 'active' && t.id !== excludeTxId)
+    .sort((a,b) => String(a.tx_date).localeCompare(String(b.tx_date)));
+
+  activeTxs.forEach(tx => {
+    const p = tx.payload || {};
+    const recordMove = (item, loc, change, label) => {
+      item.movements.push({ tx_id: tx.id, tx_number: tx.tx_number, date: tx.tx_date, type: tx.tx_type, location: loc, change, label });
+    };
+
+    if(tx.tx_type === 'opening_stock'){
+      const it = map.get(p.item_id);
+      if(it){
+        const q = r3(n(p.qty));
+        if(p.location === 'godown') it.godownStock = r3(it.godownStock + q);
+        else { it.opening = r3(it.opening + q); it.factoryStock = r3(it.factoryStock + q); }
+        recordMove(it, p.location || 'factory', q, 'Opening Stock');
+      }
+    }
+    else if(tx.tx_type === 'purchase'){
+      const it = map.get(p.item_id);
+      if(it){
+        const q = r3(n(p.qty));
+        it.purchased = r3(it.purchased + q);
+        it.factoryStock = r3(it.factoryStock + q);
+        recordMove(it, 'factory', +q, `Purchase (${p.party_name || ''})`);
+      }
+    }
+    else if(tx.tx_type === 'purchase_return'){
+      const it = map.get(p.item_id);
+      if(it){
+        const q = r3(n(p.qty));
+        it.purchaseReturn = r3(it.purchaseReturn + q);
+        it.factoryStock = r3(it.factoryStock - q);
+        recordMove(it, 'factory', -q, `Purchase Return (${p.party_name || ''})`);
+      }
+    }
+    else if(tx.tx_type === 'production'){
+      const c = evaluateProduction(p);
+      // Consume each raw material once
+      c.evaluatedRaw.forEach(rl => {
+        const it = map.get(rl.item_id);
+        if(it && rl.consumed > 0){
+          it.consumed = r3(it.consumed + rl.consumed);
+          it.factoryStock = r3(it.factoryStock - rl.consumed);
+          recordMove(it, 'factory', -rl.consumed, `Production Batch ${tx.tx_number}`);
+        }
+      });
+      // Consume each printing material once (physicalUsed = open - close)
+      c.evaluatedPrint.forEach(pl => {
+        const it = map.get(pl.item_id);
+        if(it && pl.physicalUsed > 0){
+          it.consumed = r3(it.consumed + pl.physicalUsed);
+          it.factoryStock = r3(it.factoryStock - pl.physicalUsed);
+          recordMove(it, 'factory', -pl.physicalUsed, `Printing Batch ${tx.tx_number} (Waste: ${pl.wastageQty})`);
+        }
+      });
+      // Consume optional packing items (LD Outer / Bori)
+      if(p.outer_item_id && map.has(p.outer_item_id) && c.outerCount > 0){
+        const oi = map.get(p.outer_item_id);
+        oi.consumed = r3(oi.consumed + c.outerCount);
+        oi.factoryStock = r3(oi.factoryStock - c.outerCount);
+        recordMove(oi, 'factory', -c.outerCount, `LD Outer Batch ${tx.tx_number}`);
+      }
+      if(p.bori_item_id && map.has(p.bori_item_id) && c.boriCount > 0){
+        const bi = map.get(p.bori_item_id);
+        bi.consumed = r3(bi.consumed + c.boriCount);
+        bi.factoryStock = r3(bi.factoryStock - c.boriCount);
+        recordMove(bi, 'factory', -c.boriCount, `Bori Batch ${tx.tx_number}`);
+      }
+      // Produce finished goods into Factory Stock
+      const prod = map.get(p.product_id);
+      if(prod){
+        const addQty = (prod.unit === 'pouch' || prod.unit === 'piece') ? c.actualPouches : c.outputKg;
+        prod.produced = r3(prod.produced + addQty);
+        prod.factoryStock = r3(prod.factoryStock + addQty);
+        recordMove(prod, 'factory', +addQty, `Production Output ${tx.tx_number}`);
+      }
+    }
+    else if(tx.tx_type === 'dispatch'){
+      const prod = map.get(p.product_id);
+      if(prod){
+        const q = r3(n(p.qty));
+        prod.dispatched = r3(prod.dispatched + q);
+        prod.factoryStock = r3(prod.factoryStock - q);
+        prod.godownStock = r3(prod.godownStock + q);
+        recordMove(prod, 'factory->godown', q, `Dispatch to ${p.godown_name || 'Godown'}`);
+      }
+    }
+    else if(tx.tx_type === 'sale'){
+      const prod = map.get(p.product_id);
+      if(prod){
+        const q = r3(n(p.qty));
+        prod.sold = r3(prod.sold + q);
+        prod.godownStock = r3(prod.godownStock - q);
+        recordMove(prod, 'godown', -q, `Sale (${p.party_name || ''})`);
+      }
+    }
+    else if(tx.tx_type === 'sale_return'){
+      const prod = map.get(p.product_id);
+      if(prod){
+        const q = r3(n(p.qty));
+        prod.saleReturn = r3(prod.saleReturn + q);
+        prod.godownStock = r3(prod.godownStock + q);
+        recordMove(prod, 'godown', +q, `Sales Return (${p.party_name || ''})`);
+      }
+    }
+  });
+
+  return Array.from(map.values());
+}
+
+function getMaster(id){ return store.masters.find(m => m.id === id); }
+function masterName(id){ return getMaster(id)?.name || id || '-'; }
+function masterOpts(type){
+  return store.masters
+    .filter(m => m.status === 'active' && (!type || m.master_type === type))
+    .map(m => `<option value="${esc(m.id)}">${esc(m.name)} (${esc(m.unit)})</option>`)
+    .join('');
+}
+
+function canBypassNegativeStock(){
+  return cfg.activeRole === 'admin' && cfg.allowNegativeStockAdmin;
+}
+
+// --- CLOUD SYNC (SUPABASE + GOOGLE SHEETS WITH REAL STATUS) ---
+async function connectSupabase(){
+  if(!window.supabase) return;
+  if(!sb) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const {data} = await sb.auth.getSession();
+  authUser = data?.session?.user || null;
+}
+
+async function runCloudSync(includeGoogleSheets = false){
+  if(syncing) return;
+  syncing = true;
+  cfg.lastSyncStatus = 'Syncing...';
+  refreshBadges();
+
+  let sbOk = false, gsOk = false, errMsg = '';
+
+  try{
+    if(sb && authUser && navigator.onLine){
+      const failed = [];
+      for(const q of syncQueue){
+        let res = {error: null};
+        if(q.op === 'master') res = await sb.from('sadhna_masters').upsert({...q.data, user_id: authUser.id}, {onConflict:'id'});
+        else if(q.op === 'party') res = await sb.from('sadhna_parties').upsert({...q.data, user_id: authUser.id}, {onConflict:'id'});
+        else if(q.op === 'tx') res = await sb.from('sadhna_transactions').upsert({...q.data, user_id: authUser.id}, {onConflict:'id'});
+        else if(q.op === 'audit') res = await sb.from('sadhna_audit_logs').upsert({...q.data, user_id: authUser.id}, {onConflict:'id'});
+
+        if(res.error){
+          q.retries = (q.retries || 0) + 1;
+          q.lastError = res.error.message;
+          errMsg = res.error.message;
+          failed.push(q);
+        }
+      }
+      syncQueue = failed;
+
+      // Safe pull merge if queue cleared
+      if(syncQueue.length === 0){
+        const [mRes, pRes, tRes] = await Promise.all([
+          sb.from('sadhna_masters').select('*').eq('user_id', authUser.id),
+          sb.from('sadhna_parties').select('*').eq('user_id', authUser.id),
+          sb.from('sadhna_transactions').select('*').eq('user_id', authUser.id)
+        ]);
+        if(mRes.error) throw mRes.error;
+        if(pRes.error) throw pRes.error;
+        if(tRes.error) throw tRes.error;
+
+        mergeByTimestamp('masters', mRes.data || []);
+        mergeByTimestamp('parties', pRes.data || []);
+        mergeByTimestamp('transactions', tRes.data || []);
+        sbOk = true;
+      }
+    }
+
+    if(includeGoogleSheets){
+      if(!cfg.gsUrl || !cfg.gsUrl.startsWith('https://script.google.com/')){
+        throw new Error('Google Apps Script Web App URL सेट नहीं है');
+      }
+      const payloadRecords = [
+        ...store.masters.map(m => ({category: m.master_type, monthly: false, record: m})),
+        ...store.parties.map(p => ({category: p.party_type, monthly: false, record: p})),
+        ...store.transactions.map(t => ({
+          category: t.tx_type, monthly: true,
+          record: {...t, summary: `${t.tx_type.toUpperCase()} #${t.tx_number}`, ...t.payload}
+        }))
+      ];
+
+      let totalSynced = 0;
+      for(let i = 0; i < payloadRecords.length; i += 75){
+        const resp = await fetch(cfg.gsUrl, {
+          method: 'POST',
+          headers: {'Content-Type': 'text/plain;charset=utf-8'},
+          body: JSON.stringify({token: cfg.gsToken, records: payloadRecords.slice(i, i+75)})
+        });
+        const data = await resp.json();
+        if(!data.ok) throw new Error(data.error || 'Google Sheets Script Error');
+        totalSynced += n(data.synced);
+      }
+      gsOk = true;
+      addAudit('GS_SYNC', 'GoogleSheets', 'BATCH', `Google Sheets में ${totalSynced} रिकॉर्ड की वास्तविक पुष्टि हुई`);
+    }
+
+    if(sbOk || gsOk){
+      cfg.lastSyncStatus = `Synced (${new Date().toLocaleTimeString('hi-IN',{hour:'2-digit',minute:'2-digit'})})`;
+    } else if(!authUser){
+      cfg.lastSyncStatus = 'Local Mode (Login Required for Cloud)';
+    } else if(errMsg){
+      cfg.lastSyncStatus = 'Sync Failed: ' + errMsg.slice(0,25);
+    }
+  }catch(e){
+    cfg.lastSyncStatus = 'Sync Failed';
+    console.error('Sync failure:', e);
+    if(includeGoogleSheets) alert('❌ Sync विफल: ' + e.message);
+  }finally{
+    syncing = false;
+    persist();
+    if(page === 'cloud') render();
   }
+}
 
-  db[t].push(x);
-  write();
+function mergeByTimestamp(key, remoteList){
+  const map = new Map(store[key].map(x => [x.id, x]));
+  remoteList.forEach(rem => {
+    const loc = map.get(rem.id);
+    if(!loc || new Date(rem.updated_at || 0) >= new Date(loc.updated_at || 0)){
+      map.set(rem.id, rem);
+    }
+  });
+  store[key] = Array.from(map.values());
+}
 
-  googleSyncRecord(t, x);
+// --- TRANSACTION SAVE / EDIT / CANCEL ---
+function saveTransaction(tx, isEdit = false){
+  if(!isEdit && store.transactions.some(t => t.id === tx.id)){
+    alert('Duplicate Transaction ID रोका गया!');
+    return false;
+  }
+  if(isEdit){
+    const idx = store.transactions.findIndex(t => t.id === tx.id);
+    if(idx !== -1) store.transactions[idx] = tx;
+    addAudit('EDIT', tx.tx_type, tx.tx_number, `रिकॉर्ड संशोधित किया गया (Stock री-कैलकुलेट)`);
+  } else {
+    store.transactions.unshift(tx);
+    addAudit('CREATE', tx.tx_type, tx.tx_number, `नया ${tx.tx_type} रिकॉर्ड (${tx.tx_date}) दर्ज`);
+  }
+  queueUpsert('tx', tx.id, tx);
+  runCloudSync(false);
+  return true;
+}
 
+function toggleCancelTx(id){
+  if(!hasPerm('editDel')){ alert('केवल Admin या Accountant ही Cancel/Restore कर सकते हैं।'); return; }
+  const tx = store.transactions.find(t => t.id === id);
+  if(!tx) return;
+  const nextStatus = tx.status === 'active' ? 'cancelled' : 'active';
+  const reason = prompt(nextStatus === 'cancelled' ? 'Cancel करने का कारण लिखें:' : 'पुनः सक्रिय करने का कारण:');
+  if(!reason) return;
+  tx.status = nextStatus;
+  tx.updated_at = new Date().toISOString();
+  addAudit(nextStatus === 'cancelled' ? 'CANCEL' : 'RESTORE', tx.tx_type, tx.tx_number, reason);
+  queueUpsert('tx', tx.id, tx);
+  runCloudSync(false);
   render();
 }
-async function del(t,id){
- if(!confirm('क्या आप यह रिकॉर्ड हटाना चाहते हैं?'))return;
- if(sb&&user){let {error}=await sb.from('erp_records').delete().eq('id',id).eq('user_id',user.id);if(error){alert(error.message);return}}
- db[t]=db[t].filter(x=>x.id!==id);write();render()
+
+// --- NAVIGATION ---
+function go(p){
+  page = p;
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.p === p));
+  render();
 }
-function go(p){page=p;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.p===p));render()}
-$('nav').onclick=e=>{let b=e.target.closest('[data-p]');if(b)go(b.dataset.p)};
-function productOptions(){return db.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}
-function productName(id){return db.products.find(p=>p.id===id)?.name||''}
-function bought(id){return db.purchases.filter(x=>x.product===id).reduce((s,x)=>s+n(x.qty),0)}
-function consumed(id){return db.batches.filter(x=>x.product===id).reduce((s,x)=>s+n(x.qty),0)}
-function calc(x){
- const raw=Math.max(0,n(x.mat_open)-n(x.mat_close));
- const rawCost=raw*n(x.raw_rate);
- const printUsed=Math.max(0,n(x.print_open)-n(x.print_close));
- const printWastage=n(x.print_wastage);
- const printMaterialExpense=(printUsed+printWastage)*n(x.print_rate);
- const otherPrinting=n(x.other_printing_cost);
- const labour=n(x.labour_hrs)*n(x.labour_rate),machine=n(x.mach_hrs)*MACHINE_RATE;
- const packing=n(x.packing_cost);
- const pouches=Math.max(0,n(x.actual_pouches));
- const outerCount=Math.ceil(pouches/36), boriCount=Math.ceil(pouches/720);
- const outerExpense=(x.outer_rate!==undefined?outerCount*n(x.outer_rate):n(x.outer_cost));
- const boriExpense=(x.bori_rate!==undefined?boriCount*n(x.bori_rate):n(x.bori_cost));
- const dengler=n(x.dengler_cost),marketing=n(x.marketing_cost);
- const base=rawCost+printMaterialExpense+otherPrinting+labour+machine+packing+outerExpense+boriExpense+dengler+marketing;
- const interest=base*n(x.interest_rate||9.5)*n(x.interest_days||30)/36500;
- const gst=(base+interest)*n(x.gst_rate||18)/100;
- const finalCost=base+interest+gst;
- const perPouch=pouches?finalCost/pouches:0;
- const outputKg=pouches*n(x.pouch_wt)/1000;
- return {raw,rawCost,printUsed,printWastage,printMaterialExpense,otherPrinting,labour,machine,packing,outerCount,outerExpense,boriCount,boriExpense,dengler,marketing,base,interest,gst,finalCost,perPouch,outputKg};
-}
-function monthStart(){return new Date().toISOString().slice(0,7)}
+$('nav').onclick = e => { const b = e.target.closest('[data-p]'); if(b) go(b.dataset.p); };
+
+// ============================================================================
+// RENDER ALL 19 MODULES
+// ============================================================================
 function render(){
- if(page==='dashboard'){
- let purchase=db.purchases.reduce((s,x)=>s+n(x.qty),0),used=db.batches.reduce((s,x)=>s+n(x.qty),0);
- let dispatched=db.dispatches.reduce((s,x)=>s+n(x.qty),0),cost=db.daily.reduce((s,x)=>s+calc(x).finalCost,0);
- $('app').innerHTML=`<h2>डैशबोर्ड</h2><div class="grid">
- <div class="card"><div class="muted">कुल उत्पाद</div><div class="metric">${db.products.length}</div></div>
- <div class="card"><div class="muted">कुल खरीद</div><div class="metric">${purchase.toFixed(2)} kg</div></div>
- <div class="card"><div class="muted">पैकिंग खपत</div><div class="metric">${used.toFixed(2)} kg</div></div>
- <div class="card"><div class="muted">Godown Dispatch</div><div class="metric">${dispatched.toFixed(2)} kg</div></div>
- <div class="card"><div class="muted">Production Records</div><div class="metric">${db.daily.length}</div></div>
- <div class="card"><div class="muted">कुल Final Cost</div><div class="metric">${money(cost)}</div></div></div>
- <div class="card">मशीन खर्च: <b>${money(MACHINE_RATE)} प्रति घंटा</b> | 36 पाउच = 1 LD Outer | 720 पाउच = 1 बोरी</div>`;return
- }
- if(page==='products'){
- $('app').innerHTML=`<h2>उत्पाद मास्टर</h2><div class="card"><form id="f" class="form">
- <div><label>उत्पाद नाम</label><input name="name" required></div><div><label>कैटेगरी</label><select name="category"><option>मसाले</option><option>Seeds</option><option>Dry Fruits</option><option>Dehydrated</option><option>अन्य</option></select></div>
- <div><label>यूनिट</label><select name="unit"><option>kg</option><option>gram</option><option>piece</option></select></div><button>सेव करें</button></form></div>
- <div class="card tablewrap"><table><tr><th>नाम</th><th>कैटेगरी</th><th>यूनिट</th><th></th></tr>${db.products.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.category)}</td><td>${esc(x.unit)}</td><td><button class="danger" onclick="del('products','${x.id}')">हटाएँ</button></td></tr>`).join('')}</table></div>`;
- $('f').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);save('products',{id:uid(),name:f.get('name').trim(),category:f.get('category'),unit:f.get('unit')})};return
- }
- if(page==='purchase'){
- if(!db.products.length){$('app').innerHTML='<h2>खरीद</h2>पहले उत्पाद जोड़ें';return}
- $('app').innerHTML=`<h2>खरीद एंट्री</h2><div class="card"><form id="f" class="form">
- <div><label>सप्लायर</label><input name="supplier" required></div><div><label>बिल नंबर</label><input name="bill"></div><div><label>उत्पाद</label><select name="product">${productOptions()}</select></div>
- <div><label>मात्रा kg</label><input name="qty" type="number" step=".001" required></div><div><label>रेट ₹/kg</label><input name="rate" type="number" step=".01" required></div><div><label>GST %</label><input name="gst" type="number" value="0"></div><div><label>दिनांक</label><input name="date" type="date" value="${today()}"></div><button>खरीद सेव करें</button></form></div>
- <div class="card tablewrap"><table><tr><th>दिनांक</th><th>बिल</th><th>सप्लायर</th><th>उत्पाद</th><th>मात्रा</th><th>कुल</th><th></th></tr>
- ${db.purchases.map(x=>`<tr><td>${x.date}</td><td>${esc(x.bill)}</td><td>${esc(x.supplier)}</td><td>${esc(productName(x.product))}</td><td>${x.qty} kg</td><td>${money(n(x.qty)*n(x.rate)*(1+n(x.gst)/100))}</td><td><button class="danger" onclick="del('purchases','${x.id}')">हटाएँ</button></td></tr>`).join('')}</table></div>`;
- $('f').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);save('purchases',{id:uid(),supplier:f.get('supplier'),bill:f.get('bill'),product:f.get('product'),qty:n(f.get('qty')),rate:n(f.get('rate')),gst:n(f.get('gst')),date:f.get('date')})};return
- }
- if(page==='stock'){
- $('app').innerHTML=`<h2>स्टॉक</h2><div class="card tablewrap"><table><tr><th>उत्पाद</th><th>खरीद kg</th><th>पैकिंग उपयोग kg</th><th>शेष kg</th></tr>
- ${db.products.map(p=>`<tr><td>${esc(p.name)}</td><td>${bought(p.id).toFixed(3)}</td><td>${consumed(p.id).toFixed(3)}</td><td>${(bought(p.id)-consumed(p.id)).toFixed(3)}</td></tr>`).join('')}</table></div>`;return
- }
- if(page==='packing'){
- if(!db.products.length){$('app').innerHTML='<h2>पैकिंग</h2>पहले उत्पाद जोड़ें';return}
- $('app').innerHTML=`<h2>पैकिंग / उत्पादन</h2><div class="card"><form id="f" class="form">
- <div><label>उत्पाद</label><select name="product">${productOptions()}</select></div><div><label>खपत kg</label><input name="qty" type="number" step=".001" required></div><div><label>पैकेट संख्या</label><input name="packs" type="number" required></div><div><label>दिनांक</label><input name="date" type="date" value="${today()}"></div><button>सेव करें</button></form></div>
- <div class="card tablewrap"><table><tr><th>दिनांक</th><th>उत्पाद</th><th>खपत</th><th>पैकेट</th><th></th></tr>${db.batches.map(x=>`<tr><td>${x.date}</td><td>${esc(productName(x.product))}</td><td>${x.qty} kg</td><td>${x.packs}</td><td><button class="danger" onclick="del('batches','${x.id}')">हटाएँ</button></td></tr>`).join('')}</table></div>`;
- $('f').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);save('batches',{id:uid(),product:f.get('product'),qty:n(f.get('qty')),packs:n(f.get('packs')),date:f.get('date')})};return
- }
- if(page==='daily'){
- const options=db.products.map(p=>`<option>${esc(p.name)}</option>`).join('')+'<option>अन्य</option>';
- $('app').innerHTML=`<h2>दैनिक उत्पादन और Final Costing</h2><div class="notice">मशीन ₹120/घंटा। 36 पाउच पर 1 LD Outer और 720 पाउच पर 1 बोरी। LD Outer तथा बोरी के रेट हर एंट्री में अलग भरें।</div>
- <div class="card"><form id="f">
- <h4>1. सामान्य विवरण</h4><div class="form"><div><label>दिनांक</label><input name="date" type="date" value="${today()}" required></div><div><label>उत्पाद</label><select name="product_name">${options}</select></div><div><label>नोट</label><input name="note"></div>
- <div><label>Actual पाउच</label><input name="actual_pouches" type="number" min="0" required></div><div><label>Estimated पाउच</label><input name="estimated_pouches" type="number" min="0" required></div><div><label>पाउच वजन gram</label><input name="pouch_wt" type="number" step=".1" required></div></div>
- <h4>2. Raw Material</h4><div class="form"><div><label>Material Opening kg</label><input name="mat_open" type="number" step=".001" required></div><div><label>Material Closing kg</label><input name="mat_close" type="number" step=".001" required></div><div><label>Raw Material Rate ₹/kg</label><input name="raw_rate" type="number" step=".01" value="0"></div></div>
- <h4>3. Printing Material</h4><div class="form"><div><label>Printing Opening</label><input name="print_open" type="number" step=".001" required></div><div><label>Printing Closing</label><input name="print_close" type="number" step=".001" required></div><div><label>Printing Rate ₹/unit</label><input name="print_rate" type="number" step=".01" required></div><div><label>Printing Wastage</label><input name="print_wastage" type="number" step=".001" value="0"></div><div><label>Other Printing Expense ₹ (अलग)</label><input name="other_printing_cost" type="number" step=".01" value="0"></div></div>
- <h4>4. Labour & Machinery</h4><div class="form"><div><label>Labour Hours</label><input name="labour_hrs" type="number" step=".25" required></div><div><label>Labour Rate ₹/hour</label><input name="labour_rate" type="number" step=".01" required></div><div><label>Machine Hours</label><input name="mach_hrs" type="number" step=".25" required></div><div><label>Machine Rate</label><input value="₹120/hour" readonly></div></div>
- <h4>5. Packing & Other Expenses</h4><div class="form"><div><label>Packing Material ₹</label><input name="packing_cost" type="number" step=".01" value="0"></div>
- <div><label>LD Outer Rate ₹/पन्नी</label><input name="outer_rate" type="number" step=".01" value="0"></div><div><label>LD Outer संख्या (ऑटो)</label><input id="outerCountPreview" readonly></div>
- <div><label>Bori Rate ₹/बोरी</label><input name="bori_rate" type="number" step=".01" value="0"></div><div><label>Bori संख्या (ऑटो)</label><input id="boriCountPreview" readonly></div>
- <div><label>Dengler Expense ₹</label><input name="dengler_cost" type="number" step=".01" value="0"></div><div><label>Marketing Expense ₹</label><input name="marketing_cost" type="number" step=".01" value="0"></div></div>
- <h4>6. Interest & GST</h4><div class="form"><div><label>Interest Rate % सालाना</label><input name="interest_rate" type="number" step=".01" value="9.5"></div><div><label>Interest Days</label><input name="interest_days" type="number" value="30"></div><div><label>GST %</label><input name="gst_rate" type="number" step=".01" value="18"></div></div>
- <br><button>दैनिक उत्पादन सेव करें</button></form></div>
- <div class="card tablewrap"><h3>दैनिक उत्पादन रिकॉर्ड और लागत</h3><table><tr><th>दिनांक</th><th>उत्पाद</th><th>Actual/Est.</th><th>Raw Cost</th><th>Printing Material</th><th>Other Printing</th><th>Labour</th><th>Machine</th><th>Packing</th><th>LD Outer</th><th>Bori</th><th>Dengler</th><th>Marketing</th><th>Interest</th><th>GST</th><th>Final Cost</th><th>₹/Pouch</th><th></th></tr>
- ${db.daily.map(x=>{let c=calc(x);return `<tr><td>${x.date}</td><td>${esc(x.product_name)}</td><td>${x.actual_pouches}/${x.estimated_pouches}</td><td>${money(c.rawCost)}</td><td>${money(c.printMaterialExpense)}</td><td>${money(c.otherPrinting)}</td><td>${money(c.labour)}</td><td>${money(c.machine)}</td><td>${money(c.packing)}</td><td>${money(c.outerExpense)}</td><td>${money(c.boriExpense)}</td><td>${money(c.dengler)}</td><td>${money(c.marketing)}</td><td>${money(c.interest)}</td><td>${money(c.gst)}</td><td><b>${money(c.finalCost)}</b></td><t
+  const ledger = buildStockLedger();
+  const activeTxs = store.transactions.filter(t => t.status === 'active');
+
+  // 1. DASHBOARD
+  if(page === 'dashboard'){
+    const prods = activeTxs.filter(t => t.tx_type === 'production');
+    const pouches = prods.reduce((s,t) => s + evaluateProduction(t.payload).actualPouches, 0);
+    const prodCost = prods.reduce((s,t) => s + evaluateProduction(t.payload).effectiveFinalCost, 0);
+    const purTotal = activeTxs.filter(t => t.tx_type === 'purchase').reduce((s,t) => s + n(t.payload.grand_total), 0);
+    const saleTotal = activeTxs.filter(t => t.tx_type === 'sale').reduce((s,t) => s + n(t.payload.grand_total), 0);
+    const expTotal = activeTxs.filter(t => t.tx_type === 'expense').reduce((s,t) => s + n(t.payload.amount), 0);
+
+    $('app').innerHTML = `
+      <h2>1. SADHNA AGRO — Live Production & Stock Dashboard</h2>
+      ${cfg.lastDailyBackup !== today() ? `<div class="notice no-print">⚠️ आज (${today()}) का Daily Backup अभी नहीं लिया गया है। <button class="sm-btn" onclick="downloadBackup('daily')">अभी Daily Backup डाउनलोड करें</button></div>` : ''}
+      <div class="grid">
+        <div class="card"><div class="muted">कुल उत्पादित पाउच</div><div class="metric">${pouches.toLocaleString('en-IN')}</div></div>
+        <div class="card"><div class="muted">कुल उत्पादन लागत (Net)</div><div class="metric">${money(prodCost)}</div></div>
+        <div class="card"><div class="muted">कुल खरीद (Purchases)</div><div class="metric">${money(purTotal)}</div></div>
+        <div class="card"><div class="muted">कुल बिक्री (Sales)</div><div class="metric">${money(saleTotal)}</div></div>
+        <div class="card"><div class="muted">कुल अन्य खर्चे</div><div class="metric">${money(expTotal)}</div></div>
+        <div class="card"><div class="muted">Pending Sync Queue</div><div class="metric">${syncQueue.length}</div></div>
+      </div>
+      <div class="card">
+        <h3>लाइव स्टॉक स्थिति (Factory vs Godown)</h3>
+        <div class="tablewrap"><table>
+          <tr><th>आइटम</th><th>श्रेणी</th><th>यूनिट</th><th>Factory Stock</th><th>Godown Stock</th><th>Min Stock</th><th>स्थिति</th></tr>
+          ${ledger.map(l => {
+            const low = l.min_stock > 0 && l.factoryStock <= l.min_stock;
+            return `<tr>
+              <td><b>${esc(l.name)}</b></td><td>${esc(l.master_type.toUpperCase())}</td><td>${esc(l.unit)}</td>
+              <td><b>${l.factoryStock}</b></td><td><b>${l.godownStock}</b></td><td>${l.min_stock}</td>
+              <td><span class="badge ${l.factoryStock<0?'b-err':low?'b-warn':'b-ok'}">${l.factoryStock<0?'Negative':low?'Low Stock':'OK'}</span></td>
+            </tr>`;
+          }).join('') || '<tr><td colspan="7">मास्टर में आइटम जोड़कर शुरुआत करें।</td></tr>'}
+        </table></div>
+      </div>`;
+    return;
+  }
+
+  // 2-5. MASTERS
+  if(['m_product','m_raw','m_print','m_packing'].includes(page)){
+    const mapCfg = {
+      m_product: {type:'product', title:'2. Product Master (तैयार उत्पाद)', isProd:true},
+      m_raw:     {type:'raw',     title:'3. Raw Material Master (कच्चा माल)', isProd:false},
+      m_print:   {type:'print',   title:'4. Printing Material Master (रोल / लेबल)', isProd:false},
+      m_packing: {type:'packing', title:'5. Packing Material Master (LD Outer / बोरी)', isProd:false}
+    }[page];
+    const items = store.masters.filter(m => m.master_type === mapCfg.type);
+
+    $('app').innerHTML = `
+      <h2>${mapCfg.title}</h2>
+      ${hasPerm('master') ? `
+      <div class="card"><form id="mForm" class="form">
+        <input type="hidden" name="id">
+        <div><label>कोड</label><input name="code" placeholder="SKU-01"></div>
+        <div><label>नाम *</label><input name="name" required></div>
+        <div><label>कैटेगरी</label><input name="category" value="${mapCfg.isProd?'मसाले':'Material'}"></div>
+        <div><label>यूनिट *</label><select name="unit"><option value="kg">kg</option><option value="pouch">pouch</option><option value="piece">piece</option><option value="roll">roll</option></select></div>
+        ${mapCfg.isProd ? `<div><label>Pouch Weight (gram)</label><input name="pouch_wt_g" type="number" step=".1" value="15"></div>` : ''}
+        <div><label>GST %</label><input name="gst_rate" type="number" step=".01" value="${cfg.gstRate}"></div>
+        <div><label>Default Rate ₹</label><input name="default_rate" type="number" step=".01" value="0"></div>
+        <div><label>Min Stock Alert</label><input name="min_stock" type="number" step=".001" value="0"></div>
+        <button>सेव करें</button>
+      </form></div>` : ''}
+      <div class="card tablewrap"><table>
+        <tr><th>कोड</th><th>नाम</th><th>कैटेगरी</th><th>यूनिट</th>${mapCfg.isProd?'<th>वजन (g)</th>':''}<th>GST %</th><th>Rate ₹</th><th>Min Stock</th><th>एक्शन</th></tr>
+        ${items.map(it => `<tr>
+          <td>${esc(it.code)}</td><td><b>${esc(it.name)}</b></td><td>${esc(it.category)}</td><td>${esc(it.unit)}</td>
+          ${mapCfg.isProd?`<td>${n(it.pouch_wt_g)}g</td>`:''}
+          <td>${n(it.gst_rate)}%</td><td>${money(it.default_rate)}</td><td>${n(it.min_stock)}</td>
+          <td>${hasPerm('master') ? `<button class="secondary sm-btn" onclick="fillMasterForm('${it.id}')">Edit</button>` : '-'}</td>
+        </tr>`).join('') || '<tr><td colspan="9">कोई रिकॉर्ड नहीं</td></tr>'}
+      </table></div>`;
+
+    if($('mForm')){
+      $('mForm').onsubmit = e => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const editId = f.get('id');
+        const obj = {
+          id: editId || uid(), master_type: mapCfg.type, code: f.get('code').trim(), name: f.get('name').trim(),
+          category: f.get('category').trim(), unit: f.get('unit'), pouch_wt_g: n(f.get('pouch_wt_g')),
+          gst_rate: n(f.get('gst_rate')), default_rate: n(f.get('default_rate')), min_stock: n(f.get('min_stock')),
+          status: 'active', updated_at: new Date().toISOString()
+        };
+        if(editId){
+          const i = store.masters.findIndex(x => x.id === editId);
+          if(i !== -1) store.masters[i] = obj;
+          addAudit('EDIT', mapCfg.type, obj.name, 'मास्टर अपडेट किया गया');
+        } else {
+          store.masters.push(obj);
+          addAudit('CREATE', mapCfg.type, obj.name, 'नया मास्टर जोड़ा गया');
+        }
+        queueUpsert('master', obj.id, obj);
+        runCloudSync(false);
+        render();
+      };
+    }
+    return;
+  }
+
+  // 6. SUPPLIER & PARTY MASTER
+  if(page === 'm_supplier'){
+    $('app').innerHTML = `
+      <h2>6. Supplier & Customer Master</h2>
+      ${hasPerm('master') ? `
+      <div class="card"><form id="pForm" class="form">
+        <div><label>प्रकार</label><select name="party_type"><option value="supplier">Supplier</option><option value="customer">Customer</option></select></div>
+        <div><label>नाम *</label><input name="name" required></div>
+        <div><label>फ़ोन</label><input name="phone"></div>
+        <div><label>GSTIN</label><input name="gstin"></div>
+        <div><label>पता</label><input name="address"></div>
+        <button>सेव करें</button>
+      </form></div>` : ''}
+      <div class="card tablewrap"><table>
+        <tr><th>प्रकार</th><th>नाम</th><th>फ़ोन</th><th>GSTIN</th><th>पता</th></tr>
+        ${store.parties.map(p => `<tr><td><span class="badge b-info">${p.party_type.toUpperCase()}</span></td><td><b>${esc(p.name)}</b></td><td>${esc(p.phone)}</td><td>${esc(p.gstin)}</td><td>${esc(p.address)}</td></tr>`).join('') || '<tr><td colspan="5">कोई पार्टी नहीं</td></tr>'}
+      </table></div>`;
+
+    if($('pForm')){
+      $('pForm').onsubmit = e => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const obj = {
+          id: uid(), party_type: f.get('party_type'), name: f.get('name').trim(), phone: f.get('phone').trim(),
+          gstin: f.get('gstin').trim(), address: f.get('address').trim(), status: 'active', updated_at: new Date().toISOString()
+        };
+        store.parties.push(obj);
+        addAudit('CREATE', 'Party', obj.name, `${obj.party_type} जोड़ा गया`);
+        queueUpsert('party', obj.id, obj);
+        runCloudSync(false);
+        render();
+      };
+    }
+    return;
+  }
+
+  // 7. PURCHASE MANAGEMENT
+  if(page === 'purchase'){
+    const txs = store.transactions.filter(t => ['purchase','purchase_return'].includes(t.tx_type));
+    $('app').innerHTML = `
+      <h2>7. Purchase & Purchase Return Management</h2>
+      ${hasPerm('purchase') ? `
+      <div class="card"><form id="purForm" class="form">
+        <input type="hidden" name="edit_id">
+        <div><label>प्रकार</label><select name="tx_type"><option value="purchase">Purchase (+Stock)</option><option value="purchase_return">Purchase Return (-Stock)</option></select></div>
+        <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
+        <div><label>बिल नंबर *</label><input name="tx_number" value="PUR-${Date.now().toString().slice(-5)}" required></div>
+        <div><label>सप्लायर *</label><input name="party_name" list="supDL" required><datalist id="supDL">${store.parties.filter(p=>p.party_type==='supplier').map(p=>`<option value="${esc(p.name)}">`).join('')}</datalist></div>
+        <div><label>आइटम *</label><select name="item_id" required>${masterOpts()}</select></div>
+        <div><label>मात्रा *</label><input name="qty" type="number" step=".001" min=".001" required></div>
+        <div><label>रेट ₹ *</label><input name="rate" type="number" step=".01" min="0" required></div>
+        <div><label>GST %</label><input name="gst_rate" type="number" step=".01" value="${cfg.gstRate}"></div>
+        <button>खरीद सेव करें</button>
+      </form></div>` : ''}
+      <div class="card tablewrap"><table>
+        <tr><th>दिनांक</th><th>प्रकार</th><th>बिल नं.</th><th>सप्लायर</th><th>आइटम</th><th>मात्रा</th><th>Taxable ₹</th><th>GST (ITC) ₹</th><th>कुल ₹</th><th>एक्शन</th></tr>
+        ${txs.map(t => {
+          const p = t.payload;
+          return `<tr class="${t.status==='cancelled'?'cancelled':''}">
+            <td>${esc(t.tx_date)}</td>
+            <td><span class="badge ${t.tx_type==='purchase'?'b-ok':'b-warn'}">${t.tx_type.toUpperCase()}</span></td>
+            <td><b>${esc(t.tx_number)}</b></td><td>${esc(p.party_name)}</td><td>${esc(masterName(p.item_id))}</td>
+            <td>${n(p.qty)}</td><td>${money(p.base_amount)}</td><td>${money(p.gst_amount)}</td><td><b>${money(p.grand_total)}</b></td>
+            <td>
+              ${hasPerm('editDel') ? `<button class="secondary sm-btn" onclick="editSimpleTx('${t.id}')">Edit</button> <button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}
+            </td>
+          </tr>`;
+        }).join('') || '<tr><td colspan="10">कोई खरीद नहीं</td></tr>'}
+      </table></div>`;
+
+    if($('purForm')){
+      $('purForm').onsubmit = e => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const editId = f.get('edit_id');
+        const type = f.get('tx_type'), itemId = f.get('item_id'), qty = n(f.get('qty')), rate = n(f.get('rate')), gst = n(f.get('gst_rate'));
+        const tempLedger = buildStockLedger(editId || null);
+        if(type === 'purchase_return'){
+          const st = tempLedger.find(l => l.id === itemId);
+          if(!canBypassNegativeStock() && (!st || qty > st.factoryStock)){
+            alert(`❌ अपर्याप्त स्टॉक! उपलब्ध Factory Stock: ${st ? st.factoryStock : 0}`); return;
+          }
+        }
+        const base = r2(qty * rate), gstAmt = r2(base * gst / 100);
+        saveTransaction({
+          id: editId || uid(), tx_type: type, tx_number: f.get('tx_number').trim(), tx_date: f.get('tx_date'),
+          status: 'active', created_by: authUser?.email || 'Local',
+          created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+          payload: { item_id: itemId, party_name: f.get('party_name').trim(), qty, rate, gst_rate: gst, base_amount: base, gst_amount: gstAmt, grand_total: r2(base+gstAmt) }
+        }, !!editId);
+        render();
+      };
+    }
+    return;
+  }
+
+  // 8. OPENING STOCK
+  if(page === 'opening'){
+    const opTxs = store.transactions.filter(t => t.tx_type === 'opening_stock');
+    $('app').innerHTML = `
+      <h2>8. Opening Stock Entry (प्रारंभिक स्टॉक)</h2>
+      ${hasPerm('opening') ? `
+      <div class="card"><form id="opForm" class="form">
+        <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
+        <div><label>आइटम *</label><select name="item_id" required>${masterOpts()}</select></div>
+        <div><label>स्थान (Location)</label><select name="location"><option value="factory">Factory Store</option><option value="godown">Godown</option></select></div>
+        <div><label>Opening Quantity *</label><input name="qty" type="number" step=".001" required></div>
+        <div><label>टिप्पणी</label><input name="note" value="Opening Balance"></div>
+        <button>Opening Stock सेव करें</button>
+      </form></div>` : ''}
+      <div class="card tablewrap"><table>
+        <tr><th>दिनांक</th><th>वाउचर</th><th>आइटम</th><th>स्थान</th><th>मात्रा</th><th>टिप्पणी</th><th>एक्शन</th></tr>
+        ${opTxs.map(t => `<tr class="${t.status==='cancelled'?'cancelled':''}">
+          <td>${esc(t.tx_date)}</td><td>${esc(t.tx_number)}</td><td><b>${esc(masterName(t.payload.item_id))}</b></td>
+          <td>${esc(t.payload.location).toUpperCase()}</td><td>${n(t.payload.qty)}</td><td>${esc(t.payload.note)}</td>
+          <td>${hasPerm('editDel') ? `<button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}</td>
+        </tr>`).join('') || '<tr><td colspan="7">कोई Opening Stock एंट्री नहीं</td></tr>'}
+      </table></div>`;
+
+    if($('opForm')){
+      $('opForm').onsubmit = e => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        saveTransaction({
+          id: uid(), tx_type: 'opening_stock', tx_number: 'OPN-' + Date.now().toString().slice(-5),
+          tx_date: f.get('tx_date'), status: 'active', created_by: authUser?.email || 'Local',
+          created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+          payload: { item_id: f.get('item_id'), location: f.get('location'), qty: n(f.get('qty')), note: f.get('note').trim() }
+        });
+        render();
+      };
+    }
+    return;
+  }
+
+  // 9. STOCK LEDGER (WITH TRANSACTION-WISE DRILLDOWN)
+  if(page === 'ledger'){
+    $('app').innerHTML = `
+      <h2>9. Automatic Stock Ledger (हर मूवमेंट Transaction ID से लिंक)</h2>
+      <div class="card tablewrap"><table>
+        <tr><th>आइटम</th><th>श्रेणी</th><th>यूनिट</th><th>Opening</th><th>खरीद (+)</th><th>खपत (-)</th><th>उत्पादन (+)</th><th>Factory Stock</th><th>Godown Stock</th><th>बिक्री (-)</th><th>इतिहास</th></tr>
+        ${ledger.map(l => `<tr>
+          <td><b>${esc(l.name)}</b></td><td>${esc(l.master_type.toUpperCase())}</td><td>${esc(l.unit)}</td>
+          <td>${l.opening}</td><td>${l.purchased}</td><td>${l.consumed}</td><td>${l.produced}</td>
+          <td><span class="badge ${l.factoryStock<0?'b-err':'b-ok'}">${l.factoryStock}</span></td>
+          <td><span class="badge b-info">${l.godownStock}</span></td>
+          <td>${l.sold}</td>
+          <td><button class="secondary sm-btn" onclick="viewItemMoves('${l.id}')">Ledger (${l.movements.length})</button></td>
+        </tr>`).join('') || '<tr><td colspan="11">कोई डेटा नहीं</td></tr>'}
+      </table></div>
+      <div id="moveHistoryBox"></div>`;
+    return;
+  }
+
+  // 10. DAILY PRODUCTION (MULTI-RAW & MULTI-PRINTING SUPPORT + EDIT/RECALC)
+  if(page === 'production'){
+    const prodTxs = store.transactions.filter(t => t.tx_type === 'production');
+    $('app').innerHTML = `
+      <h2>10. Daily Production (Multi-Raw & Multi-Printing Material Support)</h2>
+      <div class="notice">नियम: <b>36 Pouches = 1 Packet (1 LD Outer)</b> | <b>720 Pouches = 20 Packets = 1 Bori</b> | Machine Default ₹${cfg.machineRate}/hr | Interest ${cfg.interestRate}% | GST ${cfg.gstRate}% (ITC अलग)।</div>
+      ${hasPerm('production') ? `
+      <div class="card"><form id="prodForm">
+        <input type="hidden" name="edit_id">
+        <h4>1. बैच व उत्पाद विवरण</h4>
+        <div class="form">
+          <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
+          <div><label>Batch Number *</label><input name="tx_number" value="B-${today().replace(/-/g,'')}-${prodTxs.length+1}" required></div>
+          <div><label>Finished Product *</label><select name="product_id" id="prodItemSel" required><option value="">-- उत्पाद चुनें --</option>${masterOpts('product')}</select></div>
+          <div><label>Estimated Pouches *</label><input name="estimated_pouches" type="number" min="0" required></div>
+          <div><label>Actual Pouches *</label><input name="actual_pouches" type="number" min="1" required></div>
+          <div><label>Pouch Weight (gram) *</label><input name="pouch_wt_g" type="number" step=".1" required></div>
+          <div><label>Total Output KG (ऑटो)</label><input id="outKgPrev" readonly></div>
+        </div>
+
+        <h4>2. Raw Materials (एक से अधिक Raw Material जोड़ें) <button type="button" class="secondary sm-btn" id="addRawRowBtn">+ Raw Material जोड़ें</button></h4>
+        <div id="rawLinesWrap"></div>
+
+        <h4>3. Printing Materials (Opening - Closing = कुल खपत; Wastage अलग से ट्रैक होगी) <button type="button" class="secondary sm-btn" id="addPrintRowBtn">+ Printing Material जोड़ें</button></h4>
+        <div id="printLinesWrap"></div>
+
+        <h4>4. Packing (LD Outer / Bori Rates), Labour, Machine & Overheads</h4>
+        <div class="form">
+          <div><label>Other Printing Expense ₹</label><input name="other_printing_cost" type="number" step=".01" value="0"></div>
+          <div><label>Labour Hours</label><input name="labour_hrs" type="number" step=".25" value="0"></div>
+          <div><label>Labour Rate ₹/hr</label><input name="labour_rate" type="number" step=".01" value="0"></div>
+          <div><label>Machine Hours</label><input name="mach_hrs" type="number" step=".25" value="0"></div>
+          <div><label>Machine Rate ₹/hr</label><input name="machine_rate" type="number" step=".01" value="${cfg.machineRate}"></div>
+          <div><label>Packing Material ₹</label><input name="packing_cost" type="number" step=".01" value="0"></div>
+          <div><label>LD Outer Master (ऑप्शनल)</label><select name="outer_item_id"><option value="">-- Auto Count --</option>${masterOpts('packing')}</select></div>
+          <div><label>LD Outer Rate ₹ (Editable)</label><input name="outer_rate" type="number" step=".01" value="0"></div>
+          <div><label>Bori Master (ऑप्शनल)</label><select name="bori_item_id"><option value="">-- Auto Count --</option>${masterOpts('packing')}</select></div>
+          <div><label>Bori Rate ₹ (Editable)</label><input name="bori_rate" type="number" step=".01" value="0"></div>
+          <div><label>Dengler Expense ₹</label><input name="dengler_cost" type="number" step=".01" value="0"></div>
+          <div><label>Marketing Expense ₹</label><input name="marketing_cost" type="number" step=".01" value="0"></div>
+        </div>
+
+        <h4>5. Interest & GST / ITC Treatment</h4>
+        <div class="form">
+          <div><label>Interest Rate % वार्षिक</label><input name="interest_rate" type="number" step=".01" value="${cfg.interestRate}"></div>
+          <div><label>Interest Days</label><input name="interest_days" type="number" value="${cfg.interestDays}"></div>
+          <div><label>GST Rate %</label><input name="gst_rate" type="number" step=".01" value="${cfg.gstRate}"></div>
+          <div><label>GST Input Tax Credit (ITC)</label><select name="itc_eligible"><option value="true">Yes (ITC Claimable - Cost से अलग)</option><option value="false">No (Cost में जोड़ें)</option></select></div>
+        </div>
+
+        <div class="summary-panel" id="prodLiveSummary"></div>
+        <br><button type="submit">उत्पादन सेव करें (Stock & Costing Update)</button>
+      </form></div>` : ''}
+
+      <div class="card tablewrap"><table>
+        <tr><th>दिनांक</th><th>Batch</th><th>उत्पाद</th><th>Act/Est Pouches</th><th>Output KG</th><th>Net Cost ₹</th><th>GST (ITC) ₹</th><th>₹/Pouch</th><th>₹/Packet</th><th>₹/KG</th><th>एक्शन</th></tr>
+        ${prodTxs.map(t => {
+          const c = evaluateProduction(t.payload);
+          return `<tr class="${t.status==='cancelled'?'cancelled':''}">
+            <td>${esc(t.tx_date)}</td><td><b>${esc(t.tx_number)}</b></td><td>${esc(masterName(t.payload.product_id))}</td>
+            <td>${c.actualPouches} / ${c.estPouches}</td><td>${c.outputKg} kg</td>
+            <td><b>${money(c.effectiveFinalCost)}</b></td><td>${money(c.gstAmount)}</td>
+            <td>${money(c.costPerPouch)}</td><td>${money(c.costPerPacket)}</td><td>${money(c.costPerKg)}</td>
+            <td>
+              ${hasPerm('editDel') ? `<button class="secondary sm-btn" onclick="editProductionTx('${t.id}')">Edit</button> <button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}
+            </td>
+          </tr>`;
+        }).join('') || '<tr><td colspan="11">कोई उत्पादन बैच नहीं</td></tr>'}
+      </table></div>`;
+
+    if($('prodForm')){
+      const form = $('prodForm');
+      const rawWrap = $('rawLinesWrap'), printWrap = $('printLinesWrap');
+
+      window.addRawRow = (data = {}) => {
+        const div = document.createElement('div');
+        div.className = 'line-row raw-line';
+        div.innerHTML = `
+          <div><label>Raw Material</label><select class="r-item"><option value="">-- चुनें --</option>${masterOpts('raw')}</select></div>
+          <div><label>Opening (kg)</label><input type="number" step=".001" class="r-open" value="${data.open ?? 0}"></div>
+          <div><label>Closing (kg)</label><input type="number" step=".001" class="r-close" value="${data.close ?? 0}"></div>
+          <div><label>Consumed (kg)</label><input class="r-cons" readonly></div>
+          <div><label>Rate ₹/kg</label><input type="number" step=".01" class="r-rate" value="${data.rate ?? 0}"></div>
+          <div><label>Cost ₹</label><input class="r-cost" readonly></div>
+          <div><button type="button" class="danger" onclick="this.closest('.raw-line').remove();recalcProdForm()">✕</button></div>
+        `;
+        rawWrap.appendChild(div);
+        if(data.item_id) div.querySelector('.r-item').value = data.item_id;
+      };
+
+      window.addPrintRow = (data = {}) => {
+        const div = document.createElement('div');
+        div.className = 'print-row print-line';
+        div.innerHTML = `
+          <div><label>Printing Material</label><select class="p-item"><option value="">-- चुनें --</option>${masterOpts('print')}</select></div>
+          <div><label>Opening</label><input type="number" step=".001" class="p-open" value="${data.open ?? 0}"></div>
+          <div><label>Closing</label><input type="number" step=".001" class="p-close" value="${data.close ?? 0}"></div>
+          <div><label>Total Used</label><input class="p-used" readonly></div>
+          <div><label>Wastage Qty</label><input type="number" step=".001" class="p-waste" value="${data.wastage ?? 0}"></div>
+          <div><label>Rate ₹/unit</label><input type="number" step=".01" class="p-rate" value="${data.rate ?? 0}"></div>
+          <div><label>Total Print ₹</label><input class="p-cost" readonly></div>
+          <div><button type="button" class="danger" onclick="this.closest('.print-line').remove();recalcProdForm()">✕</button></div>
+        `;
+        printWrap.appendChild(div);
+        if(data.item_id) div.querySelector('.p-item').value = data.item_id;
+      };
+
+      $('addRawRowBtn').onclick = () => { window.addRawRow(); window.recalcProdForm(); };
+      $('addPrintRowBtn').onclick = () => { window.addPrintRow(); window.recalcProdForm(); };
+
+      // Initialize with 1 raw and 1 print row
+      window.addRawRow();
+      window.addPrintRow();
+
+      $('prodItemSel').onchange = e => {
+        const it = getMaster(e.target.value);
+        if(it){
+          if(it.pouch_wt_g) form.elements.pouch_wt_g.value = it.pouch_wt_g;
+          form.elements.gst_rate.value = it.gst_rate ?? cfg.gstRate;
+        }
+        window.recalcProdForm();
+      };
+
+      window.collectProdPayload = () => {
+        const fd = new FormData(form);
+        const raw_lines = Array.from(rawWrap.querySelectorAll('.raw-line')).map(el => ({
+          item_id: el.querySelector('.r-item').value,
+          open: n(el.querySelector('.r-open').value),
+          close: n(el.querySelector('.r-close').value),
+          rate: n(el.querySelector('.r-rate').value)
+        })).filter(r => r.item_id || r.open > 0);
+
+        const print_lines = Array.from(printWrap.querySelectorAll('.print-line')).map(el => ({
+          item_id: el.querySelector('.p-item').value,
+          open: n(el.querySelector('.p-open').value),
+          close: n(el.querySelector('.p-close').value),
+          wastage: n(el.querySelector('.p-waste').value),
+          rate: n(el.querySelector('.p-rate').value)
+        })).filter(p => p.item_id || p.open > 0);
+
+        return {
+          product_id: fd.get('product_id'),
+          estimated_pouches: n(fd.get('estimated_pouches')),
+          actual_pouches: n(fd.get('actual_pouches')),
+          pouch_wt_g: n(fd.get('pouch_wt_g')),
+          raw_lines,
+          print_lines,
+          other_printing_cost: n(fd.get('other_printing_cost')),
+          labour_hrs: n(fd.get('labour_hrs')),
+          labour_rate: n(fd.get('labour_rate')),
+          mach_hrs: n(fd.get('mach_hrs')),
+          machine_rate: n(fd.get('machine_rate')),
+          packing_cost: n(fd.get('packing_cost')),
+          outer_item_id: fd.get('outer_item_id'),
+          outer_rate: n(fd.get('outer_rate')),
+          bori_item_id: fd.get('bori_item_id'),
+          bori_rate: n(fd.get('bori_rate')),
+          dengler_cost: n(fd.get('dengler_cost')),
+          marketing_cost: n(fd.get('marketing_cost')),
+          interest_rate: n(fd.get('interest_rate')),
+          interest_days: n(fd.get('interest_days')),
+          gst_rate: n(fd.get('gst_rate')),
+          itc_eligible: fd.get('itc_eligible') === 'true'
+        };
+      };
+
+      window.recalcProdForm = () => {
+        const payload = window.collectProdPayload();
+        const c = evaluateProduction(payload);
+
+        rawWrap.querySelectorAll('.raw-line').forEach(el => {
+          const cons = Math.max(0, r3(n(el.querySelector('.r-open').value) - n(el.querySelector('.r-close').value)));
+          el.querySelector('.r-cons').value = cons;
+          el.querySelector('.r-cost').value = money(cons * n(el.querySelector('.r-rate').value));
+        });
+
+        printWrap.querySelectorAll('.print-line').forEach(el => {
+          const used = Math.max(0, r3(n(el.querySelector('.p-open').value) - n(el.querySelector('.p-close').value)));
+          el.querySelector('.p-used').value = used;
+          el.querySelector('.p-cost').value = money(used * n(el.querySelector('.p-rate').value));
+        });
+
+        $('outKgPrev').value = c.outputKg + ' kg';
+        $('prodLiveSummary').innerHTML = `
+          <div><span class="muted">Packets / LD Outers (36/pkt):</span><br><b>${c.packets} Pkt (${c.outerCount} Outer = ${money(c.outerCost)})</b></div>
+          <div><span class="muted">Bori Count (720/bori):</span><br><b>${c.boris} Bori (${c.boriCount} Bori = ${money(c.boriCost)})</b></div>
+          <div><span class="muted">Raw + Print (Good/Waste):</span><br><b>${money(c.totalRawCost)} + ${money(c.totalPrintGoodCost)} / ${money(c.totalPrintWastageCost)}</b></div>
+          <div><span class="muted">Labour + Machine + Interest:</span><br><b>${money(c.labourCost)} + ${money(c.machineCost)} + ${money(c.interestCost)}</b></div>
+          <div><span class="muted">GST (${c.gstRate}% - ${c.itcEligible?'ITC Separate':'In Cost'}):</span><br><b>${money(c.gstAmount)}</b></div>
+          <div><span class="muted">Effective Final Cost:</span><br><b>${money(c.effectiveFinalCost)}</b></div>
+          <div><span class="muted">Per Pouch / Per Packet / Per KG:</span><br><b>${money(c.costPerPouch)} / ${money(c.costPerPacket)} / ${money(c.costPerKg)}</b></div>
+        `;
+      };
+
+      form.oninput = window.recalcProdForm;
+      window.recalcProdForm();
+
+      form.onsubmit = e => {
+        e.preventDefault();
+        const fd = new FormData(form);
+        const editId = fd.get('edit_id');
+        const payload = window.collectProdPayload();
+        const c = evaluateProduction(payload);
+
+        // Validations
+        for(const rl of payload.raw_lines){
+          if(rl.close > rl.open){ alert('Raw Material Closing Opening से अधिक नहीं हो सकता।'); return; }
+        }
+        for(const pl of payload.print_lines){
+          if(pl.close > pl.open){ alert('Printing Material Closing Opening से अधिक नहीं हो सकता।'); return; }
+          if(pl.wastage > (pl.open - pl.close)){ alert('Printing Wastage कुल खपत (Opening - Closing) से अधिक नहीं हो सकती।'); return; }
+        }
+
+        // Negative Stock Check (excluding current edit transaction)
+        const checkLedger = buildStockLedger(editId || null);
+        if(!canBypassNegativeStock()){
+          for(const rl of c.evaluatedRaw){
+            if(rl.item_id){
+              const st = checkLedger.find(x => x.id === rl.item_id);
+              if(st && rl.consumed > st.factoryStock){
+                alert(`❌ Raw Material "${st.name}" का स्टॉक अपर्याप्त है! उपलब्ध: ${st.factoryStock} ${st.unit}, आवश्यक: ${rl.consumed}`); return;
+              }
+            }
+          }
+          for(const pl of c.evaluatedPrint){
+            if(pl.item_id){
+              const st = checkLedger.find(x => x.id === pl.item_id);
+              if(st && pl.physicalUsed > st.factoryStock){
+                alert(`❌ Printing Material "${st.name}" का स्टॉक अपर्याप्त है! उपलब्ध: ${st.factoryStock} ${st.unit}, आवश्यक: ${pl.physicalUsed}`); return;
+              }
+            }
+          }
+        }
+
+        saveTransaction({
+          id: editId || uid(), tx_type: 'production', tx_number: fd.get('tx_number').trim(),
+          tx_date: fd.get('tx_date'), status: 'active', created_by: authUser?.email || 'Local',
+          created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+          payload
+        }, !!editId);
+        render();
+      };
+    }
+    return;
+  }
+
+  // 11. PRODUCTION COSTING (BATCH-WISE & PRODUCT-WISE)
+  if(page === 'costing'){
+    const prodTxs = activeTxs.filter(t => t.tx_type === 'production');
+    const products = store.masters.filter(m => m.master_type === 'product');
+
+    $('app').innerHTML = `
+      <h2>11. Production Costing Breakdown (Batch-wise & Product-wise)</h2>
+      <div class="card">
+        <h3>Product-wise Average Costing</h3>
+        <div class="tablewrap"><table>
+          <tr><th>उत्पाद</th><th>कुल बैच</th><th>कुल Pouches</th><th>कुल Packets</th><th>कुल Output KG</th><th>कुल Net Cost ₹</th><th>Avg ₹/Pouch</th><th>Avg ₹/Packet</th><th>Avg ₹/KG</th></tr>
+          ${products.map(pr => {
+            const list = prodTxs.filter(t => t.payload.product_id === pr.id);
+            const pSum = list.reduce((s,t) => s + evaluateProduction(t.payload).actualPouches, 0);
+            const pktSum = r2(pSum / 36);
+            const kgSum = list.reduce((s,t) => s + evaluateProduction(t.payload).outputKg, 0);
+            const cSum = list.reduce((s,t) => s + evaluateProduction(t.payload).effectiveFinalCost, 0);
+            return `<tr>
+              <td><b>${esc(pr.name)}</b></td><td>${list.length}</td><td>${pSum}</td><td>${pktSum}</td><td>${r3(kgSum)} kg</td>
+              <td><b>${money(cSum)}</b></td><td>${pSum?money(cSum/pSum):'₹0.00'}</td><td>${pktSum?money(cSum/pktSum):'₹0.00'}</td><td>${kgSum?money(cSum/kgSum):'₹0.00'}</td>
+            </tr>`;
+          }).join('') || '<tr><td colspan="9">कोई उत्पाद नहीं</td></tr>'}
+        </table></div>
+      </div>
+
+      <div class="card">
+        <h3>Batch-wise Detailed Cost Sheet (सभी 13 खर्च मद अलग-अलग)</h3>
+        <div class="tablewrap"><table>
+          <tr><th>Batch</th><th>दिनांक</th><th>उत्पाद</th><th>Raw ₹</th><th>Print Good ₹</th><th>Print Waste ₹</th><th>Other Print ₹</th><th>Labour ₹</th><th>Machine ₹</th><th>Packing ₹</th><th>LD Outer ₹</th><th>Bori ₹</th><th>Dengler ₹</th><th>Marketing ₹</th><th>Interest ₹</th><th>GST (ITC) ₹</th><th>Final Cost ₹</th><th>₹/Pouch</th><th>₹/Packet</th><th>₹/KG</th></tr>
+          ${prodTxs.map(t => {
+            const c = evaluateProduction(t.payload);
+            return `<tr>
+              <td><b>${esc(t.tx_number)}</b></td><td>${esc(t.tx_date)}</td><td>${esc(masterName(t.payload.product_id))}</td>
+              <td>${money(c.totalRawCost)}</td><td>${money(c.totalPrintGoodCost)}</td><td>${money(c.totalPrintWastageCost)}</td><td>${money(c.otherPrintCost)}</td>
+              <td>${money(c.labourCost)}</td><td>${money(c.machineCost)}</td><td>${money(c.packingCost)}</td>
+              <td>${money(c.outerCost)}</td><td>${money(c.boriCost)}</td><td>${money(c.denglerCost)}</td><td>${money(c.marketingCost)}</td>
+              <td>${money(c.interestCost)}</td><td>${money(c.gstAmount)}</td><td><b>${money(c.effectiveFinalCost)}</b></td>
+              <td>${money(c.costPerPouch)}</td><td>${money(c.costPerPacket)}</td><td>${money(c.costPerKg)}</td>
+            </tr>`;
+          }).join('') || '<tr><td colspan="20">कोई बैच नहीं</td></tr>'}
+        </table></div>
+      </div>`;
+    return;
+  }
+
+  // 12. FACTORY TO GODOWN DISPATCH
+  if(page === 'dispatch'){
+    const disTxs = store.transactions.filter(t => t.tx_type === 'dispatch');
+    $('app').innerHTML = `
+      <h2>12. Factory to Godown Dispatch (Factory Stock - | Godown Stock +)</h2>
+      ${hasPerm('dispatch') ? `
+      <div class="card"><form id="disForm" class="form">
+        <input type="hidden" name="edit_id">
+        <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
+        <div><label>Challan No. *</label><input name="tx_number" value="DSP-${Date.now().toString().slice(-5)}" required></div>
+        <div><label>उत्पाद *</label><select name="product_id" required>${masterOpts('product')}</select></div>
+        <div><label>Dispatch Quantity *</label><input name="qty" type="number" step=".001" min=".001" required></div>
+        <div><label>Godown Name *</label><input name="godown_name" value="Main Godown Jabalpur" required></div>
+        <div><label>Vehicle No.</label><input name="vehicle_no"></div>
+        <div><label>Remarks</label><input name="remarks"></div>
+        <button>Dispatch सेव करें</button>
+      </form></div>` : ''}
+      <div class="card tablewrap"><table>
+        <tr><th>दिनांक</th><th>Challan</th><th>उत्पाद</th><th>Quantity</th><th>Godown</th><th>Vehicle</th><th>स्थिति</th><th>एक्शन</th></tr>
+        ${disTxs.map(t => `<tr class="${t.status==='cancelled'?'cancelled':''}">
+          <td>${esc(t.tx_date)}</td><td><b>${esc(t.tx_number)}</b></td><td>${esc(masterName(t.payload.product_id))}</td>
+          <td>${n(t.payload.qty)}</td><td>${esc(t.payload.godown_name)}</td><td>${esc(t.payload.vehicle_no)}</td>
+          <td><span class="badge b-info">${esc(t.status)}</span></td>
+          <td>${hasPerm('editDel') ? `<button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}</td>
+        </tr>`).join('') || '<tr><td colspan="8">कोई Dispatch नहीं</td></tr>'}
+      </table></div>`;
+
+    if($('disForm')){
+      $('disForm').onsubmit = e => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const prodId = f.get('product_id'), qty = n(f.get('qty'));
+        const st = ledger.find(l => l.id === prodId);
+        if(!canBypassNegativeStock() && (!st || qty > st.factoryStock)){
+          alert(`❌ अपर्याप्त Factory Stock! उपलब्ध Factory Stock: ${st ? st.factoryStock : 0} ${st ? st.unit : ''}`); return;
+        }
+        saveTransaction({
+          id: uid(), tx_type: 'dispatch', tx_number: f.get('tx_number').trim(), tx_date: f.get('tx_date'),
+          status: 'active', created_by: authUser?.email || 'Local',
+          created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+          payload: { product_id: prodId, qty, godown_name: f.get('godown_name').trim(), vehicle_no: f.get('vehicle_no').trim(), remarks: f.get('remarks').trim() }
+        });
+        render();
+      };
+    }
+    return;
+  }
+
+  // 13. GODOWN STOCK
+  if(page === 'godown'){
+    const prods = ledger.filter(l => l.master_type === 'product');
+    $('app').innerHTML = `
+      <h2>13. Godown Stock Register</h2>
+      <div class="card tablewrap"><table>
+        <tr><th>उत्पाद</th><th>यूनिट</th><th>Factory से प्राप्त (+)</th><th>Sales Return (+)</th><th>बिक्री (-)</th><th>उपलब्ध Godown Stock</th></tr>
+        ${prods.map(p => `<tr>
+          <td><b>${esc(p.name)}</b></td><td>${esc(p.unit)}</td><td>${p.dispatched}</td><td>${p.saleReturn}</td><td>${p.sold}</td>
+          <td><span class="badge ${p.godownStock>0?'b-ok':'b-warn'}">${p.godownStock}</span></td>
+        </tr>`).join('') || '<tr><td colspan="6">कोई उत्पाद नहीं</td></tr>'}
+      </table></div>`;
+    return;
+  }
+
+  // 14. SALES & SALES RETURN
+  if(page === 'sales'){
+    const saleTxs = store.transactions.filter(t => ['sale','sale_return'].includes(t.tx_type));
+    $('app').innerHTML = `
+      <h2>14. Sales & Sales Return (Godown Stock से घटेगा)</h2>
+      ${hasPerm('sales') ? `
+      <div class="card"><form id="saleForm" class="form">
+        <div><label>प्रकार</label><select name="tx_type"><option value="sale">Sales (-Godown Stock)</option><option value="sale_return">Sales Return (+Godown Stock)</option></select></div>
+        <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
+        <div><label>Bill No. *</label><input name="tx_number" value="SAL-${Date.now().toString().slice(-5)}" required></div>
+        <div><label>ग्राहक / पार्टी *</label><input name="party_name" list="custDL" required><datalist id="custDL">${store.parties.filter(p=>p.party_type==='customer').map(p=>`<option value="${esc(p.name)}">`).join('')}</datalist></div>
+        <div><label>उत्पाद *</label><select name="product_id" required>${masterOpts('product')}</select></div>
+        <div><label>Quantity *</label><input name="qty" type="number" step=".001" min=".001" required></div>
+        <div><label>Rate ₹ *</label><input name="rate" type="number" step=".01" min="0" required></div>
+        <div><label>GST %</label><input name="gst_rate" type="number" step=".01" value="${cfg.gstRate}"></div>
+        <button>बिक्री सेव करें</button>
+      </form></div>` : ''}
+      <div class="card tablewrap"><table>
+        <tr><th>दिनांक</th><th>प्रकार</th><th>Bill No.</th><th>ग्राहक</th><th>उत्पाद</th><th>Qty</th><th>Taxable ₹</th><th>GST ₹</th><th>कुल ₹</th><th>एक्शन</th></tr>
+        ${saleTxs.map(t => {
+          const p = t.payload;
+          return `<tr class="${t.status==='cancelled'?'cancelled':''}">
+            <td>${esc(t.tx_date)}</td>
+            <td><span class="badge ${t.tx_type==='sale'?'b-ok':'b-warn'}">${t.tx_type.toUpperCase()}</span></td>
+            <td><b>${esc(t.tx_number)}</b></td><td>${esc(p.party_name)}</td><td>${esc(masterName(p.product_id))}</td>
+            <td>${n(p.qty)}</td><td>${money(p.base_amount)}</td><td>${money(p.gst_amount)}</td><td><b>${money(p.grand_total)}</b></td>
+            <td>${hasPerm('editDel') ? `<button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}</td>
+          </tr>`;
+        }).join('') || '<tr><td colspan="10">कोई बिक्री नहीं</td></tr>'}
+      </table></div>`;
+
+    if($('saleForm')){
+      $('saleForm').onsubmit = e => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const type = f.get('tx_type'), prodId = f.get('product_id'), qty = n(f.get('qty')), rate = n(f.get('rate')), gst = n(f.get('gst_rate'));
+        if(type === 'sale'){
+          const st = ledger.find(l => l.id === prodId);
+          if(!canBypassNegativeStock() && (!st || qty > st.godownStock)){
+            alert(`❌ अपर्याप्त Godown Stock! उपलब्ध Godown Stock: ${st ? st.godownStock : 0}`); return;
+          }
+        }
+        const base = r2(qty * rate), gstAmt = r2(base * gst / 100);
+        saveTransaction({
+          id: uid(), tx_type: type, tx_number: f.get('tx_number').trim(), tx_date: f.get('tx_date'),
+          status: 'active', created_by: authUser?.email || 'Local',
+          created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+          payload: { product_id: prodId, party_name: f.get('party_name').trim(), qty, rate, gst_rate: gst, base_amount: base, gst_amount: gstAmt, grand_total: r2(base+gstAmt) }
+        });
+        render();
+      };
+    }
+    return;
+  }
+
+  // 15. EXPENSES & ACCOUNTS
+  if(page === 'expenses'){
+    const expTxs = store.transactions.filter(t => t.tx_type === 'expense');
+    $('app').innerHTML = `
+      <h2>15. Expenses & Accounts Ledger</h2>
+      ${hasPerm('expense') ? `
+      <div class="card"><form id="expForm" class="form">
+        <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
+        <div><label>खर्च मद *</label><select name="head"><option>Labour & Wages</option><option>Electricity & Power</option><option>Machine Maintenance</option><option>Printing & Packaging</option><option>Transport & Freight</option><option>Marketing & Dengler</option><option>Interest & Finance</option><option>Office & General</option></select></div>
+        <div><label>विवरण *</label><input name="description" required></div>
+        <div><label>राशि ₹ *</label><input name="amount" type="number" step=".01" min=".01" required></div>
+        <div><label>GST ₹</label><input name="gst_amount" type="number" step=".01" value="0"></div>
+        <div><label>भुगतान माध्यम</label><select name="mode"><option>Cash</option><option>Bank / UPI</option><option>Credit</option></select></div>
+        <button>खर्च सेव करें</button>
+      </form></div>` : ''}
+      <div class="card tablewrap"><table>
+        <tr><th>दिनांक</th><th>मद</th><th>विवरण</th><th>माध्यम</th><th>राशि ₹</th><th>GST ₹</th><th>कुल ₹</th><th>एक्शन</th></tr>
+        ${expTxs.map(t => `<tr class="${t.status==='cancelled'?'cancelled':''}">
+          <td>${esc(t.tx_date)}</td><td><b>${esc(t.payload.head)}</b></td><td>${esc(t.payload.description)}</td>
+          <td>${esc(t.payload.mode)}</td><td>${money(t.payload.amount)}</td><td>${money(t.payload.gst_amount)}</td>
+          <td><b>${money(n(t.payload.amount)+n(t.payload.gst_amount))}</b></td>
+          <td>${hasPerm('editDel') ? `<button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}</td>
+        </tr>`).join('') || '<tr><td colspan="8">कोई खर्च नहीं</td></tr>'}
+      </table></div>`;
+
+    if($('expForm')){
+      $('expForm').onsubmit = e => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        saveTransaction({
+          id: uid(), tx_type: 'expense', tx_number: 'EXP-' + Date.now().toString().slice(-5),
+          tx_date: f.get('tx_date'), status: 'active', created_by: authUser?.email || 'Local',
+          created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+          payload: { head: f.get('head'), description: f.get('description').trim(), amount: n(f.get('amount')), gst_amount: n(f.get('gst_amount')), mode: f.get('mode') }
+        });
+        render();
+      };
+    }
+    return;
+  }
+
+  // 16. MONTHLY REPORTS (11-SHEET EXCEL + PDF)
+  if(page === 'reports'){
+    const products = store.masters.filter(m => m.master_type === 'product');
+    $('app').innerHTML = `
+      <h2>16. Monthly Reports & 11-Sheet Excel / PDF Export</h2>
+      <div class="card no-print">
+        <div class="form">
+          <div><label>महीना</label><input type="month" id="repM" value="${curMonth()}"></div>
+          <div><label>उत्पाद</label><select id="repP"><option value="all">सभी उत्पाद (All Products)</option>${products.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select></div>
+          <button id="runRepBtn">रिपोर्ट दिखाएँ</button>
+        </div>
+        <div class="actions" style="margin-top:10px">
+          <button id="xl11Btn">📊 11-Sheet Excel डाउनलोड (.xlsx)</button>
+          <button id="pdfRepBtn" class="secondary">📄 PDF डाउनलोड</button>
+          <button onclick="window.print()" class="secondary">🖨 Print</button>
+        </div>
+      </div>
+      <div id="repOut"></div>`;
+
+    const buildMonthly = () => {
+      const m = $('repM').value, pid = $('repP').value;
+      const inM = t => t.status === 'active' && (!m || String(t.tx_date||'').startsWith(m));
+
+      const rProd = activeTxs.filter(t => inM(t) && t.tx_type==='production' && (pid==='all' || t.payload.product_id===pid));
+      const rPur  = activeTxs.filter(t => inM(t) && ['purchase','purchase_return'].includes(t.tx_type) && (pid==='all' || t.payload.item_id===pid));
+      const rDisp = activeTxs.filter(t => inM(t) && t.tx_type==='dispatch' && (pid==='all' || t.payload.product_id===pid));
+      const rSale = activeTxs.filter(t => inM(t) && ['sale','sale_return'].includes(t.tx_type) && (pid==='all' || t.payload.product_id===pid));
+      const rExp  = activeTxs.filter(t => inM(t) && t.tx_type==='expense');
+
+      const prodCostTotal = r2(rProd.reduce((s,t) => s + evaluateProduction(t.payload).effectiveFinalCost, 0));
+      const pouchesTotal  = rProd.reduce((s,t) => s + evaluateProduction(t.payload).actualPouches, 0);
+      const salesExGst    = r2(rSale.reduce((s,t) => s + (t.tx_type==='sale'?1:-1)*n(t.payload.base_amount), 0));
+      const purExGst      = r2(rPur.reduce((s,t) => s + (t.tx_type==='purchase'?1:-1)*n(t.payload.base_amount), 0));
+      const directExp     = r2(rExp.reduce((s,t) => s + n(t.payload.amount), 0));
+      const netPL         = r2(salesExGst - prodCostTotal - directExp);
+
+      $('repOut').innerHTML = `<div id="pdfTarget">
+        <div class="card">
+          <h3>SADHNA AGRO — Monthly Report (${esc(m||'All')}) | Product: ${esc(pid==='all'?'All Products':masterName(pid))}</h3>
+          <div class="grid">
+            <div class="card"><div class="muted">उत्पादित पाउच</div><div class="metric">${pouchesTotal}</div></div>
+            <div class="card"><div class="muted">उत्पादन लागत (Net)</div><div class="metric">${money(prodCostTotal)}</div></div>
+            <div class="card"><div class="muted">खरीद (Ex-GST)</div><div class="metric">${money(purExGst)}</div></div>
+            <div class="card"><div class="muted">बिक्री (Ex-GST)</div><div class="metric">${money(salesExGst)}</div></div>
+            <div class="card"><div class="muted">अन्य खर्चे</div><div class="metric">${money(directExp)}</div></div>
+            <div class="card"><div class="muted">Net Profit / Loss</div><div class="metric" style="color:${netPL>=0?'var(--ok)':'var(--err)'}">${money(netPL)}</div></div>
+          </div>
+        </div>
+        <div class="card tablewrap">
+          <h3>उत्पादन एवं लागत सारांश</h3>
+          <table>
+            <tr><th>Batch</th><th>दिनांक</th><th>उत्पाद</th><th>Pouches</th><th>Output KG</th><th>Raw ₹</th><th>Print ₹</th><th>Waste ₹</th><th>Labour+Mach ₹</th><th>Interest ₹</th><th>GST ₹</th><th>Final Cost ₹</th></tr>
+            ${rProd.map(t => {
+              const c = evaluateProduction(t.payload);
+              return `<tr><td>${esc(t.tx_number)}</td><td>${esc(t.tx_date)}</td><td>${esc(masterName(t.payload.product_id))}</td><td>${c.actualPouches}</td><td>${c.outputKg}</td><td>${money(c.totalRawCost)}</td><td>${money(c.totalPrintGoodCost)}</td><td>${money(c.totalPrintWastageCost)}</td><td>${money(c.labourCost+c.machineCost)}</td><td>${money(c.interestCost)}</td><td>${money(c.gstAmount)}</td><td><b>${money(c.effectiveFinalCost)}</b></td></tr>`;
+            }).join('') || '<tr><td colspan="12">कोई उत्पादन रिकॉर्ड नहीं</td></tr>'}
+          </table>
+        </div>
+      </div>`;
+
+      window.__repPayload = { m, pid, rProd, rPur, rDisp, rSale, rExp, ledger, summary:{pouchesTotal, prodCostTotal, purExGst, salesExGst, directExp, netPL} };
+    };
+
+    $('runRepBtn').onclick = buildMonthly;
+    buildMonthly();
+
+    $('xl11Btn').onclick = () => {
+      if(!window.XLSX){ alert('Excel लाइब्रेरी लोड नहीं हुई। इंटरनेट जांचें।'); return; }
+      const d = window.__repPayload;
+      const wb = XLSX.utils.book_new();
+
+      // 1. Summary
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+        ['SADHNA AGRO ERP - MONTHLY REPORT', d.m || 'ALL'],
+        ['Total Pouches Produced', d.summary.pouchesTotal],
+        ['Total Production Cost (Net)', d.summary.prodCostTotal],
+        ['Total Purchases (Ex-GST)', d.summary.purExGst],
+        ['Total Sales (Ex-GST)', d.summary.salesExGst],
+        ['Total Direct Expenses', d.summary.directExp],
+        ['Net Profit / Loss', d.summary.netPL]
+      ]), 'Summary');
+
+      // 2. Product Production
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.rProd.map(t => {
+        const c = evaluateProduction(t.payload);
+        return { Date:t.tx_date, Batch:t.tx_number, Product:masterName(t.payload.product_id), Est_Pouches:c.estPouches, Actual_Pouches:c.actualPouches, Packets:c.packets, Boris:c.boris, Output_KG:c.outputKg };
+      })), 'Product Production');
+
+      // 3. Material Consumption
+      const rawRows = [];
+      d.rProd.forEach(t => evaluateProduction(t.payload).evaluatedRaw.forEach(r => rawRows.push({
+        Date:t.tx_date, Batch:t.tx_number, Product:masterName(t.payload.product_id), Raw_Material:masterName(r.item_id), Opening:r.open, Closing:r.close, Consumed_KG:r.consumed, Rate:r.rate, Cost:r.cost
+      })));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rawRows), 'Material Consumption');
+
+      // 4. Printing
+      const prRows = [];
+      d.rProd.forEach(t => evaluateProduction(t.payload).evaluatedPrint.forEach(p => prRows.push({
+        Date:t.tx_date, Batch:t.tx_number, Printing_Item:masterName(p.item_id), Opening:p.open, Closing:p.close, Total_Used:p.physicalUsed, Net_Good_Used:p.netGoodUsed, Wastage_Qty:p.wastageQty, Rate:p.rate, Good_Cost:p.goodCost, Wastage_Cost:p.wasteCost
+      })));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(prRows), 'Printing');
+
+      // 5. Costing
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.rProd.map(t => {
+        const c = evaluateProduction(t.payload);
+        return { Date:t.tx_date, Batch:t.tx_number, Product:masterName(t.payload.product_id), Raw:c.totalRawCost, Print_Good:c.totalPrintGoodCost, Print_Waste:c.totalPrintWastageCost, Other_Print:c.otherPrintCost, Labour:c.labourCost, Machine:c.machineCost, Packing:c.packingCost, LD_Outer:c.outerCost, Bori:c.boriCost, Dengler:c.denglerCost, Marketing:c.marketingCost, Interest:c.interestCost, GST_ITC:c.gstAmount, Final_Cost:c.effectiveFinalCost, Cost_Per_Pouch:c.costPerPouch, Cost_Per_Packet:c.costPerPacket, Cost_Per_KG:c.costPerKg };
+      })), 'Costing');
+
+      // 6. Factory Stock
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.ledger.map(l => ({
+        Item:l.name, Type:l.master_type, Unit:l.unit, Opening:l.opening, Purchased:l.purchased, Consumed:l.consumed, Produced:l.produced, Dispatched:l.dispatched, Available_Factory_Stock:l.factoryStock
+      }))), 'Factory Stock');
+
+      // 7. Godown Stock
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.ledger.filter(l=>l.master_type==='product').map(l => ({
+        Product:l.name, Unit:l.unit, Received_From_Factory:l.dispatched, Sales_Return:l.saleReturn, Sold:l.sold, Available_Godown_Stock:l.godownStock
+      }))), 'Godown Stock');
+
+      // 8. Dispatch
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.rDisp.map(t => ({
+        Date:t.tx_date, Challan:t.tx_number, Product:masterName(t.payload.product_id), Qty:t.payload.qty, Godown:t.payload.godown_name, Vehicle:t.payload.vehicle_no
+      }))), 'Dispatch');
+
+      // 9. Purchase
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.rPur.map(t => ({
+        Date:t.tx_date, Type:t.tx_type, Bill:t.tx_number, Supplier:t.payload.party_name, Item:masterName(t.payload.item_id), Qty:t.payload.qty, Rate:t.payload.rate, Taxable:t.payload.base_amount, GST:t.payload.gst_amount, Total:t.payload.grand_total
+      }))), 'Purchase');
+
+      // 10. Expenses
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.rExp.map(t => ({
+        Date:t.tx_date, Voucher:t.tx_number, Head:t.payload.head, Description:t.payload.description, Amount:t.payload.amount, GST:t.payload.gst_amount, Mode:t.payload.mode
+      }))), 'Expenses');
+
+      // 11. Profit Loss
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+        ['PARTICULARS', 'AMOUNT (INR)'],
+        ['Sales Revenue (Ex-GST)', d.summary.salesExGst],
+        ['Less: Cost of Goods Produced (Net)', d.summary.prodCostTotal],
+        ['Less: Direct & Operating Expenses', d.summary.directExp],
+        ['NET PROFIT / (LOSS)', d.summary.netPL]
+      ]), 'Profit Loss');
+
+      XLSX.writeFile(wb, `Sadhna-Agro-11Sheet-Report-${d.m || 'all'}.xlsx`);
+    };
+
+    $('pdfRepBtn').onclick = async () => {
+      if(!window.html2pdf){ alert('PDF लाइब्रेरी लोड नहीं हुई।'); return; }
+      await html2pdf().set({
+        margin: 8, filename: `Sadhna-Agro-Report-${$('repM').value || 'all'}.pdf`,
+        image: {type:'jpeg', quality:.95}, html2canvas: {scale:1.5, useCORS:true},
+        jsPDF: {unit:'mm', format:'a4', orientation:'landscape'}
+      }).from($('pdfTarget')).save();
+    };
+    return;
+  }
+
+  // 17. USER MANAGEMENT & ROLE SWITCHER
+  if(page === 'users'){
+    $('app').innerHTML = `
+      <h2>17. User Management & Role Permissions</h2>
+      <div class="card">
+        <h3>सक्रिय Role और Negative Stock Override</h3>
+        <div class="form">
+          <div><label>वर्तमान Role चुनें</label>
+            <select id="activeRoleSel">
+              <option value="admin" ${cfg.activeRole==='admin'?'selected':''}>Admin (All Rights + Override)</option>
+              <option value="production" ${cfg.activeRole==='production'?'selected':''}>Production Operator</option>
+              <option value="store" ${cfg.activeRole==='store'?'selected':''}>Store Keeper</option>
+              <option value="accountant" ${cfg.activeRole==='accountant'?'selected':''}>Accountant</option>
+            </select>
+          </div>
+          <div><label>Admin Negative Stock Approval</label>
+            <select id="negStockSel" ${cfg.activeRole!=='admin'?'disabled':''}>
+              <option value="false" ${!cfg.allowNegativeStockAdmin?'selected':''}>Blocked (सख्त रोक - Default)</option>
+              <option value="true" ${cfg.allowNegativeStockAdmin?'selected':''}>Allowed (Admin Override)</option>
+            </select>
+          </div>
+          <button id="applyRoleBtn">सेटिंग लागू करें</button>
+        </div>
+      </div>
+
+      ${hasPerm('users') ? `
+      <div class="card"><form id="uForm" class="form">
+        <div><label>कर्मचारी का नाम *</label><input name="name" required></div>
+        <div><label>ईमेल *</label><input name="email" type="email" required></div>
+        <div><label>Role</label><select name="role"><option value="production">Production Operator</option><option value="store">Store Keeper</option><option value="accountant">Accountant</option><option value="admin">Admin</option></select></div>
+        <button>यूजर जोड़ें</button>
+      </form></div>` : ''}
+
+      <div class="card tablewrap"><table>
+        <tr><th>नाम</th><th>ईमेल</th><th>Role</th></tr>
+        ${store.users.map(u => `<tr><td><b>${esc(u.name)}</b></td><td>${esc(u.email)}</td><td><span class="badge b-info">${esc(u.role.toUpperCase())}</span></td></tr>`).join('')}
+      </table></div>`;
+
+    $('applyRoleBtn').onclick = () => {
+      cfg.activeRole = $('activeRoleSel').value;
+      cfg.allowNegativeStockAdmin = cfg.activeRole === 'admin' && $('negStockSel').value === 'true';
+      addAudit('ROLE_UPDATE', 'UserManagement', cfg.activeRole, `Role: ${cfg.activeRole}, NegativeStockOverride: ${cfg.allowNegativeStockAdmin}`);
+      persist();
+      render();
+    };
+    if($('uForm')){
+      $('uForm').onsubmit = e => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        store.users.push({id:uid(), name:f.get('name').trim(), email:f.get('email').trim(), role:f.get('role')});
+        addAudit('ADD_USER', 'UserManagement', f.get('email'), `नया यूजर (${f.get('role')}) जोड़ा गया`);
+        persist();
+        render();
+      };
+    }
+    return;
+  }
+
+  // 18. CLOUD SYNC & BACKUP
+  if(page === 'cloud'){
+    $('app').innerHTML = `
+      <h2>18. Cloud Sync (Supabase + Google Sheets) & Backup</h2>
+      <div class="card">
+        <h3>Supabase Authentication & Real Queue Sync</h3>
+        <div class="form">
+          <div><label>Supabase Login Email</label><input id="loginEmail" type="email" value="${esc(authUser?.email||'')}" placeholder="आपका ईमेल"></div>
+          <button id="sendOtpBtn">Login Link भेजें</button>
+          <button id="syncSbBtn" class="secondary">☁ Sync Now (${syncQueue.length} Pending)</button>
+          <button id="signOutBtn" class="secondary">Sign Out</button>
+        </div>
+        <p class="muted" style="margin-top:8px">स्थिति: <b>${esc(cfg.lastSyncStatus)}</b> | Pending Queue Items: <b>${syncQueue.length}</b></p>
+      </div>
+
+      <div class="card">
+        <h3>Google Sheets Monthly Auto-Tab Sync</h3>
+        <div class="form">
+          <div><label>Apps Script Web App URL</label><input id="gsUrlInp" type="url" value="${esc(cfg.gsUrl)}" placeholder="https://script.google.com/macros/s/.../exec"></div>
+          <div><label>Security Token</label><input id="gsTokInp" value="${esc(cfg.gsToken)}"></div>
+          <button id="saveGsCfgBtn">Save Settings</button>
+          <button id="pushGsBtn" class="secondary">📊 Sync & Verify Google Sheets</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Daily & Full JSON Backup / Safe Restore</h3>
+        <div class="actions">
+          <button onclick="downloadBackup('daily')">📅 Daily Backup डाउनलोड</button>
+          <button onclick="downloadBackup('full')" class="secondary">💾 Complete Backup डाउनलोड</button>
+          <button id="restBtn" class="secondary">♻ Restore Backup (Merge)</button>
+          <input type="file" id="restFile" accept="application/json" style="display:none">
+        </div>
+      </div>`;
+
+    $('sendOtpBtn').onclick = async () => {
+      try{
+        await connectSupabase();
+        const email = $('loginEmail').value.trim();
+        if(!email){ alert('ईमेल दर्ज करें।'); return; }
+        const redirect = location.href.startsWith('http') ? location.origin + location.pathname : undefined;
+        const {error} = await sb.auth.signInWithOtp({email, options:{emailRedirectTo: redirect}});
+        if(error) throw error;
+        alert('✅ Login Link ईमेल पर भेज दिया गया है।');
+      }catch(e){ alert('❌ Login Error: ' + e.message); }
+    };
+    $('syncSbBtn').onclick = async () => { await connectSupabase(); await runCloudSync(false); render(); };
+    $('signOutBtn').onclick = async () => { if(sb) await sb.auth.signOut(); authUser = null; cfg.lastSyncStatus = 'Signed Out'; persist(); render(); };
+
+    $('saveGsCfgBtn').onclick = () => {
+      cfg.gsUrl = $('gsUrlInp').value.trim();
+      cfg.gsToken = $('gsTokInp').value.trim();
+      persist();
+      alert('Google Sheets सेटिंग सेव हो गई।');
+    };
+    $('pushGsBtn').onclick = () => runCloudSync(true);
+
+    $('restBtn').onclick = () => $('restFile').click();
+    $('restFile').onchange = async e => {
+      const file = e.target.files[0];
+      if(!file) return;
+      try{
+        const parsed = JSON.parse(await file.text());
+        const src = parsed.store || parsed;
+        if(Array.isArray(src.masters)) mergeByTimestamp('masters', src.masters);
+        if(Array.isArray(src.parties)) mergeByTimestamp('parties', src.parties);
+        if(Array.isArray(src.transactions)) mergeByTimestamp('transactions', src.transactions);
+        addAudit('RESTORE', 'Backup', file.name, 'JSON बैकअप से डेटा मर्ज किया गया');
+        persist();
+        alert('✅ डेटा सुरक्षित रूप से Restore हो गया।');
+        go('dashboard');
+      }catch(err){ alert('❌ अमान्य फाइल: ' + err.message); }
+    };
+    return;
+  }
+
+  // 19. SETTINGS & AUDIT LOG
+  if(page === 'audit'){
+    $('app').innerHTML = `
+      <h2>19. System Defaults & Immutable Audit Trail</h2>
+      ${hasPerm('settings') ? `
+      <div class="card">
+        <h3>Default Costing & Tax Parameters</h3>
+        <div class="form">
+          <div><label>Default Machine Rate ₹/hr</label><input id="defMach" type="number" step=".01" value="${cfg.machineRate}"></div>
+          <div><label>Default Interest % वार्षिक</label><input id="defInt" type="number" step=".01" value="${cfg.interestRate}"></div>
+          <div><label>Default Interest Days</label><input id="defDays" type="number" value="${cfg.interestDays}"></div>
+          <div><label>Default GST %</label><input id="defGst" type="number" step=".01" value="${cfg.gstRate}"></div>
+          <button id="saveDefBtn">Defaults सेव करें</button>
+        </div>
+      </div>` : ''}
+
+      <div class="card tablewrap">
+        <h3>Audit Log (हर Create, Edit, Cancel और Sync का रिकॉर्ड)</h3>
+        <table>
+          <tr><th>समय</th><th>Actor</th><th>Role</th><th>Action</th><th>Module</th><th>Ref ID</th><th>विवरण</th></tr>
+          ${store.auditLogs.map(a => `<tr>
+            <td>${new Date(a.created_at).toLocaleString('hi-IN')}</td><td>${esc(a.actor_email)}</td>
+            <td><span class="badge b-info">${esc(a.actor_role)}</span></td><td><b>${esc(a.action)}</b></td>
+            <td>${esc(a.module)}</td><td>${esc(a.tx_id)}</td><td>${esc(a.summary)}</td>
+          </tr>`).join('') || '<tr><td colspan="7">कोई लॉग नहीं</td></tr>'}
+        </table>
+      </div>`;
+
+    if($('saveDefBtn')){
+      $('saveDefBtn').onclick = () => {
+        cfg.machineRate = n($('defMach').value);
+        cfg.interestRate = n($('defInt').value);
+        cfg.interestDays = n($('defDays').value);
+        cfg.gstRate = n($('defGst').value);
+        addAudit('SETTINGS', 'System', 'DEFAULTS', 'Default costing parameters अपडेट किए गए');
+        persist();
+        alert('Defaults सेव हो गए।');
+      };
+    }
+    return;
+  }
+}
+
+// --- GLOBAL INTERACTIVE HELPERS ---
+window.fillMasterForm = id => {
+  const it = store.masters.find(m => m.id === id);
+  const f = $('mForm');
+  if(!it || !f) return;
+  f.elements.id.value = it.id;
+  f.elements.code.value = it.code || '';
+  f.elements.name.value = it.name || '';
+  f.elements.category.value = it.category || '';
+  f.elements.unit.value = it.unit || 'kg';
+  if(f.elements.pouch_wt_g) f.elements.pouch_wt_g.value = it.pouch_wt_g || 0;
+  f.elements.gst_rate.value = it.gst_rate ?? 18;
+  f.elements.default_rate.value = it.default_rate || 0;
+  f.elements.min_stock.value = it.min_stock || 0;
+  window.scrollTo({top:0, behavior:'smooth'});
+};
+
+window.editSimpleTx = id => {
+  const tx = store.transactions.find(t => t.id === id);
+  const f = $('purForm');
+  if(!tx || !f) return;
+  f.elements.edit_id.value = tx.id;
+  f.elements.tx_type.value = tx.tx_type;
+  f.elements.tx_date.value = tx.tx_date;
+  f.elements.tx_number.value = tx.tx_number;
+  f.elements.party_name.value = tx.payload.party_name || '';
+  f.elements.item_id.value = tx.payload.item_id || '';
+  f.elements.qty.value = tx.payload.qty || 0;
+  f.elements.rate.value = tx.payload.rate || 0;
+  f.elements.gst_rate.value = tx.payload.gst_rate ?? 18;
+  window.scrollTo({top:0, behavior:'smooth'});
+};
+
+window.editProductionTx = id => {
+  const tx = store.transactions.find(t => t.id === id);
+  const f = $('prodForm');
+  if(!tx || !f) return;
+  const p = tx.payload;
+  f.elements.edit_id.value = tx.id;
+  f.elements.tx_date.value = tx.tx_date;
+  f.elements.tx_number.value = tx.tx_number;
+  f.elements.product_id.value = p.product_id || '';
+  f.elements.estimated_pouches.value = p.estimated_pouches || 0;
+  f.elements.actual_pouches.value = p.actual_pouches || 0;
+  f.elements.pouch_wt_g.value = p.pouch_wt_g || 0;
+  f.elements.other_printing_cost.value = p.other_printing_cost || 0;
+  f.elements.labour_hrs.value = p.labour_hrs || 0;
+  f.elements.labour_rate.value = p.labour_rate || 0;
+  f.elements.mach_hrs.value = p.mach_hrs || 0;
+  f.elements.machine_rate.value = p.machine_rate ?? cfg.machineRate;
+  f.elements.packing_cost.value = p.packing_cost || 0;
+  f.elements.outer_item_id.value = p.outer_item_id || '';
+  f.elements.outer_rate.value = p.outer_rate || 0;
+  f.elements.bori_item_id.value = p.bori_item_id || '';
+  f.elements.bori_rate.value = p.bori_rate || 0;
+  f.elements.dengler_cost.value = p.dengler_cost || 0;
+  f.elements.marketing_cost.value = p.marketing_cost || 0;
+  f.elements.interest_rate.value = p.interest_rate ?? cfg.interestRate;
+  f.elements.interest_days.value = p.interest_days ?? cfg.interestDays;
+  f.elements.gst_rate.value = p.gst_rate ?? cfg.gstRate;
+  f.elements.itc_eligible.value = String(p.itc_eligible !== false);
+
+  $('rawLinesWrap').innerHTML = '';
+  (p.raw_lines && p.raw_lines.length ? p.raw_lines : [{}]).forEach(r => window.addRawRow(r));
+  $('printLinesWrap').innerHTML = '';
+  (p.print_lines && p.print_lines.length ? p.print_lines : [{}]).forEach(pr => window.addPrintRow(pr));
+  window.recalcProdForm();
+  window.scrollTo({top:0, behavior:'smooth'});
+};
+
+window.viewItemMoves = id => {
+  const item = buildStockLedger().find(l => l.id === id);
+  const box = $('moveHistoryBox');
+  if(!item || !box) return;
+  box.innerHTML = `<div class="card"><h3>Stock Movement Drilldown: ${esc(item.name)}</h3>
+    <div class="tablewrap"><table>
+      <tr><th>दिनांक</th><th>Transaction ID</th><th>Voucher</th><th>Type</th><th>Location</th><th>Qty Change</th><th>विवरण</th></tr>
+      ${item.movements.map(m => `<tr>
+        <td>${esc(m.date)}</td><td><code>${esc(m.tx_id)}</code></td><td><b>${esc(m.tx_number)}</b></td>
+        <td>${esc(m.type)}</td><td>${esc(m.location)}</td>
+        <td style="color:${m.change>=0?'var(--ok)':'var(--err)'}"><b>${m.change>=0?'+'+m.change:m.change}</b></td>
+        <td>${esc(m.label)}</td>
+      </tr>`).join('') || '<tr><td colspan="7">कोई मूवमेंट नहीं</td></tr>'}
+    </table></div></div>`;
+};
+
+window.downloadBackup = mode => {
+  const t = today();
+  const data = mode === 'daily'
+    ? { mode:'daily', date:t, store:{ ...store, transactions: store.transactions.filter(x => x.tx_date === t) } }
+    : { mode:'full', exportedAt: new Date().toISOString(), store };
+  if(mode === 'daily') cfg.lastDailyBackup = t;
+  persist();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}));
+  a.download = `Sadhna-Agro-${mode.toUpperCase()}-${t}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  render();
+};
+
+window.toggleCancelTx = toggleCancelTx;
+
+// --- STARTUP ---
+loadStorage();
+render();
+window.addEventListener('online', () => runCloudSync(false));
+window.addEventListener('DOMContentLoaded', async () => {
+  try{
+    await connectSupabase();
+    await runCloudSync(false);
+    render();
+  }catch(e){ console.warn('Offline startup:', e); }
+});
+</script>
+</body>
+</html>
