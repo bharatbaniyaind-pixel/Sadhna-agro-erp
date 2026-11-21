@@ -153,20 +153,19 @@ let cfg = {
 };
 
 let store = {
-  masters: [],      // {id, master_type:'product'|'raw'|'print'|'packing', code, name, category, unit, pouch_wt_g, gst_rate, default_rate, min_stock, status, updated_at}
-  parties: [],      // {id, party_type:'supplier'|'customer', name, phone, gstin, address, status, updated_at}
-  transactions: [], // {id, tx_type, tx_number, tx_date, status:'active'|'cancelled', payload, created_by, created_at, updated_at}
-  users: [          // Local & Cloud User Permissions directory
+  masters: [],
+  parties: [],
+  transactions: [],
+  users: [
     {id:'u-admin', name:'Akshay Bajaj Jain (Admin)', email:'admin@sadhnaagro.local', role:'admin', can_override_negative_stock:true}
   ],
-  auditLogs: []     // {id, actor_email, actor_role, action, module, tx_id, summary, created_at}
+  auditLogs: []
 };
 
-let syncQueue = []; // [{op:'master'|'party'|'tx'|'audit', id, data, retries, lastError}]
+let syncQueue = [];
 let page = 'dashboard';
 let sb = null, authUser = null, syncing = false;
 
-// Role access matrix
 const ROLE_ACCESS = {
   admin:      { master:true, purchase:true, opening:true, production:true, dispatch:true, sales:true, expense:true, editDel:true, users:true, settings:true },
   production: { master:false, purchase:false, opening:false, production:true, dispatch:true, sales:false, expense:false, editDel:false, users:false, settings:false },
@@ -190,7 +189,6 @@ function loadStorage(){
     syncQueue = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
     if(!Array.isArray(syncQueue)) syncQueue = [];
 
-    // Migrate old local data safely without deleting old storage keys
     if(!cfg.migrated){
       LEGACY_KEYS.forEach(lk => {
         const old = JSON.parse(localStorage.getItem(lk) || 'null');
@@ -272,13 +270,11 @@ function evaluateProduction(p){
   const pouchWtG = Math.max(0, n(p.pouch_wt_g));
   const outputKg = r3((actualPouches * pouchWtG) / 1000);
 
-  // Packet = 36 pouches | Bori = 20 packets = 720 pouches
   const packets = r2(actualPouches / 36);
   const boris = r3(actualPouches / 720);
   const outerCount = Math.ceil(actualPouches / 36);
   const boriCount = Math.ceil(actualPouches / 720);
 
-  // Multiple Raw Materials
   const rawLines = Array.isArray(p.raw_lines) ? p.raw_lines : [];
   let totalRawQty = 0, totalRawCost = 0;
   const evaluatedRaw = rawLines.map(line => {
@@ -289,9 +285,6 @@ function evaluateProduction(p){
     return {...line, consumed, cost};
   });
 
-  // Multiple Printing Materials (Distinguishing Total Opening-Closing Consumption vs Wastage)
-  // Note: In roll/sheet weighing, Opening - Closing = Total Physical Material Used (which already includes wastage).
-  // Wastage Qty is tracked separately for efficiency & cost attribution without double-deducting stock!
   const printLines = Array.isArray(p.print_lines) ? p.print_lines : [];
   let totalPrintUsed = 0, totalPrintWastage = 0, totalPrintGoodUsed = 0;
   let totalPrintGoodCost = 0, totalPrintWastageCost = 0;
@@ -338,13 +331,11 @@ function evaluateProduction(p){
   const intDays = p.interest_days !== undefined ? n(p.interest_days) : cfg.interestDays;
   const interestCost = r2((directOperationalCost * intRate * intDays) / 36500);
 
-  const netProductionCost = r2(directOperationalCost + interestCost); // Real cost excluding refundable GST ITC
+  const netProductionCost = r2(directOperationalCost + interestCost);
   const gstRate = p.gst_rate !== undefined ? n(p.gst_rate) : cfg.gstRate;
-  const itcEligible = p.itc_eligible !== false; // Default true: GST on inputs is ITC
+  const itcEligible = p.itc_eligible !== false;
   const gstAmount = r2((netProductionCost * gstRate) / 100);
   const grossCostWithGst = r2(netProductionCost + gstAmount);
-
-  // If ITC is eligible, real economic cost is netProductionCost; if not eligible, GST is absorbed in cost
   const effectiveFinalCost = itcEligible ? netProductionCost : grossCostWithGst;
 
   return {
@@ -370,17 +361,9 @@ function buildStockLedger(excludeTxId = null){
   store.masters.filter(m => m.status === 'active').forEach(m => {
     map.set(m.id, {
       ...m,
-      opening: 0,
-      purchased: 0,
-      purchaseReturn: 0,
-      consumed: 0,
-      produced: 0,
-      dispatched: 0,
-      sold: 0,
-      saleReturn: 0,
-      factoryStock: 0,
-      godownStock: 0,
-      movements: []
+      opening: 0, purchased: 0, purchaseReturn: 0, consumed: 0,
+      produced: 0, dispatched: 0, sold: 0, saleReturn: 0,
+      factoryStock: 0, godownStock: 0, movements: []
     });
   });
 
@@ -423,7 +406,6 @@ function buildStockLedger(excludeTxId = null){
     }
     else if(tx.tx_type === 'production'){
       const c = evaluateProduction(p);
-      // Consume each raw material once
       c.evaluatedRaw.forEach(rl => {
         const it = map.get(rl.item_id);
         if(it && rl.consumed > 0){
@@ -432,7 +414,6 @@ function buildStockLedger(excludeTxId = null){
           recordMove(it, 'factory', -rl.consumed, `Production Batch ${tx.tx_number}`);
         }
       });
-      // Consume each printing material once (physicalUsed = open - close)
       c.evaluatedPrint.forEach(pl => {
         const it = map.get(pl.item_id);
         if(it && pl.physicalUsed > 0){
@@ -441,7 +422,6 @@ function buildStockLedger(excludeTxId = null){
           recordMove(it, 'factory', -pl.physicalUsed, `Printing Batch ${tx.tx_number} (Waste: ${pl.wastageQty})`);
         }
       });
-      // Consume optional packing items (LD Outer / Bori)
       if(p.outer_item_id && map.has(p.outer_item_id) && c.outerCount > 0){
         const oi = map.get(p.outer_item_id);
         oi.consumed = r3(oi.consumed + c.outerCount);
@@ -454,7 +434,6 @@ function buildStockLedger(excludeTxId = null){
         bi.factoryStock = r3(bi.factoryStock - c.boriCount);
         recordMove(bi, 'factory', -c.boriCount, `Bori Batch ${tx.tx_number}`);
       }
-      // Produce finished goods into Factory Stock
       const prod = map.get(p.product_id);
       if(prod){
         const addQty = (prod.unit === 'pouch' || prod.unit === 'piece') ? c.actualPouches : c.outputKg;
@@ -504,7 +483,6 @@ function masterOpts(type){
     .map(m => `<option value="${esc(m.id)}">${esc(m.name)} (${esc(m.unit)})</option>`)
     .join('');
 }
-
 function canBypassNegativeStock(){
   return cfg.activeRole === 'admin' && cfg.allowNegativeStockAdmin;
 }
@@ -527,7 +505,7 @@ async function runCloudSync(includeGoogleSheets = false){
 
   try{
     if(sb && authUser && navigator.onLine){
-      const failed = [];
+      const remainingQueue = [];
       for(const q of syncQueue){
         let res = {error: null};
         if(q.op === 'master') res = await sb.from('sadhna_masters').upsert({...q.data, user_id: authUser.id}, {onConflict:'id'});
@@ -537,14 +515,13 @@ async function runCloudSync(includeGoogleSheets = false){
 
         if(res.error){
           q.retries = (q.retries || 0) + 1;
-          q.lastError = res.error.message;
-          errMsg = res.error.message;
-          failed.push(q);
+          q.lastError = res.error.message || 'Supabase Error';
+          errMsg = q.lastError;
+          remainingQueue.push(q);
         }
       }
-      syncQueue = failed;
+      syncQueue = remainingQueue;
 
-      // Safe pull merge if queue cleared
       if(syncQueue.length === 0){
         const [mRes, pRes, tRes] = await Promise.all([
           sb.from('sadhna_masters').select('*').eq('user_id', authUser.id),
@@ -571,7 +548,7 @@ async function runCloudSync(includeGoogleSheets = false){
         ...store.parties.map(p => ({category: p.party_type, monthly: false, record: p})),
         ...store.transactions.map(t => ({
           category: t.tx_type, monthly: true,
-          record: {...t, summary: `${t.tx_type.toUpperCase()} #${t.tx_number}`, ...t.payload}
+          record: {...t, summary: `${t.tx_type.toUpperCase()} #${t.tx_number}`, ...(t.payload || {})}
         }))
       ];
 
@@ -580,28 +557,34 @@ async function runCloudSync(includeGoogleSheets = false){
         const resp = await fetch(cfg.gsUrl, {
           method: 'POST',
           headers: {'Content-Type': 'text/plain;charset=utf-8'},
-          body: JSON.stringify({token: cfg.gsToken, records: payloadRecords.slice(i, i+75)})
+          body: JSON.stringify({token: cfg.gsToken, records: payloadRecords.slice(i, i + 75)})
         });
+        if(!resp.ok) throw new Error(`HTTP ${resp.status} from Google Sheets`);
         const data = await resp.json();
-        if(!data.ok) throw new Error(data.error || 'Google Sheets Script Error');
+        if(!data || !data.ok) throw new Error((data && data.error) || 'Google Sheets Script Error');
         totalSynced += n(data.synced);
       }
       gsOk = true;
       addAudit('GS_SYNC', 'GoogleSheets', 'BATCH', `Google Sheets में ${totalSynced} रिकॉर्ड की वास्तविक पुष्टि हुई`);
     }
 
+    const nowTime = new Date().toLocaleTimeString('hi-IN', {hour:'2-digit', minute:'2-digit'});
     if(sbOk || gsOk){
-      cfg.lastSyncStatus = `Synced (${new Date().toLocaleTimeString('hi-IN',{hour:'2-digit',minute:'2-digit'})})`;
+      cfg.lastSyncStatus = `Synced (${nowTime})`;
     } else if(!authUser){
       cfg.lastSyncStatus = 'Local Mode (Login Required for Cloud)';
     } else if(errMsg){
-      cfg.lastSyncStatus = 'Sync Failed: ' + errMsg.slice(0,25);
+      cfg.lastSyncStatus = 'Sync Failed: ' + String(errMsg).slice(0, 28);
+    } else if(syncQueue.length > 0){
+      cfg.lastSyncStatus = 'Pending Queue';
     }
-  }catch(e){
+  } catch(e){
     cfg.lastSyncStatus = 'Sync Failed';
     console.error('Sync failure:', e);
-    if(includeGoogleSheets) alert('❌ Sync विफल: ' + e.message);
-  }finally{
+    if(includeGoogleSheets){
+      alert('❌ Sync विफल: ' + (e && e.message ? e.message : String(e)));
+    }
+  } finally{
     syncing = false;
     persist();
     if(page === 'cloud') render();
@@ -609,17 +592,17 @@ async function runCloudSync(includeGoogleSheets = false){
 }
 
 function mergeByTimestamp(key, remoteList){
-  const map = new Map(store[key].map(x => [x.id, x]));
-  remoteList.forEach(rem => {
+  const map = new Map((store[key] || []).map(x => [x.id, x]));
+  (remoteList || []).forEach(rem => {
+    if(!rem || !rem.id) return;
     const loc = map.get(rem.id);
-    if(!loc || new Date(rem.updated_at || 0) >= new Date(loc.updated_at || 0)){
-      map.set(rem.id, rem);
-    }
+    const remTs = new Date(rem.updated_at || rem.created_at || 0).getTime() || 0;
+    const locTs = loc ? (new Date(loc.updated_at || loc.created_at || 0).getTime() || 0) : -1;
+    if(!loc || remTs >= locTs) map.set(rem.id, rem);
   });
   store[key] = Array.from(map.values());
 }
 
-// --- TRANSACTION SAVE / EDIT / CANCEL ---
 function saveTransaction(tx, isEdit = false){
   if(!isEdit && store.transactions.some(t => t.id === tx.id)){
     alert('Duplicate Transaction ID रोका गया!');
@@ -628,7 +611,7 @@ function saveTransaction(tx, isEdit = false){
   if(isEdit){
     const idx = store.transactions.findIndex(t => t.id === tx.id);
     if(idx !== -1) store.transactions[idx] = tx;
-    addAudit('EDIT', tx.tx_type, tx.tx_number, `रिकॉर्ड संशोधित किया गया (Stock री-कैलकुलेट)`);
+    addAudit('EDIT', tx.tx_type, tx.tx_number, 'रिकॉर्ड संशोधित किया गया (Stock री-कैलकुलेट)');
   } else {
     store.transactions.unshift(tx);
     addAudit('CREATE', tx.tx_type, tx.tx_number, `नया ${tx.tx_type} रिकॉर्ड (${tx.tx_date}) दर्ज`);
@@ -653,7 +636,6 @@ function toggleCancelTx(id){
   render();
 }
 
-// --- NAVIGATION ---
 function go(p){
   page = p;
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.p === p));
@@ -661,14 +643,10 @@ function go(p){
 }
 $('nav').onclick = e => { const b = e.target.closest('[data-p]'); if(b) go(b.dataset.p); };
 
-// ============================================================================
-// RENDER ALL 19 MODULES
-// ============================================================================
 function render(){
   const ledger = buildStockLedger();
   const activeTxs = store.transactions.filter(t => t.status === 'active');
 
-  // 1. DASHBOARD
   if(page === 'dashboard'){
     const prods = activeTxs.filter(t => t.tx_type === 'production');
     const pouches = prods.reduce((s,t) => s + evaluateProduction(t.payload).actualPouches, 0);
@@ -705,7 +683,6 @@ function render(){
     return;
   }
 
-  // 2-5. MASTERS
   if(['m_product','m_raw','m_print','m_packing'].includes(page)){
     const mapCfg = {
       m_product: {type:'product', title:'2. Product Master (तैयार उत्पाद)', isProd:true},
@@ -767,7 +744,6 @@ function render(){
     return;
   }
 
-  // 6. SUPPLIER & PARTY MASTER
   if(page === 'm_supplier'){
     $('app').innerHTML = `
       <h2>6. Supplier & Customer Master</h2>
@@ -803,7 +779,6 @@ function render(){
     return;
   }
 
-  // 7. PURCHASE MANAGEMENT
   if(page === 'purchase'){
     const txs = store.transactions.filter(t => ['purchase','purchase_return'].includes(t.tx_type));
     $('app').innerHTML = `
@@ -863,7 +838,6 @@ function render(){
     return;
   }
 
-  // 8. OPENING STOCK
   if(page === 'opening'){
     const opTxs = store.transactions.filter(t => t.tx_type === 'opening_stock');
     $('app').innerHTML = `
@@ -902,7 +876,6 @@ function render(){
     return;
   }
 
-  // 9. STOCK LEDGER (WITH TRANSACTION-WISE DRILLDOWN)
   if(page === 'ledger'){
     $('app').innerHTML = `
       <h2>9. Automatic Stock Ledger (हर मूवमेंट Transaction ID से लिंक)</h2>
@@ -921,7 +894,6 @@ function render(){
     return;
   }
 
-  // 10. DAILY PRODUCTION (MULTI-RAW & MULTI-PRINTING SUPPORT + EDIT/RECALC)
   if(page === 'production'){
     const prodTxs = store.transactions.filter(t => t.tx_type === 'production');
     $('app').innerHTML = `
@@ -1031,7 +1003,6 @@ function render(){
       $('addRawRowBtn').onclick = () => { window.addRawRow(); window.recalcProdForm(); };
       $('addPrintRowBtn').onclick = () => { window.addPrintRow(); window.recalcProdForm(); };
 
-      // Initialize with 1 raw and 1 print row
       window.addRawRow();
       window.addPrintRow();
 
@@ -1066,24 +1037,16 @@ function render(){
           estimated_pouches: n(fd.get('estimated_pouches')),
           actual_pouches: n(fd.get('actual_pouches')),
           pouch_wt_g: n(fd.get('pouch_wt_g')),
-          raw_lines,
-          print_lines,
+          raw_lines, print_lines,
           other_printing_cost: n(fd.get('other_printing_cost')),
-          labour_hrs: n(fd.get('labour_hrs')),
-          labour_rate: n(fd.get('labour_rate')),
-          mach_hrs: n(fd.get('mach_hrs')),
-          machine_rate: n(fd.get('machine_rate')),
+          labour_hrs: n(fd.get('labour_hrs')), labour_rate: n(fd.get('labour_rate')),
+          mach_hrs: n(fd.get('mach_hrs')), machine_rate: n(fd.get('machine_rate')),
           packing_cost: n(fd.get('packing_cost')),
-          outer_item_id: fd.get('outer_item_id'),
-          outer_rate: n(fd.get('outer_rate')),
-          bori_item_id: fd.get('bori_item_id'),
-          bori_rate: n(fd.get('bori_rate')),
-          dengler_cost: n(fd.get('dengler_cost')),
-          marketing_cost: n(fd.get('marketing_cost')),
-          interest_rate: n(fd.get('interest_rate')),
-          interest_days: n(fd.get('interest_days')),
-          gst_rate: n(fd.get('gst_rate')),
-          itc_eligible: fd.get('itc_eligible') === 'true'
+          outer_item_id: fd.get('outer_item_id'), outer_rate: n(fd.get('outer_rate')),
+          bori_item_id: fd.get('bori_item_id'), bori_rate: n(fd.get('bori_rate')),
+          dengler_cost: n(fd.get('dengler_cost')), marketing_cost: n(fd.get('marketing_cost')),
+          interest_rate: n(fd.get('interest_rate')), interest_days: n(fd.get('interest_days')),
+          gst_rate: n(fd.get('gst_rate')), itc_eligible: fd.get('itc_eligible') === 'true'
         };
       };
 
@@ -1125,7 +1088,6 @@ function render(){
         const payload = window.collectProdPayload();
         const c = evaluateProduction(payload);
 
-        // Validations
         for(const rl of payload.raw_lines){
           if(rl.close > rl.open){ alert('Raw Material Closing Opening से अधिक नहीं हो सकता।'); return; }
         }
@@ -1134,7 +1096,6 @@ function render(){
           if(pl.wastage > (pl.open - pl.close)){ alert('Printing Wastage कुल खपत (Opening - Closing) से अधिक नहीं हो सकती।'); return; }
         }
 
-        // Negative Stock Check (excluding current edit transaction)
         const checkLedger = buildStockLedger(editId || null);
         if(!canBypassNegativeStock()){
           for(const rl of c.evaluatedRaw){
@@ -1167,7 +1128,6 @@ function render(){
     return;
   }
 
-  // 11. PRODUCTION COSTING (BATCH-WISE & PRODUCT-WISE)
   if(page === 'costing'){
     const prodTxs = activeTxs.filter(t => t.tx_type === 'production');
     const products = store.masters.filter(m => m.master_type === 'product');
@@ -1193,7 +1153,7 @@ function render(){
       </div>
 
       <div class="card">
-        <h3>Batch-wise Detailed Cost Sheet (सभी 13 खर्च मद अलग-अलग)</h3>
+        <h3>Batch-wise Detailed Cost Sheet</h3>
         <div class="tablewrap"><table>
           <tr><th>Batch</th><th>दिनांक</th><th>उत्पाद</th><th>Raw ₹</th><th>Print Good ₹</th><th>Print Waste ₹</th><th>Other Print ₹</th><th>Labour ₹</th><th>Machine ₹</th><th>Packing ₹</th><th>LD Outer ₹</th><th>Bori ₹</th><th>Dengler ₹</th><th>Marketing ₹</th><th>Interest ₹</th><th>GST (ITC) ₹</th><th>Final Cost ₹</th><th>₹/Pouch</th><th>₹/Packet</th><th>₹/KG</th></tr>
           ${prodTxs.map(t => {
@@ -1212,7 +1172,6 @@ function render(){
     return;
   }
 
-  // 12. FACTORY TO GODOWN DISPATCH
   if(page === 'dispatch'){
     const disTxs = store.transactions.filter(t => t.tx_type === 'dispatch');
     $('app').innerHTML = `
@@ -1260,7 +1219,6 @@ function render(){
     return;
   }
 
-  // 13. GODOWN STOCK
   if(page === 'godown'){
     const prods = ledger.filter(l => l.master_type === 'product');
     $('app').innerHTML = `
@@ -1275,7 +1233,6 @@ function render(){
     return;
   }
 
-  // 14. SALES & SALES RETURN
   if(page === 'sales'){
     const saleTxs = store.transactions.filter(t => ['sale','sale_return'].includes(t.tx_type));
     $('app').innerHTML = `
@@ -1330,7 +1287,6 @@ function render(){
     return;
   }
 
-  // 15. EXPENSES & ACCOUNTS
   if(page === 'expenses'){
     const expTxs = store.transactions.filter(t => t.tx_type === 'expense');
     $('app').innerHTML = `
@@ -1371,7 +1327,6 @@ function render(){
     return;
   }
 
-  // 16. MONTHLY REPORTS (11-SHEET EXCEL + PDF)
   if(page === 'reports'){
     const products = store.masters.filter(m => m.master_type === 'product');
     $('app').innerHTML = `
@@ -1442,7 +1397,6 @@ function render(){
       const d = window.__repPayload;
       const wb = XLSX.utils.book_new();
 
-      // 1. Summary
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
         ['SADHNA AGRO ERP - MONTHLY REPORT', d.m || 'ALL'],
         ['Total Pouches Produced', d.summary.pouchesTotal],
@@ -1453,58 +1407,48 @@ function render(){
         ['Net Profit / Loss', d.summary.netPL]
       ]), 'Summary');
 
-      // 2. Product Production
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.rProd.map(t => {
         const c = evaluateProduction(t.payload);
         return { Date:t.tx_date, Batch:t.tx_number, Product:masterName(t.payload.product_id), Est_Pouches:c.estPouches, Actual_Pouches:c.actualPouches, Packets:c.packets, Boris:c.boris, Output_KG:c.outputKg };
       })), 'Product Production');
 
-      // 3. Material Consumption
       const rawRows = [];
       d.rProd.forEach(t => evaluateProduction(t.payload).evaluatedRaw.forEach(r => rawRows.push({
         Date:t.tx_date, Batch:t.tx_number, Product:masterName(t.payload.product_id), Raw_Material:masterName(r.item_id), Opening:r.open, Closing:r.close, Consumed_KG:r.consumed, Rate:r.rate, Cost:r.cost
       })));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rawRows), 'Material Consumption');
 
-      // 4. Printing
       const prRows = [];
       d.rProd.forEach(t => evaluateProduction(t.payload).evaluatedPrint.forEach(p => prRows.push({
         Date:t.tx_date, Batch:t.tx_number, Printing_Item:masterName(p.item_id), Opening:p.open, Closing:p.close, Total_Used:p.physicalUsed, Net_Good_Used:p.netGoodUsed, Wastage_Qty:p.wastageQty, Rate:p.rate, Good_Cost:p.goodCost, Wastage_Cost:p.wasteCost
       })));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(prRows), 'Printing');
 
-      // 5. Costing
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.rProd.map(t => {
         const c = evaluateProduction(t.payload);
         return { Date:t.tx_date, Batch:t.tx_number, Product:masterName(t.payload.product_id), Raw:c.totalRawCost, Print_Good:c.totalPrintGoodCost, Print_Waste:c.totalPrintWastageCost, Other_Print:c.otherPrintCost, Labour:c.labourCost, Machine:c.machineCost, Packing:c.packingCost, LD_Outer:c.outerCost, Bori:c.boriCost, Dengler:c.denglerCost, Marketing:c.marketingCost, Interest:c.interestCost, GST_ITC:c.gstAmount, Final_Cost:c.effectiveFinalCost, Cost_Per_Pouch:c.costPerPouch, Cost_Per_Packet:c.costPerPacket, Cost_Per_KG:c.costPerKg };
       })), 'Costing');
 
-      // 6. Factory Stock
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.ledger.map(l => ({
         Item:l.name, Type:l.master_type, Unit:l.unit, Opening:l.opening, Purchased:l.purchased, Consumed:l.consumed, Produced:l.produced, Dispatched:l.dispatched, Available_Factory_Stock:l.factoryStock
       }))), 'Factory Stock');
 
-      // 7. Godown Stock
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.ledger.filter(l=>l.master_type==='product').map(l => ({
         Product:l.name, Unit:l.unit, Received_From_Factory:l.dispatched, Sales_Return:l.saleReturn, Sold:l.sold, Available_Godown_Stock:l.godownStock
       }))), 'Godown Stock');
 
-      // 8. Dispatch
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.rDisp.map(t => ({
         Date:t.tx_date, Challan:t.tx_number, Product:masterName(t.payload.product_id), Qty:t.payload.qty, Godown:t.payload.godown_name, Vehicle:t.payload.vehicle_no
       }))), 'Dispatch');
 
-      // 9. Purchase
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.rPur.map(t => ({
         Date:t.tx_date, Type:t.tx_type, Bill:t.tx_number, Supplier:t.payload.party_name, Item:masterName(t.payload.item_id), Qty:t.payload.qty, Rate:t.payload.rate, Taxable:t.payload.base_amount, GST:t.payload.gst_amount, Total:t.payload.grand_total
       }))), 'Purchase');
 
-      // 10. Expenses
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.rExp.map(t => ({
         Date:t.tx_date, Voucher:t.tx_number, Head:t.payload.head, Description:t.payload.description, Amount:t.payload.amount, GST:t.payload.gst_amount, Mode:t.payload.mode
       }))), 'Expenses');
 
-      // 11. Profit Loss
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
         ['PARTICULARS', 'AMOUNT (INR)'],
         ['Sales Revenue (Ex-GST)', d.summary.salesExGst],
@@ -1527,7 +1471,6 @@ function render(){
     return;
   }
 
-  // 17. USER MANAGEMENT & ROLE SWITCHER
   if(page === 'users'){
     $('app').innerHTML = `
       <h2>17. User Management & Role Permissions</h2>
@@ -1585,7 +1528,6 @@ function render(){
     return;
   }
 
-  // 18. CLOUD SYNC & BACKUP
   if(page === 'cloud'){
     $('app').innerHTML = `
       <h2>18. Cloud Sync (Supabase + Google Sheets) & Backup</h2>
@@ -1661,7 +1603,6 @@ function render(){
     return;
   }
 
-  // 19. SETTINGS & AUDIT LOG
   if(page === 'audit'){
     $('app').innerHTML = `
       <h2>19. System Defaults & Immutable Audit Trail</h2>
@@ -1704,7 +1645,6 @@ function render(){
   }
 }
 
-// --- GLOBAL INTERACTIVE HELPERS ---
 window.fillMasterForm = id => {
   const it = store.masters.find(m => m.id === id);
   const f = $('mForm');
@@ -1807,7 +1747,6 @@ window.downloadBackup = mode => {
 
 window.toggleCancelTx = toggleCancelTx;
 
-// --- STARTUP ---
 loadStorage();
 render();
 window.addEventListener('online', () => runCloudSync(false));
