@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sadhna Agro ERP</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 :root{--g:#173b32;--bg:#f4f6f3;--line:#e2e8e3;--muted:#68756e}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px system-ui,sans-serif;color:#1e2925}
@@ -216,4 +216,4 @@ function render(){
  actual.oninput=preview;preview();
  form.onsubmit=e=>{e.preventDefault();let f=new FormData(form),x={id:uid()};
  ['date','product_name','note'].forEach(k=>x[k]=f.get(k));
- ['actual_pouches','estimated_pouches','pouch_wt','mat_open','mat_close','raw_rate','print_open','print_close','print_rate','print_wastage','other_printing_cost','labour_hrs','labour_rate','mach_hrs','packing_cost','outer_rate','bori_rate','dengler_cost','marketing_cost','interest_rate','interest_days','gst_rate'].forEach(k=>x[k]=n(f.get(k
+ ['actual_pouches','estimated_pouches','pouch_wt','mat_open','mat_close','raw_rate','print_open','print_close','print_rate','print_wastage','other_printing_cost','labour_hrs','labour_rate','mach_hrs','packing_cost','outer_rate','bori_rate','dengler_cost','marketing_cost','interest_rate','interest_days','gst_rate'].forEach
