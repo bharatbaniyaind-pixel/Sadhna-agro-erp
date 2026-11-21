@@ -43,6 +43,27 @@ nav button{white-space:nowrap;width:auto}main{padding:12px}}
 <button data-p="dispatch">🚚 Factory → Godown</button><button data-p="reports">▥ Monthly Reports</button>
 <button data-p="settings">⚙ सेटिंग</button></nav><main id="app">लोड हो रहा है...</main>
 </div>
+
+<script>
+(function(){
+  function showBootError(message){
+    var app=document.getElementById('app');
+    if(!app) return;
+    app.innerHTML='<div class="card"><h2>ERP शुरू नहीं हो पाया</h2><p style="color:#a83434;white-space:pre-wrap">'+
+      String(message).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})+
+      '</p><p>कृपया यह संदेश भेजें ताकि समस्या ठीक की जा सके।</p><button onclick="location.reload()">फिर से खोलें</button></div>';
+  }
+  window.addEventListener('error',function(e){
+    showBootError((e.message||'JavaScript error')+(e.filename?'\n'+e.filename+':'+e.lineno:''));
+  });
+  window.addEventListener('unhandledrejection',function(e){
+    var reason=e.reason;
+    showBootError('Async error: '+(reason&&reason.message?reason.message:String(reason)));
+  });
+  window.__sadhnaShowBootError=showBootError;
+})();
+</script>
+
 <script>
 const MACHINE_RATE=120, KEY='sadhna_agro_erp_v2';
 const SUPABASE_URL='https://pbqlgxuegsypormwplbd.supabase.co';
@@ -210,10 +231,4 @@ function render(){
  <h4>6. Interest & GST</h4><div class="form"><div><label>Interest Rate % सालाना</label><input name="interest_rate" type="number" step=".01" value="9.5"></div><div><label>Interest Days</label><input name="interest_days" type="number" value="30"></div><div><label>GST %</label><input name="gst_rate" type="number" step=".01" value="18"></div></div>
  <br><button>दैनिक उत्पादन सेव करें</button></form></div>
  <div class="card tablewrap"><h3>दैनिक उत्पादन रिकॉर्ड और लागत</h3><table><tr><th>दिनांक</th><th>उत्पाद</th><th>Actual/Est.</th><th>Raw Cost</th><th>Printing Material</th><th>Other Printing</th><th>Labour</th><th>Machine</th><th>Packing</th><th>LD Outer</th><th>Bori</th><th>Dengler</th><th>Marketing</th><th>Interest</th><th>GST</th><th>Final Cost</th><th>₹/Pouch</th><th></th></tr>
- ${db.daily.map(x=>{let c=calc(x);return `<tr><td>${x.date}</td><td>${esc(x.product_name)}</td><td>${x.actual_pouches}/${x.estimated_pouches}</td><td>${money(c.rawCost)}</td><td>${money(c.printMaterialExpense)}</td><td>${money(c.otherPrinting)}</td><td>${money(c.labour)}</td><td>${money(c.machine)}</td><td>${money(c.packing)}</td><td>${money(c.outerExpense)}</td><td>${money(c.boriExpense)}</td><td>${money(c.dengler)}</td><td>${money(c.marketing)}</td><td>${money(c.interest)}</td><td>${money(c.gst)}</td><td><b>${money(c.finalCost)}</b></td><td><b>${money(c.perPouch)}</b></td><td><button class="danger" onclick="del('daily','${x.id}')">हटाएँ</button></td></tr>`}).join('')||'<tr><td colspan="18">कोई रिकॉर्ड नहीं</td></tr>'}</table></div>`;
- const form=$('f'),actual=form.elements.actual_pouches;
- const preview=()=>{let q=n(actual.value);$('outerCountPreview').value=Math.ceil(q/36);$('boriCountPreview').value=Math.ceil(q/720)};
- actual.oninput=preview;preview();
- form.onsubmit=e=>{e.preventDefault();let f=new FormData(form),x={id:uid()};
- ['date','product_name','note'].forEach(k=>x[k]=f.get(k));
- ['actual_pouches','estimated_pouches','pouch_wt','mat_open','mat_close','raw_rate','print_open','print_close','print_rate','print_wastage','other_printing_cost','labour_hrs','labour_rate','mach_hrs','packing_cost','outer_rate','bori_rate','dengler_cost','marketing_cost','interest_rate','interest_days','gst_rate'].forEach
+ ${db.daily.map(x=>{let c=calc(x);return `<tr><td>${x.date}</td><td>${esc(x.product_name)}</td><td>${x.actual_pouches}/${x.estimated_pouches}</td><td>${money(c.rawCost)}</td><td>${money(c.printMaterialExpense)}</td><td>${money(c.otherPrinting)}</td><td>${money(c.labour)}</td><td>${money(c.machine)}</td><td>${money(c.packing)}</td><td>${money(c.outerExpense)}</td><td>${money(c.boriExpense)}</td><td>${money(c.dengler)}</td><td>${money(c.marketing)}</td><td>${money(c.interest)}</td><td>${money(c.gst)}</td><td><b>${money(c.finalCost)}</b></td><t
