@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Sadhna Agro ERP</title>
+<title>Surya Swad ERP</title>
 <style>
 :root{--bg:#f1f5f9;--card:#fff;--tx:#0f172a;--mu:#64748b;--bd:#e2e8f0;--top:#0f172a;--nav:#1e293b;--ac:#059669;--ac2:#10b981;--warn:#b91c1c;--ok:#ecfdf5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--card:#162033;--tx:#e5edf7;--mu:#94a3b8;--bd:#2b3a52;--top:#060b14;--nav:#111b2c;--ok:#0d2a22;--warn:#f87171}}
@@ -41,7 +41,7 @@ th{color:var(--mu)}
 </style>
 </head>
 <body>
-<header class="top"><div class="ic">🌱</div><div><b>SADHNA AGRO</b><small>Manufacturing, Packing & Sales Suite</small></div></header>
+<header class="top"><div class="ic">🌱</div><div><b>SURYA SWAD</b><small>Manufacturing, Packing & Sales Suite</small></div></header>
 <div class="nav" id="nav"></div>
 <div class="sub" id="sub" hidden></div>
 <main><div class="bc" id="bc"></div><div id="view"></div></main>
@@ -59,7 +59,7 @@ const n=v=>Number(v)||0,f=(v,d=2)=>n(v).toFixed(d).replace(/\.00$/,"");
 const same=(a,b)=>String(a).toLowerCase()===String(b).toLowerCase();
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast("Storage full! Backup download karo, purani photos hatao")}}
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2200)}
-function fld(a){return a.map(([id,l,t,o])=>`<div class="fg"><label>${l}</label>${t==="select"?`<select id="${id}">${o.map(x=>`<option>${E(x)}</option>`).join("")}</select>`:`<input id="${id}" type="${t||"text"}" ${t==="file"?'accept="image/*" capture="environment"':'step="any"'} ${o?`list="${o}"`:""} ${t==="date"?`value="${today}"`:""}>`}</div>`).join("")}
+function fld(a){return a.map(([id,l,t,o])=>`<div class="fg"><label>${l}</label>${t==="select"?`<select id="${id}">${o.map(x=>`<option>${E(x)}</option>`).join("")}</select>`:`<input id="${id}" type="${t||"text"}" ${t==="file"?'accept="image/*"':'step="any"'} ${o?`list="${o}"`:""} ${t==="date"?`value="${today}"`:""}>`}</div>`).join("")}
 function tbl(h,r){return `<div class="tw"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr></thead><tbody>${r.map(x=>`<tr>${x.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
 const dls=()=>[["dlP",db.parties.map(x=>x.name)],["dlR",db.raw.map(x=>x.name)],["dlS",db.products.map(x=>x.name)],["dlI",db.raw.concat(db.packing).map(x=>x.name)]].map(([i,a])=>`<datalist id="${i}">${a.map(x=>`<option value="${E(x)}">`).join("")}</datalist>`).join("");
 const val=id=>$(id).value.trim();
@@ -83,7 +83,7 @@ party:{save(){const name=val("a");if(!name)return"Enter party name";db.parties.p
 purchase:{save(){const material=val("e"),qty=n(val("f"));if(!material)return"Enter item name";if(qty<=0)return"Enter valid quantity";const category=val("d");
  db.purchases.push({date:val("a")||today,bill:val("b"),party:val("c")||"Cash / Mandi",category,material,qty,rate:n(val("g")),photo:PH});
  const arr=category==="Raw Material"?db.raw:db.packing,e=arr.find(r=>same(r.name,material));e?e.qty=n(e.qty)+qty:arr.push(category==="Raw Material"?{name:material,qty}:{name:material,unit:"kg/pcs",qty})},
- html:()=>form("Purchase Entry (Inward)",[["a","Date","date"],["b","Bill / Lot No."],["c","Supplier / Party","text","dlP"],["d","Category","select",["Raw Material","Packing Material"]],["e","Item Name","text","dlI"],["f","Quantity (kg / pcs)","number"],["g","Rate per Unit (₹)","number"],["h","📷 Bill / Maal ki Photo (optional)","file"]],"+ Save Purchase & Update Stock")},
+ html:()=>form("Purchase Entry (Inward)",[["a","Date","date"],["b","Bill / Lot No."],["c","Supplier / Party","text","dlP"],["d","Category","select",["Raw Material","Packing Material"]],["e","Item Name","text","dlI"],["f","Quantity (kg / pcs)","number"],["g","Rate per Unit (₹)","number"],["h","📷 Bill / Maal ki Photo (optional)","file"]],"+ Save Purchase & Update Stock",'<div class="res" id="st" style="display:none"></div><h3>Ya list paste karo</h3><label>Har line: item, qty, rate (aakhri mein P likho to Packing). Date / Bill / Party upar ke boxes se aayenge</label><textarea id="bt" rows="5" style="width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font-size:14px"></textarea><button class="btn s" id="bk">Paste se sab add karo</button>')},
 inward:{html:()=>`<div class="card"><h2>Inward Purchase History</h2>${tbl(["Date","Bill","Party","Category","Item","Qty","Rate","Total","Photo"],db.purchases.map((p,i)=>[E(p.date),E(p.bill),E(p.party),E(p.category),E(p.material),f(p.qty),"₹"+f(p.rate),"₹"+f(n(p.qty)*n(p.rate)),p.photo?`<img src="${p.photo}" data-ph="${i}" style="height:34px;border-radius:4px">`:"-"]).reverse())}</div>`},
 daily:{save(){const raw=val("b"),i=n(val("c")),o=n(val("d"));if(!raw||i<=0||val("d")==="")return"Enter material, input and output qty";if(o>i)return"Output cannot exceed input";
  const e=db.raw.find(r=>same(r.name,raw));if(e)e.qty=Math.max(0,n(e.qty)-(i-o));db.dailyProd.push({date:val("a")||today,rawName:raw,inputQty:i,outputQty:o,lossPct:((i-o)/i*100).toFixed(2),note:val("e")})},
@@ -114,32 +114,36 @@ function dl(c,name,type){const a=document.createElement("a");a.href=URL.createOb
 const G={dashboard:["Dashboard",["dashboard"]],masters:["Masters",["product","raw","packing","party"]],purchase:["Purchase",["purchase","inward"]],production:["Production",["daily","batch","costing"]],sales:["Sales",["sale"]],stock:["Stock",["stock"]],reports:["Reports & Backup",["report","export","backup"]]};
 const LB={dashboard:"Dashboard",product:"Product Master",raw:"Raw Material",packing:"Packing Master",party:"Party Master",purchase:"Purchase Entry",inward:"Inward History",daily:"Daily Production",batch:"Packing Batches",costing:"Costing Calc",sale:"Sales / Dispatch",stock:"Live Stock",report:"Batch Report",export:"CSV Export",backup:"Backup / Restore"};
 let grp="dashboard",pg="dashboard",PH="",EX=[],BILL={};
+function st(m){const e=$("st");if(e){e.style.display="block";e.textContent=m}}
 function fill(id,v){const el=$(id);if(el&&v!==undefined&&v!==null&&v!=="")el.value=v}
 function fillItem(it){fill("a",BILL.date);fill("b",BILL.bill);fill("c",BILL.party);fill("d",/pack/i.test(it.category)?"Packing Material":"Raw Material");fill("e",it.name);fill("f",it.qty||"");fill("g",it.rate||"")}
 async function readBill(blob){
  try{
-  const s=window.claude&&await claude.use("sample");if(!s)return toast("Auto-read yahan available nahi, khud bharo");
+  const s=window.claude&&await claude.use("sample");if(!s){st("Auto-read is page par available nahi (permission/Claude app check karo). Item khud bharo.");return toast("Auto-read available nahi")}
   const names=db.raw.concat(db.packing).map(x=>x.name).join(", ")||"koi nahi";
   const r=await s.json("Ye ek purchase bill / parchi ki photo hai (Hindi, English ya Hinglish, handwritten bhi ho sakta hai). Sirf JSON do, koi aur text nahi: {\"date\":\"YYYY-MM-DD ya empty\",\"bill\":\"bill/invoice no\",\"party\":\"supplier ka naam\",\"items\":[{\"name\":\"\",\"category\":\"Raw Material ya Packing Material\",\"qty\":number,\"rate\":number}]}. Rules: qty kg ya pcs mein do (quintal=100 kg, gram/1000 kg mein badlo); rate usi unit ke hisaab se Rs per kg ya per pcs (quintal rate ho to 100 se bhaag do). Masala, dry fruit, anaj = Raw Material; laminate, roll, carton, printing = Packing Material. Agar item mere existing naamo mein se kisi ka hi hai to wahi naam likho: "+names+". Jo cheez padh na sako use empty ya 0 chhodo, andaaza mat lagao.",{images:[blob],cache:false});
   BILL={photo:PH,date:/^\d{4}-\d{2}-\d{2}$/.test(r.date||"")?r.date:"",bill:r.bill,party:r.party};
   EX=Array.isArray(r.items)?r.items.slice():[];
-  if(!EX.length)return toast("Bill samajh nahi aaya, khud bharo");
-  const t=EX.length;fillItem(EX.shift());toast("Bill padh liya ✓ "+t+" item. Check karke Save karo"+(t>1?" (baaki agle aayenge)":""));
- }catch(e){toast(e&&e.code==="not_granted"?"Permission nahi mili, khud bharo":"Bill padh nahi paya, khud bharo")}
+  if(!EX.length){st("Bill samajh nahi aaya: "+JSON.stringify(r).slice(0,200));return toast("Bill samajh nahi aaya")}
+  const t=EX.length;fillItem(EX.shift());st("Bill padh liya: "+t+" item mile. Check karke Save karo");toast("Bill padh liya ✓ "+t+" item. Check karke Save karo"+(t>1?" (baaki agle aayenge)":""));
+ }catch(e){st("Auto-read fail: "+((e&&e.code)||"")+" "+((e&&e.message)||e)+" — item khud bharo");toast("Bill padh nahi paya")}
 }
 function show(){PH="";
  $("nav").innerHTML=Object.keys(G).map(g=>`<button data-g="${g}" class="${g===grp?"on":""}">${G[g][0]}</button>`).join("");
  const ps=G[grp][1];$("sub").hidden=ps.length<2;$("sub").innerHTML=ps.map(p=>`<button data-p="${p}" class="${p===pg?"on":""}">${LB[p]}</button>`).join("");
- $("bc").textContent="SADHNA AGRO > "+G[grp][0]+(ps.length>1?" > "+LB[pg]:"");
+ $("bc").textContent="SURYA SWAD > "+G[grp][0]+(ps.length>1?" > "+LB[pg]:"");
  const o=P[pg],h=typeof o==="function"?o():o.html();$("view").innerHTML=h;
  const go=$("go");if(go&&o.save)go.onclick=()=>{const r=o.save();if(r&&r!==0)return toast(r);if(r!==0){persist();toast("Saved ✓");show()}};
  if(pg==="backup")$("rs").onclick=()=>{const fi=$("rf").files[0];if(!fi)return toast("Select a .json file first");const rd=new FileReader();rd.onload=e=>{try{const x=JSON.parse(e.target.result);L.forEach(k=>db[k]=Array.isArray(x[k])?x[k]:[]);persist();toast("Backup restored ✓");show()}catch(er){toast("Invalid backup file")}};rd.readAsText(fi)};
  if(pg==="purchase"&&EX.length){const it=EX.shift();fillItem(it);PH=BILL.photo||"";toast("Agla item bhara: "+(it.name||"")+". Check karke Save karo")}else if(pg!=="purchase")EX=[];
 }
 $("nav").onclick=e=>{const g=e.target.dataset.g;if(g){grp=g;pg=G[g][1][0];show()}};
-document.addEventListener("change",e=>{if(e.target.id!=="h"||!e.target.files[0])return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);PH=c.toDataURL("image/jpeg",0.6);toast("Bill padh raha hoon… 🤖");c.toBlob(b=>readBill(b),"image/jpeg",0.7)};im.src=r.result};r.readAsDataURL(e.target.files[0])});
+document.addEventListener("change",e=>{if(e.target.id!=="h"||!e.target.files[0])return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);PH=c.toDataURL("image/jpeg",0.6);st("Bill padh raha hoon…");toast("Bill padh raha hoon… 🤖");c.toBlob(b=>readBill(b),"image/jpeg",0.7)};im.src=r.result};r.readAsDataURL(e.target.files[0])});
 document.addEventListener("click",e=>{const t=e.target;if(t.tagName==="IMG"&&t.dataset.ph!==undefined){$("lb").innerHTML=`<img src="${db.purchases[t.dataset.ph].photo}" style="max-width:100%;max-height:100%;border-radius:8px">`;$("lb").style.display="flex"}else if(t.closest("#lb"))$("lb").style.display="none"});
 $("sub").onclick=e=>{const p=e.target.dataset.p;if(p){pg=p;show()}};
+document.addEventListener("click",e=>{if(e.target.id!=="bk")return;const rows=$("bt").value.split("\n").map(x=>x.trim()).filter(Boolean),cat=val("d"),date=val("a")||today,bill=val("b"),party=val("c")||"Cash / Mandi";let ok=0;
+rows.forEach(l=>{const p=l.split(/[,\t|]/).map(x=>x.trim()),m=p[0],q=n(p[1]),r=n(p[2]),c=/^p/i.test(p[3]||"")?"Packing Material":cat;if(!m||q<=0)return;db.purchases.push({date,bill,party,category:c,material:m,qty:q,rate:r,photo:ok===0?PH:""});const arr=c==="Raw Material"?db.raw:db.packing,x=arr.find(y=>same(y.name,m));x?x.qty=n(x.qty)+q:arr.push(c==="Raw Material"?{name:m,qty:q}:{name:m,unit:"kg/pcs",qty:q});ok++});
+if(!ok)return toast("Koi valid line nahi mili (item, qty, rate)");persist();toast(ok+" purchase add ✓");show()});
 show();
 </script>
 </body>
