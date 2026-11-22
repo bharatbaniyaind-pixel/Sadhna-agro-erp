@@ -63,30 +63,37 @@
       color: #ffffff;
       border: 1px solid #334155;
       border-radius: 8px;
-      width: 44px;
-      height: 42px;
-      font-size: 22px;
+      width: 46px;
+      height: 44px;
+      font-size: 24px;
+      line-height: 1;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      z-index: 10001;
+      z-index: 10002;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    #menuBtn:active {
+      background: #10b981;
+      color: #0f172a;
     }
 
     /* Navigation Menu */
     #navDrawer {
       display: none;
       position: fixed;
-      top: 64px;
+      top: 66px;
       left: 0;
       width: 100%;
-      max-height: calc(100vh - 64px);
+      max-height: calc(100vh - 66px);
       overflow-y: auto;
       background: #1e293b;
-      z-index: 10000;
+      z-index: 10001;
       border-top: 1px solid #334155;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
     }
     #navDrawer.show {
       display: block !important;
@@ -108,6 +115,7 @@
       align-items: center;
       text-align: left;
       cursor: pointer;
+      touch-action: manipulation;
     }
     .nav-link:active, .dropdown-btn:active {
       background: #0f172a;
@@ -132,6 +140,7 @@
       text-align: left;
       display: block;
       cursor: pointer;
+      touch-action: manipulation;
     }
     .submenu button:active {
       background: #1e293b;
@@ -277,7 +286,7 @@
 </head>
 <body>
 
-  <!-- TOP NAVIGATION BAR (6 MAIN HEADS) -->
+  <!-- TOP NAVIGATION BAR -->
   <header class="topbar">
     <div class="brand">
       <div class="brand-icon">🌱</div>
@@ -287,7 +296,7 @@
       </div>
     </div>
 
-    <button type="button" id="menuBtn" aria-label="Menu">☰</button>
+    <button type="button" id="menuBtn" aria-label="Menu" onclick="toggleMobileMenu()">☰</button>
 
     <nav id="navDrawer">
       <!-- 1. Dashboard -->
@@ -295,9 +304,9 @@
         <button type="button" class="nav-link" data-page="dashboard" data-title="Dashboard">Dashboard</button>
       </div>
 
-      <!-- 2. Masters (All Masters under 1 Head) -->
+      <!-- 2. Masters -->
       <div class="nav-item">
-        <button type="button" class="dropdown-btn">Masters <span>▾</span></button>
+        <button type="button" class="dropdown-btn" onclick="toggleSubMenu(this)">Masters <span>▾</span></button>
         <div class="submenu">
           <button type="button" data-page="product-master" data-title="Masters > Product Master">Product Master</button>
           <button type="button" data-page="raw-master" data-title="Masters > Raw Material Master">Raw Material Master</button>
@@ -308,7 +317,7 @@
 
       <!-- 3. Purchase -->
       <div class="nav-item">
-        <button type="button" class="dropdown-btn">Purchase <span>▾</span></button>
+        <button type="button" class="dropdown-btn" onclick="toggleSubMenu(this)">Purchase <span>▾</span></button>
         <div class="submenu">
           <button type="button" data-page="purchase-entry" data-title="Purchase > Purchase Entry">Purchase Entry</button>
           <button type="button" data-page="inward-history" data-title="Purchase > Inward History">Inward History</button>
@@ -317,7 +326,7 @@
 
       <!-- 4. Production -->
       <div class="nav-item">
-        <button type="button" class="dropdown-btn">Production <span>▾</span></button>
+        <button type="button" class="dropdown-btn" onclick="toggleSubMenu(this)">Production <span>▾</span></button>
         <div class="submenu">
           <button type="button" data-page="daily-prod" data-title="Production > Daily Production Sheet">Daily Production Sheet</button>
           <button type="button" data-page="packing-batch" data-title="Production > Packing Batches">Packing Batches</button>
@@ -332,7 +341,7 @@
 
       <!-- 6. Reports & Backup -->
       <div class="nav-item">
-        <button type="button" class="dropdown-btn">Reports & Backup <span>▾</span></button>
+        <button type="button" class="dropdown-btn" onclick="toggleSubMenu(this)">Reports & Backup <span>▾</span></button>
         <div class="submenu">
           <button type="button" data-page="reports" data-title="Reports > Batch Costing Report">Batch Costing Report</button>
           <button type="button" data-page="export" data-title="Reports > Excel / CSV Export">Excel / CSV Export</button>
@@ -472,30 +481,29 @@
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const menuBtn = document.getElementById("menuBtn");
+    function toggleMobileMenu() {
       const navDrawer = document.getElementById("navDrawer");
+      const menuBtn = document.getElementById("menuBtn");
+      navDrawer.classList.toggle("show");
+      menuBtn.textContent = navDrawer.classList.contains("show") ? "✕" : "☰";
+    }
+
+    function toggleSubMenu(btn) {
+      const currentSub = btn.nextElementSibling;
+      document.querySelectorAll(".submenu").forEach(function (sub) {
+        if (sub !== currentSub) {
+          sub.classList.remove("open");
+        }
+      });
+      currentSub.classList.toggle("open");
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const navDrawer = document.getElementById("navDrawer");
+      const menuBtn = document.getElementById("menuBtn");
       const breadcrumbText = document.getElementById("breadcrumbText");
 
-      // 1. Toggle Mobile Menu
-      menuBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        navDrawer.classList.toggle("show");
-      });
-
-      // 2. Toggle Sub-heads (Masters, Purchase, Production, Reports)
-      document.querySelectorAll(".dropdown-btn").forEach(function (btn) {
-        btn.addEventListener("click", function (e) {
-          e.stopPropagation();
-          const currentSub = this.nextElementSibling;
-          document.querySelectorAll(".submenu").forEach(function (sub) {
-            if (sub !== currentSub) sub.classList.remove("open");
-          });
-          currentSub.classList.toggle("open");
-        });
-      });
-
-      // 3. Navigate to Selected Section
+      // Navigate to Selected Section
       document.querySelectorAll("[data-page]").forEach(function (link) {
         link.addEventListener("click", function () {
           const targetId = this.getAttribute("data-page");
@@ -505,14 +513,17 @@
             sec.classList.remove("active");
           });
           const targetEl = document.getElementById(targetId);
-          if (targetEl) targetEl.classList.add("active");
+          if (targetEl) {
+            targetEl.classList.add("active");
+          }
 
           breadcrumbText.textContent = "SADHNA AGRO > " + title;
           navDrawer.classList.remove("show");
+          menuBtn.textContent = "☰";
         });
       });
 
-      // 4. LocalStorage Data Engine
+      // LocalStorage Data Engine
       let db = JSON.parse(localStorage.getItem("sadhna_erp_v3")) || {
         products: [],
         raw: [],
@@ -524,14 +535,109 @@
         localStorage.setItem("sadhna_erp_v3", JSON.stringify(db));
 
         document.getElementById("kpiProducts").textContent = db.products.length;
-        const totalRaw = db.raw.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+        const totalRaw = db.raw.reduce(function (sum, item) {
+          return sum + Number(item.qty || 0);
+        }, 0);
         document.getElementById("kpiRaw").textContent = totalRaw + " kg";
 
         document.getElementById("prodTableBody").innerHTML = db.products
-          .map(p => `<tr><td>${p.name}</td><td>${p.weight}g</td><td>₹${p.mrp}</td></tr>`).join("");  document.getElementById("rawTableBody").innerHTML = db.raw .map(r => `<tr><td>${r.name}</td><td>${r.qty} kg</td></tr>`).join("");  document.getElementById("packTableBody").innerHTML = db.packing .map(pk => `<tr><td>${pk.name}</td><td>${pk.unit}</td></tr>`).join("");  document.getElementById("partyTableBody").innerHTML = db.parties .map(pt => `<tr><td>${pt.name}</td><td>${pt.city}</td></tr>`).join(""); }  document.getElementById("saveProdBtn").addEventListener("click", function () { const name = document.getElementById("prodName").value.trim(); const weight = document.getElementById("prodWeight").value.trim(); const mrp = document.getElementById("prodMrp").value.trim(); if (!name) return alert("Enter Product Name"); db.products.push({ name, weight, mrp }); document.getElementById("prodName").value = ""; document.getElementById("prodWeight").value = ""; document.getElementById("prodMrp").value = ""; saveAndRender(); });  document.getElementById("saveRawBtn").addEventListener("click", function () { const name = document.getElementById("rawName").value.trim(); const qty = document.getElementById("rawQty").value.trim(); if (!name) return alert("Enter Raw Material Name"); db.raw.push({ name, qty }); document.getElementById("rawName").value = ""; document.getElementById("rawQty").value = ""; saveAndRender(); });  document.getElementById("savePackBtn").addEventListener("click", function () { const name = document.getElementById("packName").value.trim(); const unit = document.getElementById("packUnit").value.trim(); if (!name) return alert("Enter Packing Item Name"); db.packing.push({ name, unit }); document.getElementById("packName").value = ""; document.getElementById("packUnit").value = ""; saveAndRender(); });  document.getElementById("savePartyBtn").addEventListener("click", function () { const name = document.getElementById("partyName").value.trim(); const city = document.getElementById("partyCity").value.trim(); if (!name) return alert("Enter Party Name"); db.parties.push({ name, city }); document.getElementById("partyName").value = ""; document.getElementById("partyCity").value = ""; saveAndRender(); });  document.getElementById("backupJsonBtn").addEventListener("click", function () { const blob = new Blob([JSON.stringify(db, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "sadhna_agro_backup.json"; a.click(); });  document.getElementById("exportCsvBtn").addEventListener("click", function () { let csv = "Type,Name,Detail1,Detail2\n"; db.products.forEach(p => csv += `Product,${p.name},${p.weight}g,MRP${p.mrp}\n`);
-        db.raw.forEach(r => csv += `Raw Material,${r.name},${r.qty} kg,\n`);
-        db.packing.forEach(pk => csv += `Packing,${pk.name},${pk.unit},\n`);
-        db.parties.forEach(pt => csv += `Party,${pt.name},${pt.city},\n`);
+          .map(function (p) {
+            return "<tr><td>" + p.name + "</td><td>" + p.weight + "g</td><td>₹" + p.mrp + "</td></tr>";
+          })
+          .join("");
+
+        document.getElementById("rawTableBody").innerHTML = db.raw
+          .map(function (r) {
+            return "<tr><td>" + r.name + "</td><td>" + r.qty + " kg</td></tr>";
+          })
+          .join("");
+
+        document.getElementById("packTableBody").innerHTML = db.packing
+          .map(function (pk) {
+            return "<tr><td>" + pk.name + "</td><td>" + pk.unit + "</td></tr>";
+          })
+          .join("");
+
+        document.getElementById("partyTableBody").innerHTML = db.parties
+          .map(function (pt) {
+            return "<tr><td>" + pt.name + "</td><td>" + pt.city + "</td></tr>";
+          })
+          .join("");
+      }
+
+      document.getElementById("saveProdBtn").addEventListener("click", function () {
+        const name = document.getElementById("prodName").value.trim();
+        const weight = document.getElementById("prodWeight").value.trim();
+        const mrp = document.getElementById("prodMrp").value.trim();
+        if (!name) return alert("Enter Product Name");
+        db.products.push({ name: name, weight: weight, mrp: mrp });
+        document.getElementById("prodName").value = "";
+        document.getElementById("prodWeight").value = "";
+        document.getElementById("prodMrp").value = "";
+        saveAndRender();
+      });
+
+      document.getElementById("saveRawBtn").addEventListener("click", function () {
+        const name = document.getElementById("rawName").value.trim();
+        const qty = document.getElementById("rawQty").value.trim();
+        if (!name) return alert("Enter Raw Material Name");
+        db.raw.push({ name: name, qty: qty });
+        document.getElementById("rawName").value = "";
+        document.getElementById("rawQty").value = "";
+        saveAndRender();
+      });
+
+      document.getElementById("savePackBtn").addEventListener("click", function () {
+        const name = document.getElementById("packName").value.trim();
+        const unit = document.getElementById("packUnit").value.trim();
+        if (!name) return alert("Enter Packing Item Name");
+        db.packing.push({ name: name, unit: unit });
+        document.getElementById("packName").value = "";
+        document.getElementById("packUnit").value = "";
+        saveAndRender();
+      });
+
+      document.getElementById("savePartyBtn").addEventListener("click", function () {
+        const name = document.getElementById("partyName").value.trim();
+        const city = document.getElementById("partyCity").value.trim();
+        if (!name) return alert("Enter Party Name");
+        db.parties.push({ name: name, city: city });
+        document.getElementById("partyName").value = "";
+        document.getElementById("partyCity").value = "";
+        saveAndRender();
+      });
+
+      document.getElementById("backupJsonBtn").addEventListener("click", function () {
+        const blob = new Blob([JSON.stringify(db, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "sadhna_agro_backup.json";
+        a.click();
+      });
+
+      document.getElementById("exportCsvBtn").addEventListener("click", function () {
+        let csv = "Type,Name,Detail1,Detail2\n";
+        db.products.forEach(function (p) {
+          csv += "Product," + p.name + "," + p.weight + "g,MRP" + p.mrp + "\n";
+        });
+        db.raw.forEach(function (r) {
+          csv += "Raw Material," + r.name + "," + r.qty + " kg,\n";
+        });
+        db.packing.forEach(function (pk) {
+          csv += "Packing," + pk.name + "," + pk.unit + ",\n";
+        });
+        db.parties.forEach(function (pt) {
+          csv += "Party," + pt.name + "," + pt.city + ",\n";
+        });
         const blob = new Blob([csv], { type: "text/csv" });
         const a = document.createElement("a");
-        a.h
+        a.href = URL.createObjectURL(blob);
+        a.download = "sadhna_agro_masters.csv";
+        a.click();
+      });
+
+      saveAndRender();
+    });
+  </script>
+</body>
+</html>
