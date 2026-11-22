@@ -2,1787 +2,536 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SADHNA AGRO — Manufacturing & Packing ERP</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- Font Awesome for crisp ERP icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              dark: '#0f172a',
-              slate: '#1e293b',
-              emerald: '#059669',
-              emeraldDark: '#047857',
-              light: '#f8fafc',
-            }
-          }
-        }
-      }
-    };
-  </script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SADHNA AGRO - Manufacturing & Packing ERP</title>
   <style>
-    /* Smooth custom transitions and dropdown handling */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .topbar {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: #10b981;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .brand-name {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+    .brand-tag {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    /* Hamburger Button */
+    #menuBtn {
+      background: #1e293b;
+      color: #ffffff;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      width: 44px;
+      height: 42px;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 10001;
+    }
+
+    /* Navigation Menu */
+    #navDrawer {
+      display: none;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      width: 100%;
+      max-height: calc(100vh - 64px);
+      overflow-y: auto;
+      background: #1e293b;
+      z-index: 10000;
+      border-top: 1px solid #334155;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    }
+    #navDrawer.show {
+      display: block !important;
+    }
+
+    .nav-item {
+      border-bottom: 1px solid #334155;
+    }
+    .nav-link, .dropdown-btn {
+      width: 100%;
+      background: none;
+      border: none;
+      color: #f8fafc;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 15px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+      cursor: pointer;
+    }
+    .nav-link:active, .dropdown-btn:active {
+      background: #0f172a;
+    }
+
+    /* Sub-menu */
+    .submenu {
+      display: none;
+      background: #0f172a;
+      padding: 6px 0;
+    }
+    .submenu.open {
+      display: block !important;
+    }
+    .submenu button {
+      width: 100%;
+      background: none;
+      border: none;
+      color: #cbd5e1;
+      font-size: 14px;
+      padding: 12px 18px 12px 34px;
+      text-align: left;
+      display: block;
+      cursor: pointer;
+    }
+    .submenu button:active {
+      background: #1e293b;
+      color: #10b981;
+    }
+
+    /* Desktop View */
+    @media (min-width: 900px) {
+      #menuBtn { display: none; }
+      #navDrawer {
+        display: flex !important;
+        position: static;
+        width: auto;
+        max-height: none;
+        overflow: visible;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+      .nav-item {
+        border: none;
+        position: relative;
+      }
+      .submenu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 220px;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      }
+      .submenu button {
+        padding: 11px 16px;
+      }
+    }
+
+    /* Main Content */
+    .container {
+      padding: 16px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .breadcrumb {
+      font-size: 13px;
+      color: #059669;
+      font-weight: 600;
+      margin-bottom: 8px;
+      padding-left: 2px;
+    }
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    /* Cards & Forms */
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border: 1px solid #e2e8f0;
+    }
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+    .kpi-val {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 6px 0;
+    }
+    .kpi-sub {
+      font-size: 13px;
+      color: #059669;
+      font-weight: 500;
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 14px;
       color: #0f172a;
     }
-
-    /* Desktop Dropdown Hover & Active Support */
-    @media (min-width: 1024px) {
-      .nav-dropdown:hover .dropdown-menu {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-      }
+    .form-group {
+      margin-bottom: 12px;
     }
-
-    .dropdown-menu {
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(6px);
-      transition: all 0.18s ease-out;
-    }
-
-    .dropdown-menu.open {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    /* View fade transition */
-    .erp-view {
-      display: none;
-      animation: fadeIn 0.2s ease-in-out;
-    }
-
-    .erp-view.active {
+    label {
       display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #334155;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
     }
-
-    /* Custom Scrollbar for wide tables */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    .btn-primary {
+      background: #059669;
+      color: #ffffff;
+      border: none;
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
     }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 13px;
     }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+    th {
+      background: #f8fafc;
+      color: #475569;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-  <!-- =====================================================================
-       TOP HEADER & 6-HEAD NAVIGATION BAR
-  ====================================================================== -->
-  <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        
-        <!-- Brand Logo & Title -->
-        <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('dashboard')">
-          <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center shadow-md shadow-emerald-950/50">
-            <i class="fa-solid fa-seedling text-white text-lg"></i>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="font-bold text-lg tracking-tight text-white">SADHNA AGRO</span>
-              <span class="hidden sm:inline-block text-[10px] font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">ERP v2.0</span>
-            </div>
-            <p class="text-[11px] text-slate-400 leading-none">Manufacturing & Packing Suite</p>
-          </div>
-        </div>
-
-        <!-- Desktop Navigation: 6 Main Heads -->
-        <nav class="hidden lg:flex items-center space-x-1" id="desktop-nav">
-          
-          <!-- 1. DASHBOARD -->
-          <button type="button" data-head="dashboard" onclick="navigateTo('dashboard')"
-            class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
-            <i class="fa-solid fa-chart-pie text-emerald-400 text-xs"></i>
-            <span>Dashboard</span>
-          </button>
-
-          <!-- 2. MASTERS (All Masters Consolidated Under One Head) -->
-          <div class="relative nav-dropdown">
-            <button type="button" data-head="masters" onclick="toggleDropdown(this)"
-              class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
-              <i class="fa-solid fa-database text-emerald-400 text-xs"></i>
-              <span>Masters</span>
-              <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
-            </button>
-            <div class="dropdown-menu absolute left-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-2 text-slate-800 z-50">
-              <div class="px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
-                Core Master Setup
-              </div>
-              <button type="button" data-sub="product-master" onclick="navigateTo('product-master', 'masters')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-box-open w-4 text-emerald-600"></i>
-                <div>
-                  <div class="font-medium">Product Master</div>
-                  <div class="text-[11px] text-slate-400">Finished SKUs & Pouch Sizes</div>
-                </div>
-              </button>
-              <button type="button" data-sub="raw-material-master" onclick="navigateTo('raw-material-master', 'masters')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-wheat-awn w-4 text-amber-600"></i>
-                <div>
-                  <div class="font-medium">Raw Material Master</div>
-                  <div class="text-[11px] text-slate-400">Whole Spices, Grains & Dry Fruits</div>
-                </div>
-              </button>
-              <button type="button" data-sub="packing-master" onclick="navigateTo('packing-master', 'masters')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-layer-group w-4 text-blue-600"></i>
-                <div>
-                  <div class="font-medium">Packing & Printing Master</div>
-                  <div class="text-[11px] text-slate-400">Pouches, Rolls, Cartons & Labels</div>
-                </div>
-              </button>
-              <button type="button" data-sub="party-master" onclick="navigateTo('party-master', 'masters')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-truck-field w-4 text-purple-600"></i>
-                <div>
-                  <div class="font-medium">Supplier / Party Master</div>
-                  <div class="text-[11px] text-slate-400">Vendors, Mandis & Print Press</div>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <!-- 3. PURCHASE -->
-          <div class="relative nav-dropdown">
-            <button type="button" data-head="purchase" onclick="toggleDropdown(this)"
-              class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
-              <i class="fa-solid fa-cart-flatbed text-emerald-400 text-xs"></i>
-              <span>Purchase</span>
-              <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
-            </button>
-            <div class="dropdown-menu absolute left-0 mt-1.5 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-2 text-slate-800 z-50">
-              <button type="button" data-sub="purchase-entry" onclick="navigateTo('purchase-entry', 'purchase')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-file-invoice-dollar w-4 text-emerald-600"></i>
-                <span>Purchase Entry</span>
-              </button>
-              <button type="button" data-sub="inward-history" onclick="navigateTo('inward-history', 'purchase')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-clock-rotate-left w-4 text-slate-600"></i>
-                <span>Inward History</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 4. PRODUCTION -->
-          <div class="relative nav-dropdown">
-            <button type="button" data-head="production" onclick="toggleDropdown(this)"
-              class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
-              <i class="fa-solid fa-industry text-emerald-400 text-xs"></i>
-              <span>Production</span>
-              <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
-            </button>
-            <div class="dropdown-menu absolute left-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-slate-200 py-2 text-slate-800 z-50">
-              <button type="button" data-sub="daily-production" onclick="navigateTo('daily-production', 'production')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-clipboard-check w-4 text-emerald-600"></i>
-                <span>Daily Production Sheet</span>
-              </button>
-              <button type="button" data-sub="packing-batches" onclick="navigateTo('packing-batches', 'production')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-boxes-packing w-4 text-amber-600"></i>
-                <span>Packing Batches</span>
-              </button>
-              <button type="button" data-sub="costing-calculator" onclick="navigateTo('costing-calculator', 'production')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-calculator w-4 text-blue-600"></i>
-                <span>Costing Calculator</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 5. STOCK -->
-          <button type="button" data-head="stock" onclick="navigateTo('stock')"
-            class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
-            <i class="fa-solid fa-warehouse text-emerald-400 text-xs"></i>
-            <span>Stock</span>
-          </button>
-
-          <!-- 6. REPORTS & BACKUP -->
-          <div class="relative nav-dropdown">
-            <button type="button" data-head="reports" onclick="toggleDropdown(this)"
-              class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
-              <i class="fa-solid fa-chart-line text-emerald-400 text-xs"></i>
-              <span>Reports & Backup</span>
-              <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
-            </button>
-            <div class="dropdown-menu absolute right-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-slate-200 py-2 text-slate-800 z-50">
-              <button type="button" data-sub="batch-costing-report" onclick="navigateTo('batch-costing-report', 'reports')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-file-contract w-4 text-emerald-600"></i>
-                <span>Batch Costing Report</span>
-              </button>
-              <button type="button" data-sub="excel-export" onclick="navigateTo('excel-export', 'reports')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-file-excel w-4 text-green-600"></i>
-                <span>Excel / CSV Export</span>
-              </button>
-              <button type="button" data-sub="data-backup" onclick="navigateTo('data-backup', 'reports')"
-                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
-                <i class="fa-solid fa-cloud-arrow-up w-4 text-indigo-600"></i>
-                <span>Data Backup & Restore</span>
-              </button>
-            </div>
-          </div>
-
-        </nav>
-
-        <!-- Mobile Menu Toggle Button -->
-        <div class="flex items-center lg:hidden">
-          <button type="button" onclick="toggleMobileMenu()" aria-label="Toggle Menu"
-            class="p-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 focus:outline-none">
-            <i id="mobile-menu-icon" class="fa-solid fa-bars text-xl"></i>
-          </button>
-        </div>
+  <!-- TOP NAVIGATION BAR (6 MAIN HEADS) -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🌱</div>
+      <div>
+        <div class="brand-name">SADHNA AGRO</div>
+        <div class="brand-tag">Manufacturing & Packing Suite</div>
       </div>
     </div>
 
-    <!-- Mobile Navigation Drawer (Collapsible 6 Main Heads + Sub-heads) -->
-    <div id="mobile-menu" class="hidden lg:hidden bg-slate-800 border-t border-slate-700 px-4 pt-2 pb-5 space-y-1.5">
-      <!-- 1. Dashboard -->
-      <button type="button" data-head="dashboard" onclick="navigateTo('dashboard'); closeMobileMenu();"
-        class="mobile-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-white hover:bg-slate-700 flex items-center gap-3">
-        <i class="fa-solid fa-chart-pie text-emerald-400 w-5"></i> Dashboard
-      </button>
+    <button type="button" id="menuBtn" aria-label="Menu">☰</button>
 
-      <!-- 2. Masters -->
-      <div class="rounded-lg bg-slate-850/60 border border-slate-700/70 overflow-hidden">
-        <button type="button" onclick="toggleMobileSub('mob-masters')"
-          class="w-full text-left px-3 py-2.5 text-sm font-medium text-white hover:bg-slate-700 flex items-center justify-between">
-          <span class="flex items-center gap-3"><i class="fa-solid fa-database text-emerald-400 w-5"></i> Masters</span>
-          <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
-        </button>
-        <div id="mob-masters" class="hidden bg-slate-900/60 px-3 py-1.5 space-y-1 border-t border-slate-700/60">
-          <button type="button" onclick="navigateTo('product-master', 'masters'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Product Master</button>
-          <button type="button" onclick="navigateTo('raw-material-master', 'masters'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Raw Material Master</button>
-          <button type="button" onclick="navigateTo('packing-master', 'masters'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Packing & Printing Master</button>
-          <button type="button" onclick="navigateTo('party-master', 'masters'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Supplier / Party Master</button>
+    <nav id="navDrawer">
+      <!-- 1. Dashboard -->
+      <div class="nav-item">
+        <button type="button" class="nav-link" data-page="dashboard" data-title="Dashboard">Dashboard</button>
+      </div>
+
+      <!-- 2. Masters (All Masters under 1 Head) -->
+      <div class="nav-item">
+        <button type="button" class="dropdown-btn">Masters <span>▾</span></button>
+        <div class="submenu">
+          <button type="button" data-page="product-master" data-title="Masters > Product Master">Product Master</button>
+          <button type="button" data-page="raw-master" data-title="Masters > Raw Material Master">Raw Material Master</button>
+          <button type="button" data-page="packing-master" data-title="Masters > Packing & Printing Master">Packing & Printing Master</button>
+          <button type="button" data-page="party-master" data-title="Masters > Supplier / Party Master">Supplier / Party Master</button>
         </div>
       </div>
 
       <!-- 3. Purchase -->
-      <div class="rounded-lg bg-slate-850/60 border border-slate-700/70 overflow-hidden">
-        <button type="button" onclick="toggleMobileSub('mob-purchase')"
-          class="w-full text-left px-3 py-2.5 text-sm font-medium text-white hover:bg-slate-700 flex items-center justify-between">
-          <span class="flex items-center gap-3"><i class="fa-solid fa-cart-flatbed text-emerald-400 w-5"></i> Purchase</span>
-          <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
-        </button>
-        <div id="mob-purchase" class="hidden bg-slate-900/60 px-3 py-1.5 space-y-1 border-t border-slate-700/60">
-          <button type="button" onclick="navigateTo('purchase-entry', 'purchase'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Purchase Entry</button>
-          <button type="button" onclick="navigateTo('inward-history', 'purchase'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Inward History</button>
+      <div class="nav-item">
+        <button type="button" class="dropdown-btn">Purchase <span>▾</span></button>
+        <div class="submenu">
+          <button type="button" data-page="purchase-entry" data-title="Purchase > Purchase Entry">Purchase Entry</button>
+          <button type="button" data-page="inward-history" data-title="Purchase > Inward History">Inward History</button>
         </div>
       </div>
 
       <!-- 4. Production -->
-      <div class="rounded-lg bg-slate-850/60 border border-slate-700/70 overflow-hidden">
-        <button type="button" onclick="toggleMobileSub('mob-production')"
-          class="w-full text-left px-3 py-2.5 text-sm font-medium text-white hover:bg-slate-700 flex items-center justify-between">
-          <span class="flex items-center gap-3"><i class="fa-solid fa-industry text-emerald-400 w-5"></i> Production</span>
-          <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
-        </button>
-        <div id="mob-production" class="hidden bg-slate-900/60 px-3 py-1.5 space-y-1 border-t border-slate-700/60">
-          <button type="button" onclick="navigateTo('daily-production', 'production'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Daily Production Sheet</button>
-          <button type="button" onclick="navigateTo('packing-batches', 'production'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Packing Batches</button>
-          <button type="button" onclick="navigateTo('costing-calculator', 'production'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Costing Calculator</button>
+      <div class="nav-item">
+        <button type="button" class="dropdown-btn">Production <span>▾</span></button>
+        <div class="submenu">
+          <button type="button" data-page="daily-prod" data-title="Production > Daily Production Sheet">Daily Production Sheet</button>
+          <button type="button" data-page="packing-batch" data-title="Production > Packing Batches">Packing Batches</button>
+          <button type="button" data-page="costing" data-title="Production > Costing Calculator">Costing Calculator</button>
         </div>
       </div>
 
       <!-- 5. Stock -->
-      <button type="button" data-head="stock" onclick="navigateTo('stock'); closeMobileMenu();"
-        class="mobile-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-white hover:bg-slate-700 flex items-center gap-3">
-        <i class="fa-solid fa-warehouse text-emerald-400 w-5"></i> Stock
-      </button>
+      <div class="nav-item">
+        <button type="button" class="nav-link" data-page="stock" data-title="Live Stock">Stock</button>
+      </div>
 
       <!-- 6. Reports & Backup -->
-      <div class="rounded-lg bg-slate-850/60 border border-slate-700/70 overflow-hidden">
-        <button type="button" onclick="toggleMobileSub('mob-reports')"
-          class="w-full text-left px-3 py-2.5 text-sm font-medium text-white hover:bg-slate-700 flex items-center justify-between">
-          <span class="flex items-center gap-3"><i class="fa-solid fa-chart-line text-emerald-400 w-5"></i> Reports & Backup</span>
-          <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
-        </button>
-        <div id="mob-reports" class="hidden bg-slate-900/60 px-3 py-1.5 space-y-1 border-t border-slate-700/60">
-          <button type="button" onclick="navigateTo('batch-costing-report', 'reports'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Batch Costing Report</button>
-          <button type="button" onclick="navigateTo('excel-export', 'reports'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Excel / CSV Export</button>
-          <button type="button" onclick="navigateTo('data-backup', 'reports'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Data Backup & Restore</button>
+      <div class="nav-item">
+        <button type="button" class="dropdown-btn">Reports & Backup <span>▾</span></button>
+        <div class="submenu">
+          <button type="button" data-page="reports" data-title="Reports > Batch Costing Report">Batch Costing Report</button>
+          <button type="button" data-page="export" data-title="Reports > Excel / CSV Export">Excel / CSV Export</button>
+          <button type="button" data-page="backup" data-title="Reports > Data Backup & Restore">Data Backup & Restore</button>
         </div>
       </div>
-    </div>
+    </nav>
   </header>
 
-  <!-- =====================================================================
-       BREADCRUMB & CONTEXT SUB-HEADER
-  ====================================================================== -->
-  <div class="bg-white border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
-        <span class="font-semibold text-slate-700">SADHNA AGRO</span>
-        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
-        <span id="breadcrumb-head" class="capitalize font-medium text-emerald-700">Dashboard</span>
-        <span id="breadcrumb-sub-wrap" class="hidden items-center gap-2">
-          <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
-          <span id="breadcrumb-sub" class="font-semibold text-slate-800">Overview</span>
-        </span>
+  <div class="container">
+    <div class="breadcrumb" id="breadcrumbText">SADHNA AGRO &gt; Dashboard</div>
+    <div class="sync-badge">● Local Storage Synced</div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="section active">
+      <div class="card">
+        <div class="kpi-label">Total Products (SKUs)</div>
+        <div class="kpi-val" id="kpiProducts">0</div>
+        <div class="kpi-sub">Active Retail Pouches</div>
       </div>
-      <div class="flex items-center gap-3 text-xs text-slate-500">
-        <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-medium border border-emerald-200">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Local Storage Synced
-        </span>
-        <span id="current-date-badge" class="hidden sm:inline font-medium text-slate-600"></span>
+      <div class="card">
+        <div class="kpi-label">Raw Material Stock</div>
+        <div class="kpi-val" id="kpiRaw">0 kg</div>
+        <div class="kpi-sub">Across all spice & dry fruit lots</div>
+      </div>
+      <div class="card">
+        <div class="kpi-label">Packing Batches</div>
+        <div class="kpi-val" id="kpiBatches">0</div>
+        <div class="kpi-sub">Completed Floor Runs</div>
+      </div>
+    </div>
+
+    <!-- PRODUCT MASTER -->
+    <div id="product-master" class="section">
+      <div class="card">
+        <h2>Product Master (Retail SKUs)</h2>
+        <div class="form-group">
+          <label>Product Name (e.g., Jeera 15g Pouch)</label>
+          <input type="text" id="prodName" placeholder="Enter product name" />
+        </div>
+        <div class="form-group">
+          <label>Pack Weight (grams)</label>
+          <input type="number" id="prodWeight" placeholder="e.g., 15" />
+        </div>
+        <div class="form-group">
+          <label>MRP (₹)</label>
+          <input type="number" id="prodMrp" placeholder="e.g., 10" />
+        </div>
+        <button type="button" class="btn-primary" id="saveProdBtn">+ Save Product</button>
+        <table>
+          <thead><tr><th>Product</th><th>Weight</th><th>MRP</th></tr></thead>
+          <tbody id="prodTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RAW MATERIAL MASTER -->
+    <div id="raw-master" class="section">
+      <div class="card">
+        <h2>Raw Material Master</h2>
+        <div class="form-group">
+          <label>Raw Material Name (e.g., Jeera / Haldi / Makhana)</label>
+          <input type="text" id="rawName" placeholder="Enter raw material" />
+        </div>
+        <div class="form-group">
+          <label>Opening Stock (kg)</label>
+          <input type="number" id="rawQty" placeholder="e.g., 100" />
+        </div>
+        <button type="button" class="btn-primary" id="saveRawBtn">+ Save Raw Material</button>
+        <table>
+          <thead><tr><th>Material</th><th>Stock (kg)</th></tr></thead>
+          <tbody id="rawTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PACKING & PRINTING MASTER -->
+    <div id="packing-master" class="section">
+      <div class="card">
+        <h2>Packing & Printing Material Master</h2>
+        <div class="form-group">
+          <label>Material Name (e.g., 160mm Laminated Roll / Outer Carton)</label>
+          <input type="text" id="packName" placeholder="Enter packing item" />
+        </div>
+        <div class="form-group">
+          <label>Unit (kg / pcs / rolls)</label>
+          <input type="text" id="packUnit" placeholder="e.g., kg" />
+        </div>
+        <button type="button" class="btn-primary" id="savePackBtn">+ Save Packing Material</button>
+        <table>
+          <thead><tr><th>Item</th><th>Unit</th></tr></thead>
+          <tbody id="packTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUPPLIER / PARTY MASTER -->
+    <div id="party-master" class="section">
+      <div class="card">
+        <h2>Supplier / Party Master</h2>
+        <div class="form-group">
+          <label>Party / Supplier Name</label>
+          <input type="text" id="partyName" placeholder="Enter supplier or mandi name" />
+        </div>
+        <div class="form-group">
+          <label>City / Mandi</label>
+          <input type="text" id="partyCity" placeholder="e.g., Neemuch / Jabalpur" />
+        </div>
+        <button type="button" class="btn-primary" id="savePartyBtn">+ Save Party</button>
+        <table>
+          <thead><tr><th>Party Name</th><th>City</th></tr></thead>
+          <tbody id="partyTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- OTHER MODULES PLACEHOLDERS -->
+    <div id="purchase-entry" class="section"><div class="card"><h2>Purchase Entry</h2><p>Inward purchase entry form ready.</p></div></div>
+    <div id="inward-history" class="section"><div class="card"><h2>Inward History</h2><p>All purchase bills and inward records.</p></div></div>
+    <div id="daily-prod" class="section"><div class="card"><h2>Daily Production Sheet</h2><p>Daily floor production tracking.</p></div></div>
+    <div id="packing-batch" class="section"><div class="card"><h2>Packing Batches</h2><p>Batch-wise pouch packing log.</p></div></div>
+    <div id="costing" class="section"><div class="card"><h2>Costing Calculator</h2><p>Per-pouch raw material + laminate + labor costing.</p></div></div>
+    <div id="stock" class="section"><div class="card"><h2>Live Stock Summary</h2><p>Real-time stock balance across raw & finished goods.</p></div></div>
+    <div id="reports" class="section"><div class="card"><h2>Batch Costing Report</h2><p>Margin and yield summary reports.</p></div></div>
+    <div id="export" class="section">
+      <div class="card">
+        <h2>Excel / CSV Export</h2>
+        <button type="button" class="btn-primary" id="exportCsvBtn">Download Master Data (CSV)</button>
+      </div>
+    </div>
+    <div id="backup" class="section">
+      <div class="card">
+        <h2>Data Backup & Restore</h2>
+        <button type="button" class="btn-primary" id="backupJsonBtn">Download JSON Backup</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast Notification Box (Replaces alert) -->
-  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-  <!-- =====================================================================
-       MAIN CONTENT AREA (SPA VIEWS)
-  ====================================================================== -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-    <!-- 1. DASHBOARD VIEW -->
-    <section id="view-dashboard" class="erp-view active space-y-6">
-      <!-- KPI Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Products (SKUs)</p>
-            <h3 id="kpi-products" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
-            <p class="text-xs text-emerald-600 mt-1 font-medium">Active Retail Pouches</p>
-          </div>
-          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
-            <i class="fa-solid fa-box-open"></i>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Raw Material Stock</p>
-            <h3 id="kpi-raw-stock" class="text-2xl font-bold text-slate-800 mt-1">0 kg</h3>
-            <p class="text-xs text-slate-500 mt-1">Across all spice & dry fruit lots</p>
-          </div>
-          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
-            <i class="fa-solid fa-wheat-awn"></i>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Packing Batches</p>
-            <h3 id="kpi-batches" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
-            <p class="text-xs text-blue-600 mt-1 font-medium">Completed Floor Runs</p>
-          </div>
-          <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
-            <i class="fa-solid fa-boxes-packing"></i>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between cursor-pointer hover:border-rose-300 transition" onclick="navigateTo('stock')">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Low Stock Alerts</p>
-            <h3 id="kpi-low-stock" class="text-2xl font-bold text-rose-600 mt-1">0</h3>
-            <p class="text-xs text-rose-500 mt-1 font-medium">Click to inspect reorder items</p>
-          </div>
-          <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Shortcuts under New 6-Head Layout -->
-      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
-        <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">Quick Operations</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <button type="button" onclick="navigateTo('product-master', 'masters')" class="p-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-left transition group">
-            <i class="fa-solid fa-plus-circle text-emerald-600 mb-1.5 text-base"></i>
-            <div class="text-xs font-semibold text-slate-800 group-hover:text-emerald-700">Add Product</div>
-            <div class="text-[11px] text-slate-400">Masters ▾</div>
-          </button>
-          <button type="button" onclick="navigateTo('raw-material-master', 'masters')" class="p-3 rounded-xl border border-slate-200 hover:border-amber-500 hover:bg-amber-50/50 text-left transition group">
-            <i class="fa-solid fa-wheat-awn text-amber-600 mb-1.5 text-base"></i>
-            <div class="text-xs font-semibold text-slate-800 group-hover:text-amber-700">Raw Material</div>
-            <div class="text-[11px] text-slate-400">Masters ▾</div>
-          </button>
-          <button type="button" onclick="navigateTo('packing-master', 'masters')" class="p-3 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-left transition group">
-            <i class="fa-solid fa-layer-group text-blue-600 mb-1.5 text-base"></i>
-            <div class="text-xs font-semibold text-slate-800 group-hover:text-blue-700">Packing Master</div>
-            <div class="text-[11px] text-slate-400">Masters ▾</div>
-          </button>
-          <button type="button" onclick="navigateTo('purchase-entry', 'purchase')" class="p-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-left transition group">
-            <i class="fa-solid fa-cart-plus text-emerald-600 mb-1.5 text-base"></i>
-            <div class="text-xs font-semibold text-slate-800 group-hover:text-emerald-700">New Purchase</div>
-            <div class="text-[11px] text-slate-400">Purchase ▾</div>
-          </button>
-          <button type="button" onclick="navigateTo('packing-batches', 'production')" class="p-3 rounded-xl border border-slate-200 hover:border-purple-500 hover:bg-purple-50/50 text-left transition group">
-            <i class="fa-solid fa-boxes-packing text-purple-600 mb-1.5 text-base"></i>
-            <div class="text-xs font-semibold text-slate-800 group-hover:text-purple-700">Pack Batch</div>
-            <div class="text-[11px] text-slate-400">Production ▾</div>
-          </button>
-          <button type="button" onclick="navigateTo('costing-calculator', 'production')" class="p-3 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-left transition group">
-            <i class="fa-solid fa-calculator text-indigo-600 mb-1.5 text-base"></i>
-            <div class="text-xs font-semibold text-slate-800 group-hover:text-indigo-700">Costing Calc</div>
-            <div class="text-[11px] text-slate-400">Production ▾</div>
-          </button>
-        </div>
-      </div>
-
-      <!-- Recent Activity Table -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-          <div>
-            <h3 class="text-base font-bold text-slate-800">Recent Packing & Production Activity</h3>
-            <p class="text-xs text-slate-500">Latest batches packed on the floor</p>
-          </div>
-          <button type="button" onclick="navigateTo('packing-batches', 'production')" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">
-            View All Batches →
-          </button>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-6">Batch No</th>
-                <th class="py-3 px-6">Date</th>
-                <th class="py-3 px-6">Product SKU</th>
-                <th class="py-3 px-6">Pouches Packed</th>
-                <th class="py-3 px-6">Raw Used (kg)</th>
-                <th class="py-3 px-6">Cost / Pouch</th>
-              </tr>
-            </thead>
-            <tbody id="dashboard-recent-table" class="divide-y divide-slate-100 text-sm"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- =====================================================================
-         2. MASTERS VIEWS (All Under 'Masters ▾')
-    ====================================================================== -->
-
-    <!-- 2A. PRODUCT MASTER -->
-    <section id="view-product-master" class="erp-view space-y-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Masters ▾ / Product Master</span>
-            <h2 class="text-xl font-bold text-slate-800">Finished Product Master</h2>
-          </div>
-        </div>
-        <form id="form-product" onsubmit="addProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-          <div class="lg:col-span-2">
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Product / SKU Name *</label>
-            <input type="text" id="prod-name" required placeholder="e.g. Jeera Whole 15g Pouch"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Category *</label>
-            <select id="prod-category" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
-              <option value="Whole Spices">Whole Spices</option>
-              <option value="Powdered Spices">Powdered Spices</option>
-              <option value="Dry Fruits">Dry Fruits</option>
-              <option value="Blended Masala">Blended Masala</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Net Weight (g) *</label>
-            <input type="number" id="prod-weight" required min="1" placeholder="15"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">MRP (₹) *</label>
-            <input type="number" id="prod-mrp" required step="0.01" min="0" placeholder="10.00"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div class="flex items-end">
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
-              <i class="fa-solid fa-plus mr-1"></i> Save Product
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-          <h3 class="font-bold text-slate-800">Registered Product SKUs</h3>
-          <span id="product-count-badge" class="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">0 Items</span>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-6">SKU Code</th>
-                <th class="py-3 px-6">Product Name</th>
-                <th class="py-3 px-6">Category</th>
-                <th class="py-3 px-6">Net Wt (g)</th>
-                <th class="py-3 px-6">MRP (₹)</th>
-                <th class="py-3 px-6">Ready Stock (Pouches)</th>
-                <th class="py-3 px-6 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody id="table-products" class="divide-y divide-slate-100 text-sm"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2B. RAW MATERIAL MASTER -->
-    <section id="view-raw-material-master" class="erp-view space-y-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600">Masters ▾ / Raw Material Master</span>
-        <h2 class="text-xl font-bold text-slate-800 mb-4">Raw Material Master (Bulk Spices & Dry Fruits)</h2>
-        <form id="form-raw" onsubmit="addRawMaterial(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div class="lg:col-span-2">
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Material Name *</label>
-            <input type="text" id="raw-name" required placeholder="e.g. Unjha Jeera (Machine Clean)"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Rate / Kg (₹) *</label>
-            <input type="number" id="raw-rate" required step="0.01" min="0" placeholder="285.00"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Opening Stock (Kg) *</label>
-            <input type="number" id="raw-stock" required step="0.01" min="0" placeholder="250"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div class="flex items-end">
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
-              <i class="fa-solid fa-plus mr-1"></i> Save Raw Material
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200">
-          <h3 class="font-bold text-slate-800">Raw Material Inventory & Standard Rates</h3>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-6">Code</th>
-                <th class="py-3 px-6">Raw Material</th>
-                <th class="py-3 px-6">Rate / Kg (₹)</th>
-                <th class="py-3 px-6">Current Stock (Kg)</th>
-                <th class="py-3 px-6">Stock Value (₹)</th>
-                <th class="py-3 px-6 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody id="table-raw-materials" class="divide-y divide-slate-100 text-sm"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2C. PACKING & PRINTING MATERIAL MASTER -->
-    <section id="view-packing-master" class="erp-view space-y-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-blue-600">Masters ▾ / Packing & Printing Master</span>
-        <h2 class="text-xl font-bold text-slate-800 mb-4">Packing & Printing Material Master</h2>
-        <form id="form-packing" onsubmit="addPackingMaterial(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-          <div class="lg:col-span-2">
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Packing Item Name *</label>
-            <input type="text" id="pack-name" required placeholder="e.g. Jeera 15g Laminated Center-Seal Pouch"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Type *</label>
-            <select id="pack-type" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
-              <option value="Printed Pouch">Printed Pouch (Pcs)</option>
-              <option value="Laminate Roll">Laminate Roll (Kg)</option>
-              <option value="Master Carton">Master Carton (Pcs)</option>
-              <option value="BOPP Tape / Label">BOPP Tape / Label</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Cost / Unit (₹) *</label>
-            <input type="number" id="pack-rate" required step="0.01" min="0" placeholder="0.65"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Available Qty *</label>
-            <input type="number" id="pack-stock" required min="0" placeholder="12000"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div class="flex items-end">
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
-              <i class="fa-solid fa-plus mr-1"></i> Add Item
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200">
-          <h3 class="font-bold text-slate-800">Packing & Printing Materials</h3>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-6">Code</th>
-                <th class="py-3 px-6">Material Description</th>
-                <th class="py-3 px-6">Type</th>
-                <th class="py-3 px-6">Unit Cost (₹)</th>
-                <th class="py-3 px-6">Stock Available</th>
-                <th class="py-3 px-6 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody id="table-packing-materials" class="divide-y divide-slate-100 text-sm"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2D. SUPPLIER / PARTY MASTER -->
-    <section id="view-party-master" class="erp-view space-y-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-purple-600">Masters ▾ / Supplier & Party Master</span>
-        <h2 class="text-xl font-bold text-slate-800 mb-4">Supplier / Party Master</h2>
-        <form id="form-party" onsubmit="addParty(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div class="lg:col-span-2">
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Firm / Party Name *</label>
-            <input type="text" id="party-name" required placeholder="e.g. Shree Balaji Flexo Printers"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Supply Category *</label>
-            <select id="party-type" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
-              <option value="Raw Material / Mandi">Raw Material / Mandi</option>
-              <option value="Flexo / Pouch Printing">Flexo / Pouch Printing</option>
-              <option value="Corrugated Boxes">Corrugated Boxes</option>
-              <option value="Distributor / Buyer">Distributor / Buyer</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Phone / City *</label>
-            <input type="text" id="party-contact" required placeholder="98260-XXXXX (Indore)"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div class="flex items-end">
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
-              <i class="fa-solid fa-plus mr-1"></i> Save Party
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200">
-          <h3 class="font-bold text-slate-800">Registered Vendors & Parties</h3>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-6">Party Name</th>
-                <th class="py-3 px-6">Category</th>
-                <th class="py-3 px-6">Contact & Location</th>
-                <th class="py-3 px-6 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody id="table-parties" class="divide-y divide-slate-100 text-sm"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- =====================================================================
-         3. PURCHASE VIEWS (Under 'Purchase ▾')
-    ====================================================================== -->
-
-    <!-- 3A. PURCHASE ENTRY -->
-    <section id="view-purchase-entry" class="erp-view space-y-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Purchase ▾ / Purchase Entry</span>
-        <h2 class="text-xl font-bold text-slate-800 mb-1">Record Material Purchase (Auto-Updates Stock)</h2>
-        <p class="text-xs text-slate-500 mb-5">Adding a purchase entry automatically increases the selected Raw or Packing material inventory.</p>
-
-        <form id="form-purchase" onsubmit="addPurchase(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Date *</label>
-            <input type="date" id="pur-date" required
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Supplier *</label>
-            <select id="pur-party" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none"></select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Material Type *</label>
-            <select id="pur-category" onchange="populatePurchaseItems()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
-              <option value="raw">Raw Material</option>
-              <option value="packing">Packing Material</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Select Item *</label>
-            <select id="pur-item" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none"></select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Qty (Kg / Pcs) *</label>
-            <input type="number" id="pur-qty" required step="0.01" min="0.1" placeholder="100"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Rate / Unit (₹) *</label>
-            <input type="number" id="pur-rate" required step="0.01" min="0" placeholder="280"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div class="sm:col-span-2 lg:col-span-6 flex justify-end pt-2">
-            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-6 rounded-xl text-sm shadow-sm transition">
-              <i class="fa-solid fa-check-circle mr-1.5"></i> Save Purchase & Update Stock
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <!-- 3B. INWARD HISTORY -->
-    <section id="view-inward-history" class="erp-view space-y-6">
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Purchase ▾ / Inward History</span>
-            <h2 class="text-lg font-bold text-slate-800">Purchase & Inward Ledger</h2>
-          </div>
-          <button type="button" onclick="navigateTo('purchase-entry', 'purchase')" class="bg-emerald-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl hover:bg-emerald-700">
-            + New Inward
-          </button>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-6">Date</th>
-                <th class="py-3 px-6">Supplier</th>
-                <th class="py-3 px-6">Type</th>
-                <th class="py-3 px-6">Item Name</th>
-                <th class="py-3 px-6">Qty</th>
-                <th class="py-3 px-6">Rate (₹)</th>
-                <th class="py-3 px-6">Total Amount (₹)</th>
-              </tr>
-            </thead>
-            <tbody id="table-purchases" class="divide-y divide-slate-100 text-sm"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- =====================================================================
-         4. PRODUCTION VIEWS (Under 'Production ▾')
-    ====================================================================== -->
-
-    <!-- 4A. DAILY PRODUCTION SHEET -->
-    <section id="view-daily-production" class="erp-view space-y-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Production ▾ / Daily Production Sheet</span>
-        <h2 class="text-xl font-bold text-slate-800 mb-1">Daily Cleaning, Grinding & Processing Sheet</h2>
-        <p class="text-xs text-slate-500 mb-4">Track raw input weight vs cleaned/ground output weight and process loss %.</p>
-
-        <form id="form-daily-prod" onsubmit="addDailyProduction(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Date *</label>
-            <input type="date" id="dp-date" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Raw Material *</label>
-            <select id="dp-raw" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm"></select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Input Issue (Kg) *</label>
-            <input type="number" id="dp-input" required step="0.01" min="0.1" placeholder="100" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Clean Output (Kg) *</label>
-            <input type="number" id="dp-output" required step="0.01" min="0.1" placeholder="97.5" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
-          </div>
-          <div class="flex items-end">
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
-              Record Shift
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200">
-          <h3 class="font-bold text-slate-800">Daily Processing Log</h3>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-6">Date</th>
-                <th class="py-3 px-6">Material</th>
-                <th class="py-3 px-6">Input (Kg)</th>
-                <th class="py-3 px-6">Clean Output (Kg)</th>
-                <th class="py-3 px-6">Process Loss</th>
-              </tr>
-            </thead>
-            <tbody id="table-daily-prod" class="divide-y divide-slate-100 text-sm"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4B. PACKING BATCHES -->
-    <section id="view-packing-batches" class="erp-view space-y-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600">Production ▾ / Packing Batches</span>
-        <h2 class="text-xl font-bold text-slate-800 mb-1">Create Packing Batch (Auto-Deducts Raw & Pouches)</h2>
-        <p class="text-xs text-slate-500 mb-5">Automatically calculates required raw kg from pouch net weight, deducts raw & pouch stock, and adds finished pouches.</p>
-
-        <form id="form-batch" onsubmit="addPackingBatch(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Date *</label>
-            <input type="date" id="batch-date" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Finished Product SKU *</label>
-            <select id="batch-product" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm"></select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Raw Material Used *</label>
-            <select id="batch-raw" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm"></select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Pouch / Film Used *</label>
-            <select id="batch-pack" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm"></select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Pouches Packed *</label>
-            <input type="number" id="batch-qty" required min="1" placeholder="2000" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
-          </div>
-          <div class="flex items-end">
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
-              <i class="fa-solid fa-boxes-packing mr-1"></i> Run Batch
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200">
-          <h3 class="font-bold text-slate-800">Completed Packing Batches</h3>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-6">Batch ID</th>
-                <th class="py-3 px-6">Date</th>
-                <th class="py-3 px-6">Product SKU</th>
-                <th class="py-3 px-6">Pouches</th>
-                <th class="py-3 px-6">Raw Consumed</th>
-                <th class="py-3 px-6">Batch Cost (₹)</th>
-                <th class="py-3 px-6">Cost / Pouch</th>
-              </tr>
-            </thead>
-            <tbody id="table-batches" class="divide-y divide-slate-100 text-sm"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4C. COSTING CALCULATOR -->
-    <section id="view-costing-calculator" class="erp-view space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Input Panel -->
-        <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <span class="text-[11px] font-bold uppercase tracking-wider text-blue-600">Production ▾ / Costing Calculator</span>
-          <h2 class="text-xl font-bold text-slate-800 mb-4">Pouch & Ladi Unit Costing Simulator</h2>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Pouch Net Weight (grams)</label>
-              <input type="number" id="calc-weight" value="15" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Raw Material Rate (₹ / Kg)</label>
-              <input type="number" id="calc-raw-rate" value="285" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Empty Pouch / Film Cost (₹ / Pouch)</label>
-              <input type="number" id="calc-pouch-cost" step="0.01" value="0.65" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Labor, Electricity & Overhead (₹ / Pouch)</label>
-              <input type="number" id="calc-overhead" step="0.01" value="0.35" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Pouches per Ladi / Master Pack</label>
-              <input type="number" id="calc-ladi-count" value="20" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Selling Price to Distributor (₹ / Pouch)</label>
-              <input type="number" id="calc-sell-price" step="0.01" value="7.50" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Output Breakdown Card -->
-        <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-md flex flex-col justify-between">
-          <div>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-emerald-400 mb-4">Live Cost Breakdown</h3>
-            <div class="space-y-3 text-sm">
-              <div class="flex justify-between border-b border-slate-800 pb-2">
-                <span class="text-slate-400">Raw Material / Pouch:</span>
-                <span id="res-raw-cost" class="font-semibold">₹4.28</span>
-              </div>
-              <div class="flex justify-between border-b border-slate-800 pb-2">
-                <span class="text-slate-400">Packing + Overhead:</span>
-                <span id="res-pack-cost" class="font-semibold">₹1.00</span>
-              </div>
-              <div class="flex justify-between border-b border-slate-800 pb-2 text-base">
-                <span class="font-semibold text-white">Total Landing Cost / Pouch:</span>
-                <span id="res-total-pouch" class="font-bold text-emerald-400">₹5.28</span>
-              </div>
-              <div class="flex justify-between border-b border-slate-800 pb-2">
-                <span class="text-slate-400">1 Ladi Cost (<span id="res-ladi-qty">20</span> Pouches):</span>
-                <span id="res-ladi-cost" class="font-semibold text-amber-300">₹105.50</span>
-              </div>
-              <div class="flex justify-between pt-1">
-                <span class="text-slate-400">Net Profit / Pouch:</span>
-                <span id="res-profit" class="font-bold text-emerald-400">₹2.23 (29.7%)</span>
-              </div>
-            </div>
-          </div>
-          <div class="mt-6 pt-4 border-t border-slate-800 text-[11px] text-slate-400">
-            * Use this simulation to set distributor rates before launching new spice SKUs.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- =====================================================================
-         5. STOCK VIEW (Direct Head 'Stock')
-    ====================================================================== -->
-    <section id="view-stock" class="erp-view space-y-6">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Inventory & Warehouse</span>
-          <h2 class="text-xl font-bold text-slate-800">Live Stock Summary</h2>
-        </div>
-        <button type="button" onclick="exportAllCSV()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
-          <i class="fa-solid fa-download mr-1"></i> Export Stock CSV
-        </button>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Raw Material Stock -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div class="px-5 py-3.5 bg-amber-50/70 border-b border-amber-100 flex items-center justify-between">
-            <h3 class="font-bold text-sm text-amber-900"><i class="fa-solid fa-wheat-awn mr-1.5"></i> Raw Materials</h3>
-            <span class="text-[11px] text-amber-700 font-medium">Alert &lt; 50 kg</span>
-          </div>
-          <div id="stock-list-raw" class="divide-y divide-slate-100 p-2 text-sm"></div>
-        </div>
-
-        <!-- Packing Material Stock -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div class="px-5 py-3.5 bg-blue-50/70 border-b border-blue-100 flex items-center justify-between">
-            <h3 class="font-bold text-sm text-blue-900"><i class="fa-solid fa-layer-group mr-1.5"></i> Packing Materials</h3>
-            <span class="text-[11px] text-blue-700 font-medium">Alert &lt; 2,000 pcs</span>
-          </div>
-          <div id="stock-list-packing" class="divide-y divide-slate-100 p-2 text-sm"></div>
-        </div>
-
-        <!-- Finished Goods Stock -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div class="px-5 py-3.5 bg-emerald-50/70 border-b border-emerald-100 flex items-center justify-between">
-            <h3 class="font-bold text-sm text-emerald-900"><i class="fa-solid fa-box-open mr-1.5"></i> Finished Goods</h3>
-            <span class="text-[11px] text-emerald-700 font-medium">Ready to Dispatch</span>
-          </div>
-          <div id="stock-list-finished" class="divide-y divide-slate-100 p-2 text-sm"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- =====================================================================
-         6. REPORTS & BACKUP VIEWS (Under 'Reports & Backup ▾')
-    ====================================================================== -->
-
-    <!-- 6A. BATCH COSTING REPORT -->
-    <section id="view-batch-costing-report" class="erp-view space-y-6">
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-          <div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Reports & Backup ▾ / Batch Costing Report</span>
-            <h2 class="text-lg font-bold text-slate-800">Production Costing & Valuation Report</h2>
-          </div>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-6">Batch ID</th>
-                <th class="py-3 px-6">Product SKU</th>
-                <th class="py-3 px-6">Qty Packed</th>
-                <th class="py-3 px-6">Raw Cost (₹)</th>
-                <th class="py-3 px-6">Packing Cost (₹)</th>
-                <th class="py-3 px-6">Total Cost (₹)</th>
-                <th class="py-3 px-6">Unit Cost (₹)</th>
-              </tr>
-            </thead>
-            <tbody id="table-costing-report" class="divide-y divide-slate-100 text-sm"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6B. EXCEL / CSV EXPORT -->
-    <section id="view-excel-export" class="erp-view space-y-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-green-600">Reports & Backup ▾ / Excel & CSV Export</span>
-        <h2 class="text-xl font-bold text-slate-800 mb-2">Download Registers for Excel / Tally</h2>
-        <p class="text-xs text-slate-500 mb-6">Export clean CSV spreadsheets directly compatible with Microsoft Excel and Google Sheets.</p>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <button type="button" onclick="exportAllCSV()" class="p-5 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 text-left transition">
-            <i class="fa-solid fa-file-csv text-2xl text-emerald-600 mb-2"></i>
-            <div class="font-bold text-slate-800">Complete Stock Summary</div>
-            <p class="text-xs text-slate-500 mt-1">Raw Materials, Packing Items & Finished Goods</p>
-          </button>
-          <button type="button" onclick="exportPurchasesCSV()" class="p-5 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/40 text-left transition">
-            <i class="fa-solid fa-file-invoice text-2xl text-blue-600 mb-2"></i>
-            <div class="font-bold text-slate-800">Purchase Inward Register</div>
-            <p class="text-xs text-slate-500 mt-1">All supplier bills, quantities & rates</p>
-          </button>
-          <button type="button" onclick="exportBatchesCSV()" class="p-5 rounded-2xl border border-slate-200 hover:border-amber-500 hover:bg-amber-50/40 text-left transition">
-            <i class="fa-solid fa-boxes-packing text-2xl text-amber-600 mb-2"></i>
-            <div class="font-bold text-slate-800">Packing Batch Register</div>
-            <p class="text-xs text-slate-500 mt-1">Batch numbers, raw consumed & unit costs</p>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6C. DATA BACKUP & RESTORE -->
-    <section id="view-data-backup" class="erp-view space-y-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600">Reports & Backup ▾ / Data Backup & Restore</span>
-        <h2 class="text-xl font-bold text-slate-800 mb-2">ERP Database Backup & Recovery</h2>
-        <p class="text-xs text-slate-500 mb-6">Download a complete JSON snapshot of all Masters, Purchases, Production Batches, and Stock.</p>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
-            <h3 class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-download text-emerald-600 mr-1.5"></i> Download Full JSON Backup</h3>
-            <p class="text-xs text-slate-500 mb-4">Save a timestamped backup file on your device or Google Drive.</p>
-            <button type="button" onclick="downloadJSONBackup()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition">
-              Download Backup (.json)
-            </button>
-          </div>
-
-          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
-            <h3 class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-upload text-indigo-600 mr-1.5"></i> Restore from Backup File</h3>
-            <p class="text-xs text-slate-500 mb-3">Upload a previously saved SADHNA AGRO `.json` backup file.</p>
-            <input type="file" id="restore-file-input" accept=".json" onchange="restoreJSONBackup(event)"
-              class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700" />
-          </div>
-        </div>
-
-        <div class="mt-6 pt-5 border-t border-slate-200 flex items-center justify-between">
-          <span class="text-xs text-slate-400">Need to reset demo data to factory defaults?</span>
-          <button type="button" onclick="resetDemoData()" class="text-xs font-semibold text-rose-600 hover:text-rose-700 underline">
-            Reset Sample Data
-          </button>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- =====================================================================
-       FOOTER
-  ====================================================================== -->
-  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-      <div>© 2026 <span class="font-semibold text-slate-700">SADHNA AGRO</span> — Spices & Dry Fruits Manufacturing ERP</div>
-      <div>Streamlined 6-Head Navigation Architecture</div>
-    </div>
-  </footer>
-
-  <!-- =====================================================================
-       APPLICATION JAVASCRIPT (State Management, Navigation & ERP Logic)
-  ====================================================================== -->
   <script>
-    const STORAGE_KEY = 'sadhna_agro_erp_v2';
+    document.addEventListener("DOMContentLoaded", function () {
+      const menuBtn = document.getElementById("menuBtn");
+      const navDrawer = document.getElementById("navDrawer");
+      const breadcrumbText = document.getElementById("breadcrumbText");
 
-    // Default Sample Data for Spices & Dry Fruits Packing Unit
-    const defaultData = {
-      products: [
-        { id: 'SKU-101', name: 'Jeera Whole 15g Pouch', category: 'Whole Spices', weight: 15, mrp: 10, stock: 4500 },
-        { id: 'SKU-102', name: 'Haldi Powder 45g Pouch', category: 'Powdered Spices', weight: 45, mrp: 15, stock: 3200 },
-        { id: 'SKU-103', name: 'California Almonds 50g Pouch', category: 'Dry Fruits', weight: 50, mrp: 60, stock: 1450 },
-        { id: 'SKU-104', name: 'Mirchi Powder 100g Pouch', category: 'Powdered Spices', weight: 100, mrp: 35, stock: 2100 }
-      ],
-      rawMaterials: [
-        { id: 'RM-01', name: 'Unjha Jeera (Machine Clean)', rate: 285, stock: 420 },
-        { id: 'RM-02', name: 'Salem Haldi Powder (Sortex)', rate: 165, stock: 310 },
-        { id: 'RM-03', name: 'California Almond Kernels', rate: 740, stock: 42 }, // Low stock example
-        { id: 'RM-04', name: 'Guntur Red Chilli Powder', rate: 210, stock: 185 }
-      ],
-      packingMaterials: [
-        { id: 'PM-01', name: 'Jeera 15g Center-Seal Laminated Pouch', type: 'Printed Pouch', rate: 0.65, stock: 18500 },
-        { id: 'PM-02', name: 'Haldi 45g Pillow Pouch', type: 'Printed Pouch', rate: 0.85, stock: 9400 },
-        { id: 'PM-03', name: 'Almonds 50g Stand-up Zipper Pouch', type: 'Printed Pouch', rate: 2.40, stock: 1600 }, // Low stock example
-        { id: 'PM-04', name: '5-Ply Master Corrugated Box', type: 'Master Carton', rate: 24.00, stock: 850 }
-      ],
-      parties: [
-        { id: 'PTY-01', name: 'Unjha Agro Commodities', type: 'Raw Material / Mandi', contact: '98250-41120 (Unjha)' },
-        { id: 'PTY-02', name: 'Shree Balaji Flexo Printers', type: 'Flexo / Pouch Printing', contact: '94250-78210 (Indore)' },
-        { id: 'PTY-03', name: 'Narmada Packaging & Cartons', type: 'Corrugated Boxes', contact: '98260-33490 (Sanwer)' }
-      ],
-      purchases: [
-        { id: 'PUR-01', date: '2026-11-18', party: 'Unjha Agro Commodities', category: 'Raw Material', item: 'Unjha Jeera (Machine Clean)', qty: 200, rate: 285, total: 57000 },
-        { id: 'PUR-02', date: '2026-11-20', party: 'Shree Balaji Flexo Printers', category: 'Packing Material', item: 'Jeera 15g Center-Seal Laminated Pouch', qty: 10000, rate: 0.65, total: 6500 }
-      ],
-      dailyProduction: [
-        { id: 'DP-01', date: '2026-11-21', raw: 'Unjha Jeera (Machine Clean)', inputKg: 150, outputKg: 147.2, lossPct: '1.87%' }
-      ],
-      batches: [
-        { id: 'BCH-1001', date: '2026-11-21', product: 'Jeera Whole 15g Pouch', pouches: 2000, rawKg: 30, rawCost: 8550, packCost: 1300, totalCost: 9850, unitCost: 4.93 },
-        { id: 'BCH-1002', date: '2026-11-22', product: 'Haldi Powder 45g Pouch', pouches: 1200, rawKg: 54, rawCost: 8910, packCost: 1020, totalCost: 9930, unitCost: 8.28 }
-      ]
-    };
-
-    let erpState = loadState();
-
-    function loadState() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) return JSON.parse(saved);
-      } catch (e) {
-        console.error('Error loading localStorage:', e);
-      }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
-      return JSON.parse(JSON.stringify(defaultData));
-    }
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(erpState));
-      refreshAllUI();
-    }
-
-    // =====================================================================
-    // NAVIGATION & DROPDOWN CONTROLLER
-    // =====================================================================
-    const viewTitles = {
-      'dashboard': ['Dashboard', ''],
-      'product-master': ['Masters', 'Product Master'],
-      'raw-material-master': ['Masters', 'Raw Material Master'],
-      'packing-master': ['Masters', 'Packing & Printing Master'],
-      'party-master': ['Masters', 'Supplier / Party Master'],
-      'purchase-entry': ['Purchase', 'Purchase Entry'],
-      'inward-history': ['Purchase', 'Inward History'],
-      'daily-production': ['Production', 'Daily Production Sheet'],
-      'packing-batches': ['Production', 'Packing Batches'],
-      'costing-calculator': ['Production', 'Costing Calculator'],
-      'stock': ['Stock', 'Live Inventory Summary'],
-      'batch-costing-report': ['Reports & Backup', 'Batch Costing Report'],
-      'excel-export': ['Reports & Backup', 'Excel / CSV Export'],
-      'data-backup': ['Reports & Backup', 'Data Backup & Restore']
-    };
-
-    function navigateTo(viewId, parentHead = null) {
-      // Hide all views
-      document.querySelectorAll('.erp-view').forEach(el => el.classList.remove('active'));
-      const target = document.getElementById('view-' + viewId);
-      if (target) target.classList.add('active');
-
-      // Close open dropdowns
-      document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('open'));
-
-      // Highlight Active Main Head
-      const activeHead = parentHead || viewId;
-      document.querySelectorAll('.nav-main-btn').forEach(btn => {
-        if (btn.dataset.head === activeHead) {
-          btn.classList.add('bg-emerald-600', 'text-white');
-          btn.classList.remove('text-slate-200', 'hover:bg-slate-800');
-        } else {
-          btn.classList.remove('bg-emerald-600', 'text-white');
-          btn.classList.add('text-slate-200', 'hover:bg-slate-800');
-        }
+      // 1. Toggle Mobile Menu
+      menuBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        navDrawer.classList.toggle("show");
       });
 
-      // Highlight Active Sub-head
-      document.querySelectorAll('.nav-sub-btn').forEach(btn => {
-        if (btn.dataset.sub === viewId) {
-          btn.classList.add('bg-emerald-50', 'text-emerald-700', 'font-semibold');
-        } else {
-          btn.classList.remove('bg-emerald-50', 'text-emerald-700', 'font-semibold');
-        }
+      // 2. Toggle Sub-heads (Masters, Purchase, Production, Reports)
+      document.querySelectorAll(".dropdown-btn").forEach(function (btn) {
+        btn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          const currentSub = this.nextElementSibling;
+          document.querySelectorAll(".submenu").forEach(function (sub) {
+            if (sub !== currentSub) sub.classList.remove("open");
+          });
+          currentSub.classList.toggle("open");
+        });
       });
 
-      // Update Breadcrumbs
-      const [headLabel, subLabel] = viewTitles[viewId] || ['Dashboard', ''];
-      document.getElementById('breadcrumb-head').textContent = headLabel;
-      const subWrap = document.getElementById('breadcrumb-sub-wrap');
-      if (subLabel) {
-        subWrap.classList.remove('hidden');
-        subWrap.classList.add('flex');
-        document.getElementById('breadcrumb-sub').textContent = subLabel;
-      } else {
-        subWrap.classList.add('hidden');
-        subWrap.classList.remove('flex');
-      }
+      // 3. Navigate to Selected Section
+      document.querySelectorAll("[data-page]").forEach(function (link) {
+        link.addEventListener("click", function () {
+          const targetId = this.getAttribute("data-page");
+          const title = this.getAttribute("data-title");
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+          document.querySelectorAll(".section").forEach(function (sec) {
+            sec.classList.remove("active");
+          });
+          const targetEl = document.getElementById(targetId);
+          if (targetEl) targetEl.classList.add("active");
 
-    function toggleDropdown(btn) {
-      const menu = btn.nextElementSibling;
-      const isOpen = menu.classList.contains('open');
-      document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
-      if (!isOpen) menu.classList.add('open');
-    }
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.nav-dropdown')) {
-        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
-      }
-    });
-
-    function toggleMobileMenu() {
-      const menu = document.getElementById('mobile-menu');
-      const icon = document.getElementById('mobile-menu-icon');
-      menu.classList.toggle('hidden');
-      icon.classList.toggle('fa-bars');
-      icon.classList.toggle('fa-xmark');
-    }
-
-    function closeMobileMenu() {
-      document.getElementById('mobile-menu').classList.add('hidden');
-      const icon = document.getElementById('mobile-menu-icon');
-      icon.classList.add('fa-bars');
-      icon.classList.remove('fa-xmark');
-    }
-
-    function toggleMobileSub(id) {
-      document.getElementById(id).classList.toggle('hidden');
-    }
-
-    // =====================================================================
-    // TOAST NOTIFICATION HELPER
-    // =====================================================================
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      const bg = type === 'error' ? 'bg-rose-600' : 'bg-slate-900 border border-emerald-500/40';
-      const icon = type === 'error' ? 'fa-circle-exclamation text-white' : 'fa-circle-check text-emerald-400';
-
-      toast.className = `${bg} text-white px-4 py-3 rounded-xl shadow-xl text-xs sm:text-sm font-medium flex items-center gap-2.5 pointer-events-auto transition-all`;
-      toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
-      container.appendChild(toast);
-
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 250);
-      }, 3000);
-    }
-
-    // =====================================================================
-    // CRUD OPERATIONS (MASTERS, PURCHASE, PRODUCTION)
-    // =====================================================================
-    function addProduct(e) {
-      e.preventDefault();
-      const name = document.getElementById('prod-name').value.trim();
-      const category = document.getElementById('prod-category').value;
-      const weight = parseFloat(document.getElementById('prod-weight').value);
-      const mrp = parseFloat(document.getElementById('prod-mrp').value);
-      const id = 'SKU-' + (101 + erpState.products.length);
-
-      erpState.products.push({ id, name, category, weight, mrp, stock: 0 });
-      e.target.reset();
-      saveState();
-      showToast(`Product "${name}" added to Product Master.`);
-    }
-
-    function deleteItem(collection, index) {
-      erpState[collection].splice(index, 1);
-      saveState();
-      showToast('Record removed.');
-    }
-
-    function addRawMaterial(e) {
-      e.preventDefault();
-      const name = document.getElementById('raw-name').value.trim();
-      const rate = parseFloat(document.getElementById('raw-rate').value);
-      const stock = parseFloat(document.getElementById('raw-stock').value);
-      const id = 'RM-0' + (1 + erpState.rawMaterials.length);
-
-      erpState.rawMaterials.push({ id, name, rate, stock });
-      e.target.reset();
-      saveState();
-      showToast(`Raw Material "${name}" saved.`);
-    }
-
-    function addPackingMaterial(e) {
-      e.preventDefault();
-      const name = document.getElementById('pack-name').value.trim();
-      const type = document.getElementById('pack-type').value;
-      const rate = parseFloat(document.getElementById('pack-rate').value);
-      const stock = parseFloat(document.getElementById('pack-stock').value);
-      const id = 'PM-0' + (1 + erpState.packingMaterials.length);
-
-      erpState.packingMaterials.push({ id, name, type, rate, stock });
-      e.target.reset();
-      saveState();
-      showToast(`Packing Item "${name}" saved.`);
-    }
-
-    function addParty(e) {
-      e.preventDefault();
-      const name = document.getElementById('party-name').value.trim();
-      const type = document.getElementById('party-type').value;
-      const contact = document.getElementById('party-contact').value.trim();
-      const id = 'PTY-0' + (1 + erpState.parties.length);
-
-      erpState.parties.push({ id, name, type, contact });
-      e.target.reset();
-      saveState();
-      showToast(`Supplier / Party "${name}" saved.`);
-    }
-
-    function populatePurchaseItems() {
-      const cat = document.getElementById('pur-category').value;
-      const select = document.getElementById('pur-item');
-      select.innerHTML = '';
-      const list = cat === 'raw' ? erpState.rawMaterials : erpState.packingMaterials;
-      list.forEach((item, idx) => {
-        const opt = document.createElement('option');
-        opt.value = idx;
-        opt.textContent = item.name;
-        select.appendChild(opt);
-      });
-    }
-
-    function addPurchase(e) {
-      e.preventDefault();
-      const date = document.getElementById('pur-date').value;
-      const party = document.getElementById('pur-party').value;
-      const cat = document.getElementById('pur-category').value;
-      const itemIdx = parseInt(document.getElementById('pur-item').value, 10);
-      const qty = parseFloat(document.getElementById('pur-qty').value);
-      const rate = parseFloat(document.getElementById('pur-rate').value);
-
-      const list = cat === 'raw' ? erpState.rawMaterials : erpState.packingMaterials;
-      const targetItem = list[itemIdx];
-      if (!targetItem) return;
-
-      // Update Stock & Latest Rate
-      targetItem.stock = Number((targetItem.stock + qty).toFixed(2));
-      targetItem.rate = rate;
-
-      erpState.purchases.unshift({
-        id: 'PUR-' + (10 + erpState.purchases.length),
-        date,
-        party,
-        category: cat === 'raw' ? 'Raw Material' : 'Packing Material',
-        item: targetItem.name,
-        qty,
-        rate,
-        total: Number((qty * rate).toFixed(2))
+          breadcrumbText.textContent = "SADHNA AGRO > " + title;
+          navDrawer.classList.remove("show");
+        });
       });
 
-      e.target.reset();
-      setDefaultDates();
-      saveState();
-      showToast(`Purchase recorded! +${qty} added to ${targetItem.name}.`);
-    }
-
-    function addDailyProduction(e) {
-      e.preventDefault();
-      const date = document.getElementById('dp-date').value;
-      const rawName = document.getElementById('dp-raw').value;
-      const inputKg = parseFloat(document.getElementById('dp-input').value);
-      const outputKg = parseFloat(document.getElementById('dp-output').value);
-      const loss = inputKg > 0 ? (((inputKg - outputKg) / inputKg) * 100).toFixed(2) + '%' : '0%';
-
-      erpState.dailyProduction.unshift({
-        id: 'DP-' + (10 + erpState.dailyProduction.length),
-        date,
-        raw: rawName,
-        inputKg,
-        outputKg,
-        lossPct: loss
-      });
-
-      e.target.reset();
-      setDefaultDates();
-      saveState();
-      showToast('Daily production shift recorded.');
-    }
-
-    function addPackingBatch(e) {
-      e.preventDefault();
-      const date = document.getElementById('batch-date').value;
-      const prodIdx = parseInt(document.getElementById('batch-product').value, 10);
-      const rawIdx = parseInt(document.getElementById('batch-raw').value, 10);
-      const packIdx = parseInt(document.getElementById('batch-pack').value, 10);
-      const pouches = parseInt(document.getElementById('batch-qty').value, 10);
-
-      const product = erpState.products[prodIdx];
-      const raw = erpState.rawMaterials[rawIdx];
-      const pack = erpState.packingMaterials[packIdx];
-
-      if (!product || !raw || !pack) return;
-
-      const requiredRawKg = Number(((product.weight * pouches) / 1000).toFixed(2));
-
-      if (raw.stock < requiredRawKg) {
-        showToast(`Insufficient raw stock! Need ${requiredRawKg} kg of ${raw.name}.`, 'error');
-        return;
-      }
-      if (pack.stock < pouches) {
-        showToast(`Insufficient pouches! Need ${pouches} pcs of ${pack.name}.`, 'error');
-        return;
-      }
-
-      // Deduct Raw & Packing Stock, Add Finished Goods Stock
-      raw.stock = Number((raw.stock - requiredRawKg).toFixed(2));
-      pack.stock = Math.max(0, pack.stock - pouches);
-      product.stock += pouches;
-
-      const rawCost = Number((requiredRawKg * raw.rate).toFixed(2));
-      const packCost = Number((pouches * pack.rate).toFixed(2));
-      const totalCost = Number((rawCost + packCost).toFixed(2));
-      const unitCost = Number((totalCost / pouches).toFixed(2));
-
-      erpState.batches.unshift({
-        id: 'BCH-' + (1001 + erpState.batches.length),
-        date,
-        product: product.name,
-        pouches,
-        rawKg: requiredRawKg,
-        rawCost,
-        packCost,
-        totalCost,
-        unitCost
-      });
-
-      e.target.reset();
-      setDefaultDates();
-      saveState();
-      showToast(`Batch packed! ${pouches} pouches added to ${product.name}.`);
-    }
-
-    // =====================================================================
-    // COSTING CALCULATOR
-    // =====================================================================
-    function calculatePouchCost() {
-      const weight = parseFloat(document.getElementById('calc-weight').value) || 0;
-      const rawRate = parseFloat(document.getElementById('calc-raw-rate').value) || 0;
-      const pouchCost = parseFloat(document.getElementById('calc-pouch-cost').value) || 0;
-      const overhead = parseFloat(document.getElementById('calc-overhead').value) || 0;
-      const ladiCount = parseInt(document.getElementById('calc-ladi-count').value, 10) || 1;
-      const sellPrice = parseFloat(document.getElementById('calc-sell-price').value) || 0;
-
-      const rawPerPouch = (weight / 1000) * rawRate;
-      const packAndOv = pouchCost + overhead;
-      const totalPouch = rawPerPouch + packAndOv;
-      const ladiCost = totalPouch * ladiCount;
-      const profit = sellPrice - totalPouch;
-      const marginPct = sellPrice > 0 ? ((profit / sellPrice) * 100).toFixed(1) : '0.0';
-
-      document.getElementById('res-raw-cost').textContent = '₹' + rawPerPouch.toFixed(2);
-      document.getElementById('res-pack-cost').textContent = '₹' + packAndOv.toFixed(2);
-      document.getElementById('res-total-pouch').textContent = '₹' + totalPouch.toFixed(2);
-      document.getElementById('res-ladi-qty').textContent = ladiCount;
-      document.getElementById('res-ladi-cost').textContent = '₹' + ladiCost.toFixed(2);
-      document.getElementById('res-profit').textContent = `₹${profit.toFixed(2)} (${marginPct}%)`;
-    }
-
-    // =====================================================================
-    // RENDER ALL TABLES, DROPDOWNS & KPIs
-    // =====================================================================
-    function refreshAllUI() {
-      // KPIs
-      document.getElementById('kpi-products').textContent = erpState.products.length;
-      const totalRawKg = erpState.rawMaterials.reduce((sum, r) => sum + Number(r.stock), 0);
-      document.getElementById('kpi-raw-stock').textContent = totalRawKg.toFixed(1) + ' kg';
-      document.getElementById('kpi-batches').textContent = erpState.batches.length;
-
-      const lowRaw = erpState.rawMaterials.filter(r => r.stock < 50).length;
-      const lowPack = erpState.packingMaterials.filter(p => p.stock < 2000).length;
-      document.getElementById('kpi-low-stock').textContent = lowRaw + lowPack;
-
-      // Dashboard Recent Batches
-      const dashTable = document.getElementById('dashboard-recent-table');
-      dashTable.innerHTML = erpState.batches.slice(0, 5).map(b => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-6 font-semibold text-emerald-700">${b.id}</td>
-          <td class="py-3 px-6 text-slate-500">${b.date}</td>
-          <td class="py-3 px-6 font-medium text-slate-800">${b.product}</td>
-          <td class="py-3 px-6">${b.pouches.toLocaleString()} pcs</td>
-          <td class="py-3 px-6">${b.rawKg} kg</td>
-          <td class="py-3 px-6 font-semibold text-slate-800">₹${b.unitCost.toFixed(2)}</td>
-        </tr>
-      `).join('');
-
-      // Products Table
-      document.getElementById('product-count-badge').textContent = `${erpState.products.length} Items`;
-      document.getElementById('table-products').innerHTML = erpState.products.map((p, idx) => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-6 font-semibold text-slate-600">${p.id}</td>
-          <td class="py-3 px-6 font-semibold text-slate-800">${p.name}</td>
-          <td class="py-3 px-6"><span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-0.5 rounded-full font-medium">${p.category}</span></td>
-          <td class="py-3 px-6">${p.weight} g</td>
-          <td class="py-3 px-6">₹${Number(p.mrp).toFixed(2)}</td>
-          <td class="py-3 px-6 font-bold text-emerald-700">${p.stock.toLocaleString()} pcs</td>
-          <td class="py-3 px-6 text-right">
-            <button onclick="deleteItem('products', ${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Delete</button>
-          </td>
-        </tr>
-      `).join('');
-
-      // Raw Materials Table
-      document.getElementById('table-raw-materials').innerHTML = erpState.rawMaterials.map((r, idx) => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-6 font-semibold text-slate-600">${r.id}</td>
-          <td class="py-3 px-6 font-semibold text-slate-800">${r.name}</td>
-          <td class="py-3 px-6">₹${Number(r.rate).toFixed(2)} / kg</td>
-          <td class="py-3 px-6 font-bold ${r.stock < 50 ? 'text-rose-600' : 'text-slate-800'}">${r.stock} kg</td>
-          <td class="py-3 px-6 text-slate-600">₹${(r.stock * r.rate).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</td>
-          <td class="py-3 px-6 text-right">
-            <button onclick="deleteItem('rawMaterials', ${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Delete</button>
-          </td>
-        </tr>
-      `).join('');
-
-      // Packing Materials Table
-      document.getElementById('table-packing-materials').innerHTML = erpState.packingMaterials.map((p, idx) => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-6 font-semibold text-slate-600">${p.id}</td>
-          <td class="py-3 px-6 font-semibold text-slate-800">${p.name}</td>
-          <td class="py-3 px-6"><span class="bg-blue-50 text-blue-700 text-xs px-2.5 py-0.5 rounded-full font-medium">${p.type}</span></td>
-          <td class="py-3 px-6">₹${Number(p.rate).toFixed(2)}</td>
-          <td class="py-3 px-6 font-bold ${p.stock < 2000 ? 'text-rose-600' : 'text-slate-800'}">${p.stock.toLocaleString()}</td>
-          <td class="py-3 px-6 text-right">
-            <button onclick="deleteItem('packingMaterials', ${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Delete</button>
-          </td>
-        </tr>
-      `).join('');
-
-      // Parties Table
-      document.getElementById('table-parties').innerHTML = erpState.parties.map((p, idx) => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-6 font-semibold text-slate-800">${p.name}</td>
-          <td class="py-3 px-6"><span class="bg-purple-50 text-purple-700 text-xs px-2.5 py-0.5 rounded-full font-medium">${p.type}</span></td>
-          <td class="py-3 px-6 text-slate-600">${p.contact}</td>
-          <td class="py-3 px-6 text-right">
-            <button onclick="deleteItem('parties', ${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Delete</button>
-          </td>
-        </tr>
-      `).join('');
-
-      // Purchases Table
-      document.getElementById('table-purchases').innerHTML = erpState.purchases.map(p => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-6 text-slate-500">${p.date}</td>
-          <td class="py-3 px-6 font-medium text-slate-800">${p.party}</td>
-          <td class="py-3 px-6 text-xs">${p.category}</td>
-          <td class="py-3 px-6 font-semibold text-slate-800">${p.item}</td>
-          <td class="py-3 px-6">${p.qty}</td>
-          <td class="py-3 px-6">₹${p.rate}</td>
-          <td class="py-3 px-6 font-bold text-emerald-700">₹${Number(p.total).toLocaleString('en-IN')}</td>
-        </tr>
-      `).join('');
-
-      // Daily Production Table
-      document.getElementById('table-daily-prod').innerHTML = erpState.dailyProduction.map(d => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-6 text-slate-500">${d.date}</td>
-          <td class="py-3 px-6 font-semibold text-slate-800">${d.raw}</td>
-          <td class="py-3 px-6">${d.inputKg} kg</td>
-          <td class="py-3 px-6 font-bold text-emerald-700">${d.outputKg} kg</td>
-          <td class="py-3 px-6 text-amber-600 font-medium">${d.lossPct}</td>
-        </tr>
-      `).join('');
-
-      // Packing Batches & Costing Report Tables
-      document.getElementById('table-batches').innerHTML = erpState.batches.map(b => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-6 font-semibold text-emerald-700">${b.id}</td>
-          <td class="py-3 px-6 text-slate-500">${b.date}</td>
-          <td class="py-3 px-6 font-semibold text-slate-800">${b.product}</td>
-          <td class="py-3 px-6">${b.pouches.toLocaleString()} pcs</td>
-          <td class="py-3 px-6">${b.rawKg} kg</td>
-          <td class="py-3 px-6">₹${b.totalCost.toLocaleString('en-IN')}</td>
-          <td class="py-3 px-6 font-bold text-slate-900">₹${b.unitCost.toFixed(2)}</td>
-        </tr>
-      `).join('');
-
-      document.getElementById('table-costing-report').innerHTML = erpState.batches.map(b => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-6 font-semibold text-emerald-700">${b.id}</td>
-          <td class="py-3 px-6 font-semibold text-slate-800">${b.product}</td>
-          <td class="py-3 px-6">${b.pouches.toLocaleString()}</td>
-          <td class="py-3 px-6">₹${b.rawCost.toFixed(2)}</td>
-          <td class="py-3 px-6">₹${b.packCost.toFixed(2)}</td>
-          <td class="py-3 px-6 font-bold text-slate-800">₹${b.totalCost.toFixed(2)}</td>
-          <td class="py-3 px-6 font-bold text-emerald-700">₹${b.unitCost.toFixed(2)}</td>
-        </tr>
-      `).join('');
-
-      // Live Stock Summary Cards
-      document.getElementById('stock-list-raw').innerHTML = erpState.rawMaterials.map(r => `
-        <div class="p-3 flex items-center justify-between">
-          <div>
-            <div class="font-semibold text-slate-800">${r.name}</div>
-            <div class="text-xs text-slate-400">Rate: ₹${r.rate}/kg</div>
-          </div>
-          <div class="text-right">
-            <span class="font-bold ${r.stock < 50 ? 'text-rose-600' : 'text-slate-800'}">${r.stock} kg</span>
-            ${r.stock < 50 ? '<div class="text-[10px] font-bold uppercase text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">Low Stock</div>' : ''}
-          </div>
-        </div>
-      `).join('');
-
-      document.getElementById('stock-list-packing').innerHTML = erpState.packingMaterials.map(p => `
-        <div class="p-3 flex items-center justify-between">
-          <div>
-            <div class="font-semibold text-slate-800">${p.name}</div>
-            <div class="text-xs text-slate-400">${p.type}</div>
-          </div>
-          <div class="text-right">
-            <span class="font-bold ${p.stock < 2000 ? 'text-rose-600' : 'text-slate-800'}">${p.stock.toLocaleString()}</span>
-            ${p.stock < 2000 ? '<div class="text-[10px] font-bold uppercase text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">Reorder</div>' : ''}
-          </div>
-        </div>
-      `).join('');
-
-      document.getElementById('stock-list-finished').innerHTML = erpState.products.map(p => `
-        <div class="p-3 flex items-center justify-between">
-          <div>
-            <div class="font-semibold text-slate-800">${p.name}</div>
-            <div class="text-xs text-slate-400">MRP: ₹${p.mrp}</div>
-          </div>
-          <div class="text-right">
-            <span class="font-bold text-emerald-700">${p.stock.toLocaleString()} pcs</span>
-          </div>
-        </div>
-      `).join('');
-
-      // Populate Form Select Dropdowns
-      const purParty = document.getElementById('pur-party');
-      purParty.innerHTML = erpState.parties.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
-      populatePurchaseItems();
-
-      document.getElementById('dp-raw').innerHTML = erpState.rawMaterials.map(r => `<option value="${r.name}">${r.name}</option>`).join('');
-      document.getElementById('batch-product').innerHTML = erpState.products.map((p, i) => `<option value="${i}">${p.name} (${p.weight}g)</option>`).join('');
-      document.getElementById('batch-raw').innerHTML = erpState.rawMaterials.map((r, i) => `<option value="${i}">${r.name} (${r.stock} kg)</option>`).join('');
-      document.getElementById('batch-pack').innerHTML = erpState.packingMaterials.map((p, i) => `<option value="${i}">${p.name} (${p.stock} pcs)</option>`).join('');
-    }
-
-    // =====================================================================
-    // CSV EXPORT & JSON BACKUP / RESTORE
-    // =====================================================================
-    function triggerCSVDownload(filename, csvContent) {
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast(`Exported ${filename}`);
-    }
-
-    function exportAllCSV() {
-      let rows = [['Category', 'Code', 'Item Name', 'Stock Qty', 'Rate (INR)']];
-      erpState.rawMaterials.forEach(r => rows.push(['Raw Material', r.id, r.name, r.stock + ' kg', r.rate]));
-      erpState.packingMaterials.forEach(p => rows.push(['Packing Material', p.id, p.name, p.stock + ' pcs', p.rate]));
-      erpState.products.forEach(f => rows.push(['Finished Product', f.id, f.name, f.stock + ' pouches', f.mrp]));
-      const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-      triggerCSVDownload('SADHNA_AGRO_Stock_Summary.csv', csv);
-    }
-
-    function exportPurchasesCSV() {
-      let rows = [['Date', 'Supplier', 'Category', 'Item', 'Qty', 'Rate', 'Total']];
-      erpState.purchases.forEach(p => rows.push([p.date, p.party, p.category, p.item, p.qty, p.rate, p.total]));
-      const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-      triggerCSVDownload('SADHNA_AGRO_Purchase_Register.csv', csv);
-    }
-
-    function exportBatchesCSV() {
-      let rows = [['Batch ID', 'Date', 'Product SKU', 'Pouches', 'Raw Used (kg)', 'Total Cost', 'Cost Per Pouch']];
-      erpState.batches.forEach(b => rows.push([b.id, b.date, b.product, b.pouches, b.rawKg, b.totalCost, b.unitCost]));
-      const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-      triggerCSVDownload('SADHNA_AGRO_Packing_Batches.csv', csv);
-    }
-
-    function downloadJSONBackup() {
-      const dataStr = JSON.stringify(erpState, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      const today = new Date().toISOString().split('T')[0];
-      a.href = url;
-      a.download = `SADHNA_AGRO_Backup_${today}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('Full ERP JSON backup downloaded.');
-    }
-
-    function restoreJSONBackup(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          if (parsed.products && parsed.rawMaterials) {
-            erpState = parsed;
-            saveState();
-            showToast('Backup restored successfully!');
-          } else {
-            showToast('Invalid SADHNA AGRO backup file.', 'error');
-          }
-        } catch (err) {
-          showToast('Error reading JSON file.', 'error');
-        }
+      // 4. LocalStorage Data Engine
+      let db = JSON.parse(localStorage.getItem("sadhna_erp_v3")) || {
+        products: [],
+        raw: [],
+        packing: [],
+        parties: []
       };
-      reader.readAsText(file);
-    }
 
-    function resetDemoData() {
-      erpState = JSON.parse(JSON.stringify(defaultData))
+      function saveAndRender() {
+        localStorage.setItem("sadhna_erp_v3", JSON.stringify(db));
+
+        document.getElementById("kpiProducts").textContent = db.products.length;
+        const totalRaw = db.raw.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+        document.getElementById("kpiRaw").textContent = totalRaw + " kg";
+
+        document.getElementById("prodTableBody").innerHTML = db.products
+          .map(p => `<tr><td>${p.name}</td><td>${p.weight}g</td><td>₹${p.mrp}</td></tr>`).join("");  document.getElementById("rawTableBody").innerHTML = db.raw .map(r => `<tr><td>${r.name}</td><td>${r.qty} kg</td></tr>`).join("");  document.getElementById("packTableBody").innerHTML = db.packing .map(pk => `<tr><td>${pk.name}</td><td>${pk.unit}</td></tr>`).join("");  document.getElementById("partyTableBody").innerHTML = db.parties .map(pt => `<tr><td>${pt.name}</td><td>${pt.city}</td></tr>`).join(""); }  document.getElementById("saveProdBtn").addEventListener("click", function () { const name = document.getElementById("prodName").value.trim(); const weight = document.getElementById("prodWeight").value.trim(); const mrp = document.getElementById("prodMrp").value.trim(); if (!name) return alert("Enter Product Name"); db.products.push({ name, weight, mrp }); document.getElementById("prodName").value = ""; document.getElementById("prodWeight").value = ""; document.getElementById("prodMrp").value = ""; saveAndRender(); });  document.getElementById("saveRawBtn").addEventListener("click", function () { const name = document.getElementById("rawName").value.trim(); const qty = document.getElementById("rawQty").value.trim(); if (!name) return alert("Enter Raw Material Name"); db.raw.push({ name, qty }); document.getElementById("rawName").value = ""; document.getElementById("rawQty").value = ""; saveAndRender(); });  document.getElementById("savePackBtn").addEventListener("click", function () { const name = document.getElementById("packName").value.trim(); const unit = document.getElementById("packUnit").value.trim(); if (!name) return alert("Enter Packing Item Name"); db.packing.push({ name, unit }); document.getElementById("packName").value = ""; document.getElementById("packUnit").value = ""; saveAndRender(); });  document.getElementById("savePartyBtn").addEventListener("click", function () { const name = document.getElementById("partyName").value.trim(); const city = document.getElementById("partyCity").value.trim(); if (!name) return alert("Enter Party Name"); db.parties.push({ name, city }); document.getElementById("partyName").value = ""; document.getElementById("partyCity").value = ""; saveAndRender(); });  document.getElementById("backupJsonBtn").addEventListener("click", function () { const blob = new Blob([JSON.stringify(db, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "sadhna_agro_backup.json"; a.click(); });  document.getElementById("exportCsvBtn").addEventListener("click", function () { let csv = "Type,Name,Detail1,Detail2\n"; db.products.forEach(p => csv += `Product,${p.name},${p.weight}g,MRP${p.mrp}\n`);
+        db.raw.forEach(r => csv += `Raw Material,${r.name},${r.qty} kg,\n`);
+        db.packing.forEach(pk => csv += `Packing,${pk.name},${pk.unit},\n`);
+        db.parties.forEach(pt => csv += `Party,${pt.name},${pt.city},\n`);
+        const blob = new Blob([csv], { type: "text/csv" });
+        const a = document.createElement("a");
+        a.h
