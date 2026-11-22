@@ -1,639 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SADHNA AGRO - Manufacturing & Packing ERP</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f1f5f9;
-      color: #0f172a;
-      overflow-x: hidden;
-    }
-
-    /* Header */
-    .topbar {
-      background: #0f172a;
-      color: #ffffff;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 9999;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .brand-icon {
-      width: 38px;
-      height: 38px;
-      background: #10b981;
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-    .brand-name {
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 0.4px;
-    }
-    .brand-tag {
-      font-size: 11px;
-      color: #94a3b8;
-    }
-
-    /* Hamburger Button */
-    #menuBtn {
-      background: #1e293b;
-      color: #ffffff;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      width: 46px;
-      height: 44px;
-      font-size: 24px;
-      line-height: 1;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 10002;
-      touch-action: manipulation;
-      user-select: none;
-    }
-    #menuBtn:active {
-      background: #10b981;
-      color: #0f172a;
-    }
-
-    /* Navigation Menu */
-    #navDrawer {
-      display: none;
-      position: fixed;
-      top: 66px;
-      left: 0;
-      width: 100%;
-      max-height: calc(100vh - 66px);
-      overflow-y: auto;
-      background: #1e293b;
-      z-index: 10001;
-      border-top: 1px solid #334155;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-    }
-    #navDrawer.show {
-      display: block !important;
-    }
-
-    .nav-item {
-      border-bottom: 1px solid #334155;
-    }
-    .nav-link, .dropdown-btn {
-      width: 100%;
-      background: none;
-      border: none;
-      color: #f8fafc;
-      font-size: 15px;
-      font-weight: 600;
-      padding: 15px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      text-align: left;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-    .nav-link:active, .dropdown-btn:active {
-      background: #0f172a;
-    }
-
-    /* Sub-menu */
-    .submenu {
-      display: none;
-      background: #0f172a;
-      padding: 6px 0;
-    }
-    .submenu.open {
-      display: block !important;
-    }
-    .submenu button {
-      width: 100%;
-      background: none;
-      border: none;
-      color: #cbd5e1;
-      font-size: 14px;
-      padding: 12px 18px 12px 34px;
-      text-align: left;
-      display: block;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-    .submenu button:active {
-      background: #1e293b;
-      color: #10b981;
-    }
-
-    /* Desktop View */
-    @media (min-width: 900px) {
-      #menuBtn { display: none; }
-      #navDrawer {
-        display: flex !important;
-        position: static;
-        width: auto;
-        max-height: none;
-        overflow: visible;
-        background: transparent;
-        border: none;
-        box-shadow: none;
-      }
-      .nav-item {
-        border: none;
-        position: relative;
-      }
-      .submenu {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        min-width: 220px;
-        border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      }
-      .submenu button {
-        padding: 11px 16px;
-      }
-    }
-
-    /* Main Content */
-    .container {
-      padding: 16px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .breadcrumb {
-      font-size: 13px;
-      color: #059669;
-      font-weight: 600;
-      margin-bottom: 8px;
-      padding-left: 2px;
-    }
-    .sync-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #ecfdf5;
-      color: #047857;
-      border: 1px solid #a7f3d0;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
-
-    /* Cards & Forms */
-    .card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 18px;
-      margin-bottom: 14px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-      border: 1px solid #e2e8f0;
-    }
-    .kpi-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: #64748b;
-      text-transform: uppercase;
-    }
-    .kpi-val {
-      font-size: 28px;
-      font-weight: 800;
-      color: #0f172a;
-      margin: 6px 0;
-    }
-    .kpi-sub {
-      font-size: 13px;
-      color: #059669;
-      font-weight: 500;
-    }
-
-    .section { display: none; }
-    .section.active { display: block; }
-
-    h2 {
-      font-size: 18px;
-      margin-bottom: 14px;
-      color: #0f172a;
-    }
-    h3 {
-      font-size: 15px;
-      margin: 14px 0 8px;
-      color: #1e293b;
-    }
-    .form-group {
-      margin-bottom: 12px;
-    }
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: #334155;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 14px;
-      background: #ffffff;
-    }
-    .btn-primary {
-      background: #059669;
-      color: #ffffff;
-      border: none;
-      padding: 11px 18px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 4px;
-    }
-    .btn-secondary {
-      background: #1e293b;
-      color: #ffffff;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 8px;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      margin-top: 12px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    th, td {
-      padding: 10px 8px;
-      border-bottom: 1px solid #e2e8f0;
-      text-align: left;
-      white-space: nowrap;
-    }
-    th {
-      background: #f8fafc;
-      color: #475569;
-    }
-    .result-box {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 8px;
-      padding: 12px;
-      margin-top: 12px;
-      font-size: 14px;
-      color: #065f46;
-      line-height: 1.6;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sadhna Agro ERP</title>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--tx:#0f172a;--mu:#64748b;--bd:#e2e8f0;--top:#0f172a;--nav:#1e293b;--ac:#059669;--ac2:#10b981;--warn:#b91c1c;--ok:#ecfdf5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--card:#162033;--tx:#e5edf7;--mu:#94a3b8;--bd:#2b3a52;--top:#060b14;--nav:#111b2c;--ok:#0d2a22;--warn:#f87171}}
+:root[data-theme="dark"]{--bg:#0b1220;--card:#162033;--tx:#e5edf7;--mu:#94a3b8;--bd:#2b3a52;--top:#060b14;--nav:#111b2c;--ok:#0d2a22;--warn:#f87171}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden}
+.top{background:var(--top);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px}
+.ic{width:36px;height:36px;background:var(--ac2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px}
+.top b{font-size:16px;display:block}.top small{font-size:11px;color:#94a3b8}
+.nav,.sub{display:flex;gap:8px;overflow-x:auto;padding:8px 12px}
+.nav{background:var(--nav)}.sub{background:var(--bd)}
+.nav button{background:var(--top);color:#f8fafc;border:1px solid #334155;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.nav button.on{background:var(--ac2);color:#06281d;border-color:var(--ac2)}
+.sub button{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;white-space:nowrap}
+.sub button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{padding:16px;max-width:1100px;margin:0 auto}
+.bc{font-size:13px;color:var(--ac);font-weight:600;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:14px}
+h2{font-size:18px;margin-bottom:14px}h3{font-size:15px;margin:14px 0 6px}
+.k{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase}.kv{font-size:28px;font-weight:800;margin:6px 0}.ks{font-size:13px;color:var(--ac)}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--mu)}
+.fg{margin-bottom:12px}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;font-size:14px;background:var(--bg);color:var(--tx)}
+.btn{background:var(--ac);color:#fff;border:0;padding:11px 18px;border-radius:8px;font-size:14px;font-weight:600;width:100%;margin-top:4px}
+.btn.s{background:var(--nav);margin-top:8px}
+.tw{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+th{color:var(--mu)}
+.res{background:var(--ok);border:1px solid var(--ac);border-radius:8px;padding:12px;margin-top:12px;font-size:14px;line-height:1.7}
+.low{color:var(--warn);font-weight:700}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:20px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:99;max-width:90%}
+#toast.show{opacity:1}
+</style>
 </head>
 <body>
+<header class="top"><div class="ic">🌱</div><div><b>SADHNA AGRO</b><small>Manufacturing, Packing & Sales Suite</small></div></header>
+<div class="nav" id="nav"></div>
+<div class="sub" id="sub" hidden></div>
+<main><div class="bc" id="bc"></div><div id="view"></div></main>
+<div id="toast"></div>
+<script>
+const KEY="sadhna_erp_v3",LOW=5;
+const L=["products","raw","packing","parties","purchases","dailyProd","batches","sales"];
+let db={};
+try{db=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){db={}}
+L.forEach(k=>{if(!Array.isArray(db[k]))db[k]=[]});
+const E=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=id=>document.getElementById(id),today=new Date().toISOString().slice(0,10);
+const n=v=>Number(v)||0,f=(v,d=2)=>n(v).toFixed(d).replace(/\.00$/,"");
+const same=(a,b)=>String(a).toLowerCase()===String(b).toLowerCase();
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2200)}
+function fld(a){return a.map(([id,l,t,o])=>`<div class="fg"><label>${l}</label>${t==="select"?`<select id="${id}">${o.map(x=>`<option>${E(x)}</option>`).join("")}</select>`:`<input id="${id}" type="${t||"text"}" step="any" ${o?`list="${o}"`:""} ${t==="date"?`value="${today}"`:""}>`}</div>`).join("")}
+function tbl(h,r){return `<div class="tw"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr></thead><tbody>${r.map(x=>`<tr>${x.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
+const dls=()=>[["dlP",db.parties.map(x=>x.name)],["dlR",db.raw.map(x=>x.name)],["dlS",db.products.map(x=>x.name)],["dlI",db.raw.concat(db.packing).map(x=>x.name)]].map(([i,a])=>`<datalist id="${i}">${a.map(x=>`<option value="${E(x)}">`).join("")}</datalist>`).join("");
+const val=id=>$(id).value.trim();
+function finished(){const m={};db.batches.forEach(b=>m[b.product]=(m[b.product]||0)+n(b.pouches));db.sales.forEach(s=>m[s.product]=(m[s.product]||0)-n(s.pouches));return m}
+function form(title,fields,btn,tableHtml){return `<div class="card"><h2>${title}</h2>${fld(fields)}<button class="btn" id="go">${btn}</button>${tableHtml||""}</div>${dls()}`}
 
-  <!-- TOP NAVIGATION BAR -->
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-icon">🌱</div>
-      <div>
-        <div class="brand-name">SADHNA AGRO</div>
-        <div class="brand-tag">Manufacturing & Packing Suite</div>
-      </div>
-    </div>
-
-    <button type="button" id="menuBtn" aria-label="Menu" onclick="toggleMobileMenu()">☰</button>
-
-    <nav id="navDrawer">
-      <div class="nav-item">
-        <button type="button" class="nav-link" data-page="dashboard" data-title="Dashboard">Dashboard</button>
-      </div>
-
-      <div class="nav-item">
-        <button type="button" class="dropdown-btn" onclick="toggleSubMenu(this)">Masters <span>▾</span></button>
-        <div class="submenu">
-          <button type="button" data-page="product-master" data-title="Masters > Product Master">Product Master</button>
-          <button type="button" data-page="raw-master" data-title="Masters > Raw Material Master">Raw Material Master</button>
-          <button type="button" data-page="packing-master" data-title="Masters > Packing & Printing Master">Packing & Printing Master</button>
-          <button type="button" data-page="party-master" data-title="Masters > Supplier / Party Master">Supplier / Party Master</button>
-        </div>
-      </div>
-
-      <div class="nav-item">
-        <button type="button" class="dropdown-btn" onclick="toggleSubMenu(this)">Purchase <span>▾</span></button>
-        <div class="submenu">
-          <button type="button" data-page="purchase-entry" data-title="Purchase > Purchase Entry">Purchase Entry</button>
-          <button type="button" data-page="inward-history" data-title="Purchase > Inward History">Inward History</button>
-        </div>
-      </div>
-
-      <div class="nav-item">
-        <button type="button" class="dropdown-btn" onclick="toggleSubMenu(this)">Production <span>▾</span></button>
-        <div class="submenu">
-          <button type="button" data-page="daily-prod" data-title="Production > Daily Production Sheet">Daily Production Sheet</button>
-          <button type="button" data-page="packing-batch" data-title="Production > Packing Batches">Packing Batches</button>
-          <button type="button" data-page="costing" data-title="Production > Costing Calculator">Costing Calculator</button>
-        </div>
-      </div>
-
-      <div class="nav-item">
-        <button type="button" class="nav-link" data-page="stock" data-title="Live Stock">Stock</button>
-      </div>
-
-      <div class="nav-item">
-        <button type="button" class="dropdown-btn" onclick="toggleSubMenu(this)">Reports & Backup <span>▾</span></button>
-        <div class="submenu">
-          <button type="button" data-page="reports" data-title="Reports > Batch Costing Report">Batch Costing Report</button>
-          <button type="button" data-page="export" data-title="Reports > Excel / CSV Export">Excel / CSV Export</button>
-          <button type="button" data-page="backup" data-title="Reports > Data Backup & Restore">Data Backup & Restore</button>
-        </div>
-      </div>
-    </nav>
-  </header>
-
-  <div class="container">
-    <div class="breadcrumb" id="breadcrumbText">SADHNA AGRO &gt; Dashboard</div>
-    <div class="sync-badge">● Local Storage Synced</div>
-
-    <!-- 1. DASHBOARD -->
-    <div id="dashboard" class="section active">
-      <div class="card">
-        <div class="kpi-label">Total Products (SKUs)</div>
-        <div class="kpi-val" id="kpiProducts">0</div>
-        <div class="kpi-sub">Active Retail Pouches</div>
-      </div>
-      <div class="card">
-        <div class="kpi-label">Raw Material Stock</div>
-        <div class="kpi-val" id="kpiRaw">0 kg</div>
-        <div class="kpi-sub">Across all spice & dry fruit lots</div>
-      </div>
-      <div class="card">
-        <div class="kpi-label">Packing Batches</div>
-        <div class="kpi-val" id="kpiBatches">0</div>
-        <div class="kpi-sub">Completed Floor Runs (<span id="kpiPouches">0</span> Pouches)</div>
-      </div>
-    </div>
-
-    <!-- 2A. PRODUCT MASTER -->
-    <div id="product-master" class="section">
-      <div class="card">
-        <h2>Product Master (Retail SKUs)</h2>
-        <div class="form-group">
-          <label>Product Name (e.g., Jeera 15g Pouch)</label>
-          <input type="text" id="prodName" placeholder="Enter product name" />
-        </div>
-        <div class="form-group">
-          <label>Pack Weight (grams)</label>
-          <input type="number" id="prodWeight" placeholder="e.g., 15" />
-        </div>
-        <div class="form-group">
-          <label>MRP (₹)</label>
-          <input type="number" id="prodMrp" placeholder="e.g., 10" />
-        </div>
-        <button type="button" class="btn-primary" id="saveProdBtn">+ Save Product</button>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Product</th><th>Weight</th><th>MRP</th></tr></thead>
-            <tbody id="prodTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2B. RAW MATERIAL MASTER -->
-    <div id="raw-master" class="section">
-      <div class="card">
-        <h2>Raw Material Master</h2>
-        <div class="form-group">
-          <label>Raw Material Name (e.g., Jeera / Haldi / Makhana)</label>
-          <input type="text" id="rawName" placeholder="Enter raw material" />
-        </div>
-        <div class="form-group">
-          <label>Opening Stock (kg)</label>
-          <input type="number" step="0.01" id="rawQty" placeholder="e.g., 100" />
-        </div>
-        <button type="button" class="btn-primary" id="saveRawBtn">+ Save Raw Material</button>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Material</th><th>Stock (kg)</th></tr></thead>
-            <tbody id="rawTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2C. PACKING & PRINTING MASTER -->
-    <div id="packing-master" class="section">
-      <div class="card">
-        <h2>Packing & Printing Material Master</h2>
-        <div class="form-group">
-          <label>Material Name (e.g., 160mm Laminated Roll / Outer Carton)</label>
-          <input type="text" id="packName" placeholder="Enter packing item" />
-        </div>
-        <div class="form-group">
-          <label>Unit (kg / pcs / rolls)</label>
-          <input type="text" id="packUnit" placeholder="e.g., kg" />
-        </div>
-        <div class="form-group">
-          <label>Opening Stock</label>
-          <input type="number" step="0.01" id="packQty" placeholder="e.g., 25" />
-        </div>
-        <button type="button" class="btn-primary" id="savePackBtn">+ Save Packing Material</button>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Item</th><th>Stock</th><th>Unit</th></tr></thead>
-            <tbody id="packTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2D. SUPPLIER / PARTY MASTER -->
-    <div id="party-master" class="section">
-      <div class="card">
-        <h2>Supplier / Party Master</h2>
-        <div class="form-group">
-          <label>Party / Supplier Name</label>
-          <input type="text" id="partyName" placeholder="Enter supplier or mandi name" />
-        </div>
-        <div class="form-group">
-          <label>City / Mandi</label>
-          <input type="text" id="partyCity" placeholder="e.g., Neemuch / Jabalpur" />
-        </div>
-        <button type="button" class="btn-primary" id="savePartyBtn">+ Save Party</button>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Party Name</th><th>City</th></tr></thead>
-            <tbody id="partyTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3A. PURCHASE ENTRY -->
-    <div id="purchase-entry" class="section">
-      <div class="card">
-        <h2>Purchase Entry (Inward)</h2>
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="purDate" />
-        </div>
-        <div class="form-group">
-          <label>Bill / Lot No.</label>
-          <input type="text" id="purBill" placeholder="e.g., INV-101" />
-        </div>
-        <div class="form-group">
-          <label>Supplier / Party Name</label>
-          <input type="text" id="purParty" list="partySuggestions" placeholder="Type or select supplier" />
-          <datalist id="partySuggestions"></datalist>
-        </div>
-        <div class="form-group">
-          <label>Item Category</label>
-          <select id="purCategory">
-            <option value="Raw Material">Raw Material (Spices / Dry Fruits)</option>
-            <option value="Packing Material">Packing / Laminate / Carton</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Item Name</label>
-          <input type="text" id="purItemName" list="itemSuggestions" placeholder="e.g., Jeera / 160mm Roll" />
-          <datalist id="itemSuggestions"></datalist>
-        </div>
-        <div class="form-group">
-          <label>Quantity (kg / pcs)</label>
-          <input type="number" step="0.01" id="purQty" placeholder="e.g., 50" />
-        </div>
-        <div class="form-group">
-          <label>Rate per Unit (₹)</label>
-          <input type="number" step="0.01" id="purRate" placeholder="e.g., 240" />
-        </div>
-        <button type="button" class="btn-primary" id="savePurchaseBtn">+ Save Purchase & Update Stock</button>
-      </div>
-    </div>
-
-    <!-- 3B. INWARD HISTORY -->
-    <div id="inward-history" class="section">
-      <div class="card">
-        <h2>Inward Purchase History</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Bill</th>
-                <th>Party</th>
-                <th>Category</th>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Rate (₹)</th>
-                <th>Total (₹)</th>
-              </tr>
-            </thead>
-            <tbody id="inwardTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4A. DAILY PRODUCTION SHEET -->
-    <div id="daily-prod" class="section">
-      <div class="card">
-        <h2>Daily Production Sheet (Cleaning / Grading / Roasting)</h2>
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="dpDate" />
-        </div>
-        <div class="form-group">
-          <label>Raw Material Issued</label>
-          <input type="text" id="dpRawName" list="rawSuggestions" placeholder="e.g., Jeera" />
-          <datalist id="rawSuggestions"></datalist>
-        </div>
-        <div class="form-group">
-          <label>Input Qty Issued (kg)</label>
-          <input type="number" step="0.01" id="dpInputQty" placeholder="e.g., 50" />
-        </div>
-        <div class="form-group">
-          <label>Clean Output Qty (kg)</label>
-          <input type="number" step="0.01" id="dpOutputQty" placeholder="e.g., 48.5" />
-        </div>
-        <div class="form-group">
-          <label>Process / Operator Note</label>
-          <input type="text" id="dpNote" placeholder="e.g., Cleaning & Grading Shift-1" />
-        </div>
-        <button type="button" class="btn-primary" id="saveDailyProdBtn">+ Save Daily Production</button>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Date</th><th>Material</th><th>Input</th><th>Output</th><th>Loss %</th><th>Note</th></tr>
-            </thead>
-            <tbody id="dailyProdTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4B. PACKING BATCHES -->
-    <div id="packing-batch" class="section">
-      <div class="card">
-        <h2>Packing Batch Entry (Pouch Filling)</h2>
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="pbDate" />
-        </div>
-        <div class="form-group">
-          <label>Batch No.</label>
-          <input type="text" id="pbBatchNo" placeholder="e.g., SA-01" />
-        </div>
-        <div class="form-group">
-          <label>Retail Product (SKU)</label>
-          <input type="text" id="pbProduct" list="prodSuggestions" placeholder="e.g., Jeera 15g Pouch" />
-          <datalist id="prodSuggestions"></datalist>
-        </div>
-        <div class="form-group">
-          <label>Raw Material Used</label>
-          <input type="text" id="pbRawName" list="rawSuggestions" placeholder="e.g., Jeera" />
-        </div>
-        <div class="form-group">
-          <label>Raw Material Consumed (kg)</label>
-          <input type="number" step="0.01" id="pbRawUsed" placeholder="e.g., 15" />
-        </div>
-        <div class="form-group">
-          <label>Pouches Packed (Nos.)</label>
-          <input type="number" id="pbPouches" placeholder="e.g., 1000" />
-        </div>
-        <div class="form-group">
-          <label>Laminate / Packing Cost (₹)</label>
-          <input type="number" step="0.01" id="pbPackCost" placeholder="e.g., 450" />
-        </div>
-        <div class="form-group">
-          <label>Labor & Power Cost (₹)</label>
-          <input type="number" step="0.01" id="pbLaborCost" placeholder="e.g., 300" />
-        </div>
-        <butt
+const P={
+dashboard(){const fm=finished(),tp=Object.values(fm).reduce((a,b)=>a+b,0),rev=db.sales.reduce((a,s)=>a+n(s.pouches)*n(s.rate),0),low=db.raw.filter(r=>n(r.qty)<LOW);
+return `<div class="card"><div class="k">Total SKUs</div><div class="kv">${db.products.length}</div><div class="ks">Active retail pouches</div></div>
+<div class="card"><div class="k">Raw material stock</div><div class="kv">${f(db.raw.reduce((a,r)=>a+n(r.qty),0))} kg</div><div class="ks">${low.length?`<span class="low">Low: ${low.map(r=>E(r.name)).join(", ")}</span>`:"All lots above "+LOW+" kg"}</div></div>
+<div class="card"><div class="k">Packing batches</div><div class="kv">${db.batches.length}</div><div class="ks">${db.batches.reduce((a,b)=>a+n(b.pouches),0)} pouches packed, ${tp} in stock</div></div>
+<div class="card"><div class="k">Total sales</div><div class="kv">₹${f(rev)}</div><div class="ks">${db.sales.length} dispatch entries</div></div>`},
+product:{save(){const name=val("a");if(!name)return"Enter product name";db.products.push({name,weight:val("b"),mrp:val("c")})},
+ html:()=>form("Product Master (Retail SKUs)",[["a","Product Name (e.g. Jeera 15g Pouch)"],["b","Pack Weight (g)","number"],["c","MRP (₹)","number"]],"+ Save Product",tbl(["Product","Weight","MRP"],db.products.map(p=>[E(p.name),E(p.weight)+"g","₹"+E(p.mrp)])))},
+raw:{save(){const name=val("a");if(!name)return"Enter name";const q=n(val("b")),e=db.raw.find(r=>same(r.name,name));e?e.qty=n(e.qty)+q:db.raw.push({name,qty:q})},
+ html:()=>form("Raw Material Master",[["a","Raw Material (Jeera / Haldi / Makhana)"],["b","Opening Stock (kg)","number"]],"+ Save Raw Material",tbl(["Material","Stock"],db.raw.map(r=>[E(r.name),f(r.qty)+" kg"])))},
+packing:{save(){const name=val("a");if(!name)return"Enter item name";db.packing.push({name,unit:val("b")||"pcs",qty:n(val("c"))})},
+ html:()=>form("Packing & Printing Master",[["a","Material (160mm Roll / Carton)"],["b","Unit (kg / pcs / rolls)"],["c","Opening Stock","number"]],"+ Save Packing Material",tbl(["Item","Stock","Unit"],db.packing.map(p=>[E(p.name),f(p.qty),E(p.unit)])))},
+party:{save(){const name=val("a");if(!name)return"Enter party name";db.parties.push({name,city:val("b")})},
+ html:()=>form("Supplier / Party Master",[["a","Party / Supplier / Customer Name"],["b","City / Mandi"]],"+ Save Party",tbl(["Party","City"],db.parties.map(p=>[E(p.name),E(p.city)])))},
+purchase:{save(){const material=val("e"),qty=n(val("f"));if(!material)return"Enter item name";if(qty<=0)return"Enter valid quantity";const category=val("d");
+ db.purchases.push({date:val("a")||today,bill:val("b"),party:val("c")||"Cash / Mandi",category,material,qty,rate:n(val("g"))});
+ const arr=category==="Raw Material"?db.raw:db.packing,e=arr.find(r=>same(r.name,material));e?e.qty=n(e.qty)+qty:arr.push(category==="Raw Material"?{name:material,qty}:{name:material,unit:"kg/pcs",qty})},
+ html:()=>form("Purchase Entry (Inward)",[["a","Date","date"],["b","Bill / Lot No."],["c","Supplier / Party","text","dlP"],["d","Category","select",["Raw Material","Packing Material"]],["e","Item Name","text","dlI"],["f","Quantity (kg / pcs)","number"],["g","Rate per Unit (₹)","number"]],"+ Save Purchase & Update Stock")},
+inward:{html:()=>`<div class="card"><h2>Inward Purchase History</h2>${tbl(["Date","Bill","Party","Category","Item","Qty","Rate","Total"],db.purchases.slice().reverse().map(p=>[E(p.date),E(p.bill),E(p.party),E(p.category),E(p.material),f(p.qty),"₹"+f(p.rate),"₹"+f(n(p.qty)*n(p.rate))]))}</div>`},
+daily:{save(){const raw=val("b"),i=n(val("c")),o=n(val("d"));if(!raw||i<=0||val("d")==="")return"Enter material, input and output qty";if(o>i)return"Output cannot exceed input";
+ const e=db.raw.find(r=>same(r.name,raw));if(e)e.qty=Math.max(0,n(e.qty)-(i-o));db.dailyProd.push({date:val("a")||today,rawName:raw,inputQty:i,outputQty:o,lossPct:((i-o)/i*100).toFixed(2),note:val("e")})},
+ html:()=>form("Daily Production (Cleaning / Grading / Roasting)",[["a","Date","date"],["b","Raw Material Issued","text","dlR"],["c","Input Qty (kg)","number"],["d","Clean Output Qty (kg)","number"],["e","Process / Operator Note"]],"+ Save Daily Production",tbl(["Date","Material","Input","Output","Loss %","Note"],db.dailyProd.slice().reverse().map(d=>[E(d.date),E(d.rawName),f(d.inputQty)+" kg",f(d.outputQty)+" kg",E(d.lossPct)+"%",E(d.note||"-")])))},
+batch:{save(){const product=val("c"),raw=val("d"),used=n(val("e")),pc=Math.round(n(val("f")));if(!product||pc<=0)return"Enter product and pouches packed";
+ const e=db.raw.find(r=>same(r.name,raw));if(raw&&used>0&&e&&used>n(e.qty))return"Only "+f(e.qty)+" kg "+e.name+" in stock";
+ let rate=0;for(let i=db.purchases.length-1;i>=0;i--)if(same(db.purchases[i].material,raw)){rate=n(db.purchases[i].rate);break}
+ const total=used*rate+n(val("g"))+n(val("h"));if(e&&used>0)e.qty=Math.max(0,n(e.qty)-used);
+ db.batches.push({date:val("a")||today,batchNo:val("b")||"B-"+(db.batches.length+1),product,rawName:raw,rawUsed:used,pouches:pc,totalCost:total,costPerPouch:total/pc})},
+ html:()=>form("Packing Batch (Pouch Filling)",[["a","Date","date"],["b","Batch No. (SA-01)"],["c","Retail Product (SKU)","text","dlS"],["d","Raw Material Used","text","dlR"],["e","Raw Consumed (kg)","number"],["f","Pouches Packed","number"],["g","Laminate / Packing Cost (₹)","number"],["h","Labor & Power Cost (₹)","number"]],"+ Save Packing Batch",tbl(["Date","Batch","Product","Raw","Pouches","Cost/Pouch"],db.batches.slice().reverse().map(b=>[E(b.date),E(b.batchNo),E(b.product),f(b.rawUsed)+" kg",b.pouches,"₹"+f(b.costPerPouch)])))},
+costing:{save(){const r=n(val("a")),g=n(val("b")),w=n(val("c")),pc=n(val("d")),oh=n(val("e")),sp=n(val("f")),rm=g/1000*(1+w/100)*r,t=rm+pc+oh,pr=sp-t;
+ $("out").style.display="block";$("out").innerHTML=`<b>Raw material cost:</b> ₹${f(rm)}<br><b>Total cost / pouch:</b> ₹${f(t)}<br><b>Profit / pouch:</b> ₹${f(pr)} (${sp>0?(pr/sp*100).toFixed(1):"0.0"}% margin)`;return 0},
+ html:()=>form("Pouch Costing & Margin Calculator",[["a","Raw Material Rate / kg (₹)","number"],["b","Net Weight / Pouch (g)","number"],["c","Wastage / Moisture Loss (%)","number"],["d","Pouch / Laminate Cost (₹)","number"],["e","Labor + Power + Overhead (₹)","number"],["f","Selling Price (₹)","number"]],"Calculate Cost & Margin",`<div class="res" id="out" style="display:none"></div>`)},
+sale:{save(){const product=val("c"),pc=Math.round(n(val("d")));if(!product||pc<=0)return"Enter product and pouches";const av=finished()[product]||0;if(pc>av)return"Only "+av+" pouches of "+product+" in stock";
+ db.sales.push({date:val("a")||today,party:val("b")||"Cash",product,pouches:pc,rate:n(val("e"))})},
+ html:()=>form("Sales / Dispatch Entry",[["a","Date","date"],["b","Customer / Party","text","dlP"],["c","Product (SKU)","text","dlS"],["d","Pouches Sold","number"],["e","Rate per Pouch (₹)","number"]],"+ Save Sale & Reduce Stock",tbl(["Date","Party","Product","Pouches","Rate","Total"],db.sales.slice().reverse().map(s=>[E(s.date),E(s.party),E(s.product),s.pouches,"₹"+f(s.rate),"₹"+f(s.pouches*s.rate)])))},
+stock(){const fm=finished();return `<div class="card"><h2>Live Stock Summary</h2><h3>Raw Material</h3>${tbl(["Material","Available"],db.raw.map(r=>[E(r.name),(n(r.qty)<LOW?`<span class="low">${f(r.qty)} kg (low)</span>`:f(r.qty)+" kg")]))}<h3>Finished Pouches (packed − sold)</h3>${tbl(["Product","Pouches"],Object.keys(fm).map(k=>[E(k),fm[k]]))}<h3>Packing Material</h3>${tbl(["Item","Stock","Unit"],db.packing.map(p=>[E(p.name),f(p.qty),E(p.unit)]))}</div>`},
+report(){const rev=db.sales.reduce((a,s)=>a+n(s.pouches)*n(s.rate),0);return `<div class="card"><h2>Batch Costing & Production Report</h2>${tbl(["Date","Batch","Product","Raw","Pouches","Total Cost","Cost/Pouch"],db.batches.slice().reverse().map(b=>[E(b.date),E(b.batchNo),E(b.product),f(b.rawUsed)+" kg",b.pouches,"₹"+f(b.totalCost),"₹"+f(b.costPerPouch)]))}<h3>Total sales: ₹${f(rev)}</h3></div>`},
+export:{save(){const q=x=>'"'+String(x??"").replace(/"/g,'""')+'"';let c="Section,Date,Name/Party,Detail1,Detail2,Detail3\n";
+ db.products.forEach(p=>c+=["Product","",p.name,p.weight+"g","MRP "+p.mrp,""].map(q)+"\n");db.raw.forEach(r=>c+=["Raw Stock","",r.name,r.qty+" kg","",""].map(q)+"\n");
+ db.purchases.forEach(p=>c+=["Purchase",p.date,p.party,p.material,p.qty,"Rate "+p.rate].map(q)+"\n");db.batches.forEach(b=>c+=["Batch",b.date,b.product,b.batchNo,b.pouches+" pcs","Cost "+f(b.costPerPouch)].map(q)+"\n");
+ db.sales.forEach(s=>c+=["Sale",s.date,s.party,s.product,s.pouches+" pcs","Rate "+s.rate].map(q)+"\n");dl(c,"sadhna_agro_erp_report.csv","text/csv");return 0},
+ html:()=>`<div class="card"><h2>Excel / CSV Export</h2><p style="font-size:13px;color:var(--mu);margin-bottom:12px">Masters, purchases, batches aur sales CSV mein (Excel mein khulta hai).</p><button class="btn" id="go">Download Complete ERP Data (CSV)</button></div>`},
+backup:{save(){dl(JSON.stringify(db,null,2),"sadhna_agro_backup.json","application/json");return 0},
+ html:()=>`<div class="card"><h2>Backup & Restore</h2><button class="btn" id="go">Download JSON Backup</button><div class="fg" style="margin-top:16px"><label>Restore from .json file</label><input type="file" id="rf" accept=".json"></div><button class="btn s" id="rs">Restore Backup Data</button></div>`}
+};
+function dl(c,name,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c],{type}));a.download=name;a.click()}
+const G={dashboard:["Dashboard",["dashboard"]],masters:["Masters",["product","raw","packing","party"]],purchase:["Purchase",["purchase","inward"]],production:["Production",["daily","batch","costing"]],sales:["Sales",["sale"]],stock:["Stock",["stock"]],reports:["Reports & Backup",["report","export","backup"]]};
+const LB={dashboard:"Dashboard",product:"Product Master",raw:"Raw Material",packing:"Packing Master",party:"Party Master",purchase:"Purchase Entry",inward:"Inward History",daily:"Daily Production",batch:"Packing Batches",costing:"Costing Calc",sale:"Sales / Dispatch",stock:"Live Stock",report:"Batch Report",export:"CSV Export",backup:"Backup / Restore"};
+let grp="dashboard",pg="dashboard";
+function show(){
+ $("nav").innerHTML=Object.keys(G).map(g=>`<button data-g="${g}" class="${g===grp?"on":""}">${G[g][0]}</button>`).join("");
+ const ps=G[grp][1];$("sub").hidden=ps.length<2;$("sub").innerHTML=ps.map(p=>`<button data-p="${p}" class="${p===pg?"on":""}">${LB[p]}</button>`).join("");
+ $("bc").textContent="SADHNA AGRO > "+G[grp][0]+(ps.length>1?" > "+LB[pg]:"");
+ const o=P[pg],h=typeof o==="function"?o():o.html();$("view").innerHTML=h;
+ const go=$("go");if(go&&o.save)go.onclick=()=>{const r=o.save();if(r&&r!==0)return toast(r);if(r!==0){persist();toast("Saved ✓");show()}};
+ if(pg==="backup")$("rs").onclick=()=>{const fi=$("rf").files[0];if(!fi)return toast("Select a .json file first");const rd=new FileReader();rd.onload=e=>{try{const x=JSON.parse(e.target.result);L.forEach(k=>db[k]=Array.isArray(x[k])?x[k]:[]);persist();toast("Backup restored ✓");show()}catch(er){toast("Invalid backup file")}};rd.readAsText(fi)};
+}
+$("nav").onclick=e=>{const g=e.target.dataset.g;if(g){grp=g;pg=G[g][1][0];show()}};
+$("sub").onclick=e=>{const p=e.target.dataset.p;if(p){pg=p;show()}};
+show();
+</script>
+</body>
+</html>
