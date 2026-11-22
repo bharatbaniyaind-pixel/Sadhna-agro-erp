@@ -1,137 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Surya Swad ERP</title>
+<meta name="theme-color" content="#10251f">
+<title>SURYA SWAD ERP</title>
 <style>
-:root{--bg:#f1f5f9;--card:#fff;--tx:#0f172a;--mu:#64748b;--bd:#e2e8f0;--top:#0f172a;--nav:#1e293b;--ac:#059669;--ac2:#10b981;--warn:#b91c1c;--ok:#ecfdf5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--card:#162033;--tx:#e5edf7;--mu:#94a3b8;--bd:#2b3a52;--top:#060b14;--nav:#111b2c;--ok:#0d2a22;--warn:#f87171}}
-:root[data-theme="dark"]{--bg:#0b1220;--card:#162033;--tx:#e5edf7;--mu:#94a3b8;--bd:#2b3a52;--top:#060b14;--nav:#111b2c;--ok:#0d2a22;--warn:#f87171}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden}
-.top{background:var(--top);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px}
-.ic{width:36px;height:36px;background:var(--ac2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px}
-.top b{font-size:16px;display:block}.top small{font-size:11px;color:#94a3b8}
-.nav,.sub{display:flex;gap:8px;overflow-x:auto;padding:8px 12px}
-.nav{background:var(--nav)}.sub{background:var(--bd)}
-.nav button{background:var(--top);color:#f8fafc;border:1px solid #334155;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap}
-.nav button.on{background:var(--ac2);color:#06281d;border-color:var(--ac2)}
-.sub button{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;white-space:nowrap}
-.sub button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
-main{padding:16px;max-width:1100px;margin:0 auto}
-.bc{font-size:13px;color:var(--ac);font-weight:600;margin-bottom:12px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:14px}
-h2{font-size:18px;margin-bottom:14px}h3{font-size:15px;margin:14px 0 6px}
-.k{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase}.kv{font-size:28px;font-weight:800;margin:6px 0}.ks{font-size:13px;color:var(--ac)}
-label{display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--mu)}
-.fg{margin-bottom:12px}
-input,select{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;font-size:14px;background:var(--bg);color:var(--tx)}
-.btn{background:var(--ac);color:#fff;border:0;padding:11px 18px;border-radius:8px;font-size:14px;font-weight:600;width:100%;margin-top:4px}
-.btn.s{background:var(--nav);margin-top:8px}
-.tw{overflow-x:auto;margin-top:12px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
-th{color:var(--mu)}
-.res{background:var(--ok);border:1px solid var(--ac);border-radius:8px;padding:12px;margin-top:12px;font-size:14px;line-height:1.7}
-.low{color:var(--warn);font-weight:700}
-.ab{background:var(--nav);color:#fff;border:0;border-radius:6px;padding:5px 10px;font-size:12px;margin-right:4px}
-#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:20px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:99;max-width:90%}
-#toast.show{opacity:1}
+:root{--bg:#f3f6f4;--card:#fff;--tx:#17231e;--mu:#65736c;--bd:#dce5df;--top:#10251f;--nav:#1d352d;--ac:#087f5b;--ac2:#18a878;--red:#b42318;--gold:#b7791f;--ok:#e8f7ef;--shadow:0 3px 14px #10251f0b}
+[data-theme="dark"]{--bg:#0b1512;--card:#14231d;--tx:#e5eee9;--mu:#a0b1a8;--bd:#2b4036;--top:#07100d;--nav:#102019;--ac:#16a879;--ac2:#39c995;--red:#ff8278;--gold:#e6b65c;--ok:#123326;--shadow:none}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--tx);padding-bottom:env(safe-area-inset-bottom)}
+header{background:var(--top);color:white;padding:13px 16px;display:flex;align-items:center;gap:11px;position:sticky;top:0;z-index:5}
+.logo{width:39px;height:39px;border-radius:11px;background:#1aa878;display:grid;place-items:center;font-size:22px}
+header b{font-size:17px;letter-spacing:.5px}header small{display:block;color:#b6c9bf;font-size:11px}
+.headright{margin-left:auto;display:flex;gap:7px}.headright button{background:#29453a;color:white;border:1px solid #466254;border-radius:8px;padding:8px;font-size:12px}
+nav{background:var(--nav);display:flex;gap:7px;padding:9px 10px;overflow:auto;position:sticky;top:65px;z-index:4}
+nav button,.tabs button{white-space:nowrap;border:1px solid #40584c;border-radius:8px;background:transparent;color:#f4fff8;padding:9px 12px;font-weight:650;font-size:12px}
+nav button.active{background:var(--ac2);color:#06271c;border-color:var(--ac2)}
+.tabs{display:flex;gap:7px;overflow:auto;background:var(--bd);padding:8px 10px}
+.tabs button{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:20px;padding:7px 12px}
+.tabs button.active{background:var(--ac);color:white;border-color:var(--ac)}
+main{max-width:1200px;margin:auto;padding:14px}.crumb{color:var(--ac);font-size:12px;font-weight:750;margin:2px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:11px;margin-bottom:13px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:13px;padding:15px;margin-bottom:12px;box-shadow:var(--shadow)}
+.metric .label{font-size:11px;color:var(--mu);font-weight:750;text-transform:uppercase}.metric .value{font-size:26px;font-weight:850;margin:5px 0}.metric .sub{font-size:12px;color:var(--ac)}
+h2{font-size:18px;margin:0 0 13px}h3{font-size:14px;margin:15px 0 8px}.muted{color:var(--mu);font-size:12px;line-height:1.5}
+.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.field label{display:block;font-size:12px;color:var(--mu);font-weight:700;margin:0 0 5px}
+input,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit;font-size:14px;min-width:0}
+textarea{min-height:74px;resize:vertical}
+button{cursor:pointer}.btn{border:0;background:var(--ac);color:white;padding:10px 14px;border-radius:8px;font-weight:700;font-size:13px;margin:5px 5px 0 0}.btn.secondary{background:var(--nav)}.btn.light{background:var(--bd);color:var(--tx)}.btn.danger{background:#a92b24}.btn.small{padding:6px 9px;font-size:11px}
+.actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.tablewrap{overflow:auto;margin-top:10px;border:1px solid var(--bd);border-radius:9px}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:580px}th,td{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}th{background:var(--bg);color:var(--mu);font-weight:750}tr:last-child td{border-bottom:0}
+.notice{background:var(--ok);border:1px solid var(--ac);border-radius:9px;padding:11px;font-size:13px;line-height:1.6;margin:10px 0}
+.warn{color:var(--red);font-weight:750}.pill{display:inline-block;border-radius:20px;padding:3px 8px;background:var(--ok);color:var(--ac);font-size:11px;font-weight:750}
+#toast{position:fixed;z-index:20;bottom:20px;left:50%;transform:translateX(-50%);background:#10251f;color:white;padding:10px 15px;border-radius:24px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;max-width:90%;text-align:center}#toast.show{opacity:1}
+.empty{padding:18px;text-align:center;color:var(--mu);font-size:13px}
+@media(max-width:520px){main{padding:10px}.card{padding:12px}header{top:0}nav{top:65px}.metric .value{font-size:23px}}
 </style>
 </head>
 <body>
-<header class="top"><div class="ic">🌱</div><div><b>SURYA SWAD</b><small>Manufacturing, Packing & Sales Suite</small></div></header>
-<div class="nav" id="nav"></div>
-<div class="sub" id="sub" hidden></div>
-<main><div class="bc" id="bc"></div><div id="view"></div></main>
-<div id="toast"></div>
-<div id="lb" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:100;align-items:center;justify-content:center;padding:16px"></div>
+<header><div class="logo">🌱</div><div><b>SURYA SWAD</b><small>Manufacturing • Packing • Inventory • Sales ERP</small></div><div class="headright"><button id="themeBtn">☾</button></div></header>
+<nav id="nav"></nav><div class="tabs" id="tabs"></div>
+<main><div class="crumb" id="crumb"></div><section id="app"></section></main><div id="toast"></div>
 <script>
-const KEY="sadhna_erp_v3",LOW=5;
-const L=["products","raw","packing","parties","purchases","dailyProd","batches","sales"];
-let db={};
-try{db=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){db={}}
-L.forEach(k=>{if(!Array.isArray(db[k]))db[k]=[]});
-const E=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const $=id=>document.getElementById(id),today=new Date().toISOString().slice(0,10);
-const n=v=>Number(v)||0,f=(v,d=2)=>n(v).toFixed(d).replace(/\.00$/,"");
-const same=(a,b)=>String(a).toLowerCase()===String(b).toLowerCase();
-function persist(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast("Storage full! Backup download karo, purani photos hatao")}}
-function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2200)}
-function fld(a){return a.map(([id,l,t,o])=>`<div class="fg"><label>${l}</label>${t==="select"?`<select id="${id}">${o.map(x=>`<option>${E(x)}</option>`).join("")}</select>`:`<input id="${id}" type="${t||"text"}" ${t==="file"?'accept="image/*"':'step="any"'} ${o?`list="${o}"`:""} ${t==="date"?`value="${today}"`:""}>`}</div>`).join("")}
-function tbl(h,r){return `<div class="tw"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr></thead><tbody>${r.map(x=>`<tr>${x.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
-const dls=()=>[["dlP",db.parties.map(x=>x.name)],["dlR",db.raw.map(x=>x.name)],["dlS",db.products.map(x=>x.name)],["dlI",db.raw.concat(db.packing).map(x=>x.name)]].map(([i,a])=>`<datalist id="${i}">${a.map(x=>`<option value="${E(x)}">`).join("")}</datalist>`).join("");
-const val=id=>$(id).value.trim();
-function finished(){const m={};db.batches.forEach(b=>m[b.product]=(m[b.product]||0)+n(b.pouches));db.sales.forEach(s=>m[s.product]=(m[s.product]||0)-n(s.pouches));return m}
-function form(title,fields,btn,tableHtml){return `<div class="card"><h2>${title}</h2>${fld(fields)}<button class="btn" id="go">${btn}</button>${tableHtml||""}</div>${dls()}`}
-
-const P={
-dashboard(){const fm=finished(),tp=Object.values(fm).reduce((a,b)=>a+b,0),rev=db.sales.reduce((a,s)=>a+n(s.pouches)*n(s.rate),0),low=db.raw.filter(r=>n(r.qty)<LOW);
-return `<div class="card"><div class="k">Total SKUs</div><div class="kv">${db.products.length}</div><div class="ks">Active retail pouches</div></div>
-<div class="card"><div class="k">Raw material stock</div><div class="kv">${f(db.raw.reduce((a,r)=>a+n(r.qty),0))} kg</div><div class="ks">${low.length?`<span class="low">Low: ${low.map(r=>E(r.name)).join(", ")}</span>`:"All lots above "+LOW+" kg"}</div></div>
-<div class="card"><div class="k">Packing batches</div><div class="kv">${db.batches.length}</div><div class="ks">${db.batches.reduce((a,b)=>a+n(b.pouches),0)} pouches packed, ${tp} in stock</div></div>
-<div class="card"><div class="k">Total sales</div><div class="kv">₹${f(rev)}</div><div class="ks">${db.sales.length} dispatch entries</div></div>`},
-product:{save(){const name=val("a");if(!name)return"Enter product name";if(ED){Object.assign(db.products[ED.i],{name,weight:val("b"),mrp:val("c")});ED=null;return}db.products.push({name,weight:val("b"),mrp:val("c")})},
- html:()=>form("Product Master (Retail SKUs)",[["a","Product Name (e.g. Jeera 15g Pouch)"],["b","Pack Weight (g)","number"],["c","MRP (₹)","number"]],"+ Save Product",tbl(["Product","Weight","MRP",""],db.products.map((p,i)=>[E(p.name),E(p.weight)+"g","₹"+E(p.mrp),act("product",i)])))},
-raw:{save(){const name=val("a");if(!name)return"Enter name";const q=n(val("b"));if(ED){Object.assign(db.raw[ED.i],{name,qty:q});ED=null;return}const e=db.raw.find(r=>same(r.name,name));e?e.qty=n(e.qty)+q:db.raw.push({name,qty:q})},
- html:()=>form("Raw Material Master",[["a","Raw Material (Jeera / Haldi / Makhana)"],["b","Opening Stock (kg)","number"]],"+ Save Raw Material",tbl(["Material","Stock",""],db.raw.map((r,i)=>[E(r.name),f(r.qty)+" kg",act("raw",i)])))},
-packing:{save(){const name=val("a");if(!name)return"Enter item name";if(ED){Object.assign(db.packing[ED.i],{name,unit:val("b")||"pcs",qty:n(val("c"))});ED=null;return}db.packing.push({name,unit:val("b")||"pcs",qty:n(val("c"))})},
- html:()=>form("Packing & Printing Master",[["a","Material (160mm Roll / Carton)"],["b","Unit (kg / pcs / rolls)"],["c","Opening Stock","number"]],"+ Save Packing Material",tbl(["Item","Stock","Unit",""],db.packing.map((p,i)=>[E(p.name),f(p.qty),E(p.unit),act("packing",i)])))},
-party:{save(){const name=val("a");if(!name)return"Enter party name";if(ED){Object.assign(db.parties[ED.i],{name,city:val("b")});ED=null;return}db.parties.push({name,city:val("b")})},
- html:()=>form("Supplier / Party Master",[["a","Party / Supplier / Customer Name"],["b","City / Mandi"]],"+ Save Party",tbl(["Party","City",""],db.parties.map((p,i)=>[E(p.name),E(p.city),act("party",i)])))},
-purchase:{save(){const material=val("e"),qty=n(val("f"));if(!material)return"Enter item name";if(qty<=0)return"Enter valid quantity";const category=val("d");
- db.purchases.push({date:val("a")||today,bill:val("b"),party:val("c")||"Cash / Mandi",category,material,qty,rate:n(val("g")),photo:PH});
- const arr=category==="Raw Material"?db.raw:db.packing,e=arr.find(r=>same(r.name,material));e?e.qty=n(e.qty)+qty:arr.push(category==="Raw Material"?{name:material,qty}:{name:material,unit:"kg/pcs",qty})},
- html:()=>form("Purchase Entry (Inward)",[["a","Date","date"],["b","Bill / Lot No."],["c","Supplier / Party","text","dlP"],["d","Category","select",["Raw Material","Packing Material"]],["e","Item Name","text","dlI"],["f","Quantity (kg / pcs)","number"],["g","Rate per Unit (₹)","number"],["h","📷 Bill / Maal ki Photo (optional)","file"]],"+ Save Purchase & Update Stock",'<div class="res" id="st" style="display:none"></div><h3>Ya list paste karo</h3><label>Har line: item, qty, rate (aakhri mein P likho to Packing). Date / Bill / Party upar ke boxes se aayenge</label><textarea id="bt" rows="5" style="width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font-size:14px"></textarea><button class="btn s" id="bk">Paste se sab add karo</button>')},
-inward:{html:()=>`<div class="card"><h2>Inward Purchase History</h2>${tbl(["Date","Bill","Party","Category","Item","Qty","Rate","Total","Photo"],db.purchases.map((p,i)=>[E(p.date),E(p.bill),E(p.party),E(p.category),E(p.material),f(p.qty),"₹"+f(p.rate),"₹"+f(n(p.qty)*n(p.rate)),p.photo?`<img src="${p.photo}" data-ph="${i}" style="height:34px;border-radius:4px">`:"-"]).reverse())}</div>`},
-daily:{save(){const raw=val("b"),i=n(val("c")),o=n(val("d"));if(!raw||i<=0||val("d")==="")return"Enter material, input and output qty";if(o>i)return"Output cannot exceed input";
- const e=db.raw.find(r=>same(r.name,raw));if(e)e.qty=Math.max(0,n(e.qty)-(i-o));db.dailyProd.push({date:val("a")||today,rawName:raw,inputQty:i,outputQty:o,lossPct:((i-o)/i*100).toFixed(2),note:val("e")})},
- html:()=>form("Daily Production (Cleaning / Grading / Roasting)",[["a","Date","date"],["b","Raw Material Issued","text","dlR"],["c","Input Qty (kg)","number"],["d","Clean Output Qty (kg)","number"],["e","Process / Operator Note"]],"+ Save Daily Production",tbl(["Date","Material","Input","Output","Loss %","Note"],db.dailyProd.slice().reverse().map(d=>[E(d.date),E(d.rawName),f(d.inputQty)+" kg",f(d.outputQty)+" kg",E(d.lossPct)+"%",E(d.note||"-")])))},
-batch:{save(){const product=val("c"),raw=val("d"),used=n(val("e")),pc=Math.round(n(val("f")));if(!product||pc<=0)return"Enter product and pouches packed";
- const e=db.raw.find(r=>same(r.name,raw));if(raw&&used>0&&e&&used>n(e.qty))return"Only "+f(e.qty)+" kg "+e.name+" in stock";
- let rate=0;for(let i=db.purchases.length-1;i>=0;i--)if(same(db.purchases[i].material,raw)){rate=n(db.purchases[i].rate);break}
- const total=used*rate+n(val("g"))+n(val("h"));if(e&&used>0)e.qty=Math.max(0,n(e.qty)-used);
- db.batches.push({date:val("a")||today,batchNo:val("b")||"B-"+(db.batches.length+1),product,rawName:raw,rawUsed:used,pouches:pc,totalCost:total,costPerPouch:total/pc})},
- html:()=>form("Packing Batch (Pouch Filling)",[["a","Date","date"],["b","Batch No. (SA-01)"],["c","Retail Product (SKU)","text","dlS"],["d","Raw Material Used","text","dlR"],["e","Raw Consumed (kg)","number"],["f","Pouches Packed","number"],["g","Laminate / Packing Cost (₹)","number"],["h","Labor & Power Cost (₹)","number"]],"+ Save Packing Batch",tbl(["Date","Batch","Product","Raw","Pouches","Cost/Pouch"],db.batches.slice().reverse().map(b=>[E(b.date),E(b.batchNo),E(b.product),f(b.rawUsed)+" kg",b.pouches,"₹"+f(b.costPerPouch)])))},
-costing:{save(){const r=n(val("a")),g=n(val("b")),w=n(val("c")),pc=n(val("d")),oh=n(val("e")),sp=n(val("f")),rm=g/1000*(1+w/100)*r,t=rm+pc+oh,pr=sp-t;
- $("out").style.display="block";$("out").innerHTML=`<b>Raw material cost:</b> ₹${f(rm)}<br><b>Total cost / pouch:</b> ₹${f(t)}<br><b>Profit / pouch:</b> ₹${f(pr)} (${sp>0?(pr/sp*100).toFixed(1):"0.0"}% margin)`;return 0},
- html:()=>form("Pouch Costing & Margin Calculator",[["a","Raw Material Rate / kg (₹)","number"],["b","Net Weight / Pouch (g)","number"],["c","Wastage / Moisture Loss (%)","number"],["d","Pouch / Laminate Cost (₹)","number"],["e","Labor + Power + Overhead (₹)","number"],["f","Selling Price (₹)","number"]],"Calculate Cost & Margin",`<div class="res" id="out" style="display:none"></div>`)},
-sale:{save(){const product=val("c"),pc=Math.round(n(val("d")));if(!product||pc<=0)return"Enter product and pouches";const av=finished()[product]||0;if(pc>av)return"Only "+av+" pouches of "+product+" in stock";
- db.sales.push({date:val("a")||today,party:val("b")||"Cash",product,pouches:pc,rate:n(val("e"))})},
- html:()=>form("Sales / Dispatch Entry",[["a","Date","date"],["b","Customer / Party","text","dlP"],["c","Product (SKU)","text","dlS"],["d","Pouches Sold","number"],["e","Rate per Pouch (₹)","number"]],"+ Save Sale & Reduce Stock",tbl(["Date","Party","Product","Pouches","Rate","Total"],db.sales.slice().reverse().map(s=>[E(s.date),E(s.party),E(s.product),s.pouches,"₹"+f(s.rate),"₹"+f(s.pouches*s.rate)])))},
-stock(){const fm=finished();return `<div class="card"><h2>Live Stock Summary</h2><h3>Raw Material</h3>${tbl(["Material","Available"],db.raw.map(r=>[E(r.name),(n(r.qty)<LOW?`<span class="low">${f(r.qty)} kg (low)</span>`:f(r.qty)+" kg")]))}<h3>Finished Pouches (packed − sold)</h3>${tbl(["Product","Pouches"],Object.keys(fm).map(k=>[E(k),fm[k]]))}<h3>Packing Material</h3>${tbl(["Item","Stock","Unit"],db.packing.map(p=>[E(p.name),f(p.qty),E(p.unit)]))}</div>`},
-report(){const rev=db.sales.reduce((a,s)=>a+n(s.pouches)*n(s.rate),0);return `<div class="card"><h2>Batch Costing & Production Report</h2>${tbl(["Date","Batch","Product","Raw","Pouches","Total Cost","Cost/Pouch"],db.batches.slice().reverse().map(b=>[E(b.date),E(b.batchNo),E(b.product),f(b.rawUsed)+" kg",b.pouches,"₹"+f(b.totalCost),"₹"+f(b.costPerPouch)]))}<h3>Total sales: ₹${f(rev)}</h3></div>`},
-export:{save(){const q=x=>'"'+String(x??"").replace(/"/g,'""')+'"';let c="Section,Date,Name/Party,Detail1,Detail2,Detail3\n";
- db.products.forEach(p=>c+=["Product","",p.name,p.weight+"g","MRP "+p.mrp,""].map(q)+"\n");db.raw.forEach(r=>c+=["Raw Stock","",r.name,r.qty+" kg","",""].map(q)+"\n");
- db.purchases.forEach(p=>c+=["Purchase",p.date,p.party,p.material,p.qty,"Rate "+p.rate].map(q)+"\n");db.batches.forEach(b=>c+=["Batch",b.date,b.product,b.batchNo,b.pouches+" pcs","Cost "+f(b.costPerPouch)].map(q)+"\n");
- db.sales.forEach(s=>c+=["Sale",s.date,s.party,s.product,s.pouches+" pcs","Rate "+s.rate].map(q)+"\n");dl(c,"sadhna_agro_erp_report.csv","text/csv");return 0},
- html:()=>`<div class="card"><h2>Excel / CSV Export</h2><p style="font-size:13px;color:var(--mu);margin-bottom:12px">Masters, purchases, batches aur sales CSV mein (Excel mein khulta hai).</p><button class="btn" id="go">Download Complete ERP Data (CSV)</button></div>`},
-backup:{save(){dl(JSON.stringify(db,null,2),"sadhna_agro_backup.json","application/json");return 0},
- html:()=>`<div class="card"><h2>Backup & Restore</h2><button class="btn" id="go">Download JSON Backup</button><div class="fg" style="margin-top:16px"><label>Restore from .json file</label><input type="file" id="rf" accept=".json"></div><button class="btn s" id="rs">Restore Backup Data</button></div>`}
+"use strict";
+/* SURYA SWAD ERP — offline-first. Existing Sadhna ERP data is migrated from sadhna_erp_v3. */
+const KEY="sadhna_erp_v3", NEWKEY="surya_swad_erp_v1";
+const $=id=>document.getElementById(id), num=v=>Number(v)||0, today=()=>new Date().toLocaleDateString("en-CA");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=v=>"₹"+num(v).toLocaleString("en-IN",{maximumFractionDigits:2});
+const qty=v=>num(v).toLocaleString("en-IN",{maximumFractionDigits:3});
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const blank=()=>({products:[],raw:[],packing:[],printing:[],parties:[],purchases:[],productions:[],batches:[],sales:[],expenses:[],adjustments:[]});
+let db=blank(), page="dashboard", section="Dashboard", editing=null;
+try{
+ let saved=localStorage.getItem(NEWKEY);
+ if(saved) db={...blank(),...JSON.parse(saved)};
+ else {let old=JSON.parse(localStorage.getItem(KEY)||"{}");db={...blank(),products:old.products||[],raw:old.raw||[],packing:old.packing||[],parties:old.parties||[],purchases:old.purchases||[],batches:old.batches||[],sales:old.sales||[],productions:old.dailyProd||[],expenses:[]};}
+}catch(e){db=blank()}
+function save(){try{localStorage.setItem(NEWKEY,JSON.stringify(db));localStorage.setItem(KEY,JSON.stringify({...db,dailyProd:db.productions}));return true}catch(e){toast("Storage full. Backup download karein.");return false}}
+function toast(s){let t=$("toast");t.textContent=s;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2400)}
+function fmtDate(d){return esc(d||"")}
+function table(headers,rows){if(!rows.length)return '<div class="empty">Abhi koi record nahi hai.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>`<th>${x}</th>`).join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>`<td>${x??""}</td>`).join("")+'</tr>').join("")+'</tbody></table></div>'}
+function field(id,label,type="text",value="",opts=[]){let control=type==="select"?`<select id="${id}">${opts.map(x=>`<option value="${esc(x)}" ${String(x)===String(value)?"selected":""}>${esc(x)}</option>`).join("")}</select>`:`<input id="${id}" type="${type}" value="${esc(value)}" ${type==="number"?'step="any"':''}>`;return `<div class="field"><label for="${id}">${label}</label>${control}</div>`}
+function form(title,fields,submit="Save"){return `<div class="card"><h2>${title}</h2><div class="formgrid">${fields.join("")}</div><div class="actions"><button class="btn" id="saveForm">${submit}</button><button class="btn light" id="cancelEdit">Clear</button></div></div>`}
+const navItems=[["dashboard","Dashboard"],["masters","Masters"],["purchase","Purchase"],["production","Production"],["inventory","Inventory"],["sales","Sales"],["expenses","Expenses"],["reports","Reports / Backup"],["settings","Settings"]];
+const tabs={
+dashboard:[["dashboard","Overview"]],
+masters:[["products","Retail SKU"],["raw","Raw Material"],["packing","Packing Material"],["printing","Printing Material"],["parties","Party Master"]],
+purchase:[["purchase","Purchase Entry"],["purchaseHistory","Purchase History"]],
+production:[["daily","Daily Production"],["batch","Packing Batch"],["productionHistory","Production History"]],
+inventory:[["stock","Live Stock"],["adjust","Stock Adjustment"]],
+sales:[["sale","Sales / Dispatch"],["salesHistory","Sales History"]],
+expenses:[["expense","Other Expenses"],["expenseHistory","Expense History"]],
+reports:[["report","Monthly Report"],["export","Excel / CSV Export"],["backup","Backup / Restore"]],
+settings:[["settings","Company & Rules"],["cloud","Cloud / Sheets Setup"]]
 };
-function dl(c,name,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c],{type}));a.download=name;a.click()}
-const G={dashboard:["Dashboard",["dashboard"]],masters:["Masters",["product","raw","packing","party"]],purchase:["Purchase",["purchase","inward"]],production:["Production",["daily","batch","costing"]],sales:["Sales",["sale"]],stock:["Stock",["stock"]],reports:["Reports & Backup",["report","export","backup"]]};
-const LB={dashboard:"Dashboard",product:"Product Master",raw:"Raw Material",packing:"Packing Master",party:"Party Master",purchase:"Purchase Entry",inward:"Inward History",daily:"Daily Production",batch:"Packing Batches",costing:"Costing Calc",sale:"Sales / Dispatch",stock:"Live Stock",report:"Batch Report",export:"CSV Export",backup:"Backup / Restore"};
-let grp="dashboard",pg="dashboard",PH="",EX=[],BILL={},ED=null;
-const FM={product:["name","weight","mrp"],raw:["name","qty"],packing:["name","unit","qty"],party:["name","city"]};
-const arr=k=>db[{product:"products",raw:"raw",packing:"packing",party:"parties"}[k]];
-const act=(k,i)=>`<button class="ab" data-ed="${k}:${i}">Edit</button><button class="ab" data-dl="${k}:${i}">Delete</button>`;
-function st(m){const e=$("st");if(e){e.style.display="block";e.textContent=m}}
-function fill(id,v){const el=$(id);if(el&&v!==undefined&&v!==null&&v!=="")el.value=v}
-function fillItem(it){fill("a",BILL.date);fill("b",BILL.bill);fill("c",BILL.party);fill("d",/pack/i.test(it.category)?"Packing Material":"Raw Material");fill("e",it.name);fill("f",it.qty||"");fill("g",it.rate||"")}
-async function readBill(blob){
- try{
-  const s=window.claude&&await claude.use("sample");if(!s){st("Auto-read is page par available nahi (permission/Claude app check karo). Item khud bharo.");return toast("Auto-read available nahi")}
-  const names=db.raw.concat(db.packing).map(x=>x.name).join(", ")||"koi nahi";
-  const r=await s.json("Ye ek purchase bill / parchi ki photo hai (Hindi, English ya Hinglish, handwritten bhi ho sakta hai). Sirf JSON do, koi aur text nahi: {\"date\":\"YYYY-MM-DD ya empty\",\"bill\":\"bill/invoice no\",\"party\":\"supplier ka naam\",\"items\":[{\"name\":\"\",\"category\":\"Raw Material ya Packing Material\",\"qty\":number,\"rate\":number}]}. Rules: qty kg ya pcs mein do (quintal=100 kg, gram/1000 kg mein badlo); rate usi unit ke hisaab se Rs per kg ya per pcs (quintal rate ho to 100 se bhaag do). Masala, dry fruit, anaj = Raw Material; laminate, roll, carton, printing = Packing Material. Agar item mere existing naamo mein se kisi ka hi hai to wahi naam likho: "+names+". Jo cheez padh na sako use empty ya 0 chhodo, andaaza mat lagao.",{images:[blob],cache:false});
-  BILL={photo:PH,date:/^\d{4}-\d{2}-\d{2}$/.test(r.date||"")?r.date:"",bill:r.bill,party:r.party};
-  EX=Array.isArray(r.items)?r.items.slice():[];
-  if(!EX.length){st("Bill samajh nahi aaya: "+JSON.stringify(r).slice(0,200));return toast("Bill samajh nahi aaya")}
-  const t=EX.length;fillItem(EX.shift());st("Bill padh liya: "+t+" item mile. Check karke Save karo");toast("Bill padh liya ✓ "+t+" item. Check karke Save karo"+(t>1?" (baaki agle aayenge)":""));
- }catch(e){st("Auto-read fail: "+((e&&e.code)||"")+" "+((e&&e.message)||e)+" — item khud bharo");toast("Bill padh nahi paya")}
-}
-function show(){PH="";
- $("nav").innerHTML=Object.keys(G).map(g=>`<button data-g="${g}" class="${g===grp?"on":""}">${G[g][0]}</button>`).join("");
- const ps=G[grp][1];$("sub").hidden=ps.length<2;$("sub").innerHTML=ps.map(p=>`<button data-p="${p}" cl
+const titleMap=Object.fromEntries(Object.values(tabs).flat());
+function setPage(p){page=p;editing=null;render()}
+function options(arr){return arr.map(x=>x.name)}
+function byName(arr,name){return arr.find(x=>x.name.toLowerCase()===String(name).toLowerCase())}
+function finishedStock(){let m={};db.batches.forEach(b=>m[b.product]=(m[b.product]||0)+num(b.pouches));db.sales.forEach(s=>m[s.product]=(m[s.product]||0)-num(s.pouches));return m}
+function purchaseRate(name){for(let i=db.purchases.length-1;i>=0;i--)if(db.purchases[i].material===name)return num(db.purchases[i].rate);return 0}
+function addStock(category,name,amount,unit){let arr=category==="Raw Material"?db.raw:category==="Printing Material"?db.printing:db.packing;let x=byName(arr,name);if(x)x.qty=num(x.qty)+amount;else arr.push({id:uid(),name,qty:amount,unit:unit||"kg"})}
+function metric(label,value,sub){return `<div class="card metric"><div class="label">${label}</div><div class="value">${value}</div><div class="sub">${sub||""}</div></div>`}
+function dashboard(){let raw=db.raw.reduce((a,x)=>a+num(x.qty),0),pouches=Object.values(finishedStock()).reduce((a,b)=>a+b,0),sales=db.sales.reduce((a,s)=>a+num(s.pouches)*num(s.rate),0),low=[...db.raw,...db.packing,...db.printing].filter(x=>num(x.qty)<5);return `<div class="grid">${metric("Active Retail SKUs",db.products.length,"Product master")}${metric("Raw Material Stock",qty(raw)+" kg","All raw material")}${metric("Packed Pouches",qty(db.batches.reduce((a,b)=>a+num(b.pouches),0)),"Lifetime packed")}${metric("Finished Stock",qty(pouches),"Packed minus sold")}${metric("Sales Value",money(sales),db.sales.length+" dispatch entries")}${metric("Production Batches",db.batches.length,"Batch records")}</div><div class="card"><h2>Stock Alerts</h2>${low.length?'<div class="notice"><span class="warn">Low stock:</span> '+low.map(x=>esc(x.name)+" ("+qty(x.qty)+" "+esc(x.unit||"kg")+")").join(", ")+'</div>':'<div class="notice">No low-stock items (threshold 5 units).</div>'}<p class="muted">Packing rule: 36 pouches = 1 packet • 20 packets = 1 bag • 720 pouches = 1 bag. Machine cost default ₹120/hour.</p></div><div class="card"><h2>Recent Activity</h2>${table(["Date","Activity","Detail"],[...db.purchases.slice(-4).map(x=>[fmtDate(x.date),"Purchase",esc(x.material)+" • "+qty(x.qty)]),...db.batches.slice(-4).map(x=>[fmtDate(x.date),"Production",esc(x.product)+" • "+qty(x.pouches)+" pouches"]),...db.sales.slice(-4).map(x=>[fmtDate(x.date),"Sale",esc(x.product)+" • "+qty(x.pouches)+" pouches"])].slice(-8).reverse())}</div>`}
+function masterPage(kind){let cfg={
+products:{arr:"products",title:"Retail Product / SKU Master",fields:[field("name","Product Name (e.g. Jeera 15g)"),field("weight","Net Weight per Pouch (g)","number"),field("mrp","MRP (₹)","number")],cols:["Product","Weight","MRP"]},
+raw:{arr:"raw",title:"Raw Material Master",fields:[field("name","Material Name"),field("unit","Unit","select","kg",["kg","quintal","pcs","litre"]),field("qty","Opening Stock","number")],cols:["Material","Unit","Stock"]},
+packing:{arr:"packing",title:"Packing Material Master",fields:[field("name","Material Name"),field("unit","Unit","select","pcs",["pcs","kg","roll","box"]),field("qty","Opening Stock","number")],cols:["Material","Unit","Stock"]},
+printing:{arr:"printing",title:"Printing Material Master",fields:[field("name","Printing Item / Roll / Ink"),field("unit","Unit","select","kg",["kg","roll","pcs"]),field("qty","Opening Stock","number")],cols:["Printing Item","Unit","Stock"]},
+parties:{arr:"parties",title:"Supplier / Customer Master",fields:[field("name","Party Name"),field("city","City / Mandi"),field("phone","Mobile (optional)")],cols:["Party","City","Mobile"]}
+}[kind],arr=db[cfg.arr],edit=editing&&editing.kind===kind?arr.find(x=>x.id===editing.id):null;
+if(edit)cfg.fields=cfg.fields.map((f,i)=>{let key=["name",kind==="products"?"weight":kind==="parties"?"city":"unit",kind==="products"?"mrp":kind==="parties"?"phone":"qty"][i];return f.replace(/value-placeholder/g,"")});
+let rows=arr.map(x=>[esc(x.name),kind==="products"?qty(x.weight)+" g":kind==="parties"?esc(x.city||""):esc(x.unit||"kg"),kind==="products"?money(x.mrp):kind==="parties"?esc(x.phone||""):qty(x.qty),`<button class="btn small light" data-edit="${kind}:${x.id}">Edit</button><button class="btn small danger" data-delete="${kind}:${x.id}">Delete</button>`]);
+return form(cfg.title,cfg.fields,edit?"Update":"Save")+"<div class=card><h2>Saved Records</h2>"+table([...cfg.cols,"Stock / Action"],rows)+"</div>"}
+function purchasePage(){return form("Purchase / Inward Entry",[field("date","Date","date",today()),field("bill","Bill / Lot No."),field("party","Supplier / Party"),field("category","Category","select","Raw Material",["Raw Material","Packing Material","Printing Material"]),field("material","Item Name"),field("unit","Unit","select","kg",["kg","pcs","roll","box","litre"]),field("qty","Quantity","number"),field("rate","Rate per Unit (₹)","number"),field("billPhoto","Bill Photo (optional)","file")])}
+function productionPage(){return form("Daily Production — Cleaning / Grading / Roasting",[field("date","Date","date",today()),field("rawName","Raw Material"),field("inputQty","Input Qty (kg)","number"),field("outputQty","Clean Output Qty (kg)","number"),field("operator","Operator / Shift"),field("note","Process Note")])}
+function batchPage(){return form("Packing Batch — Pouch Filling",[field("date","Date","date",today()),field("batchNo","Batch No."),field("product","Retail Product / SKU"),field("rawName","Raw Material Used"),field("rawUsed","Raw Consumed (kg)","number"),field("pouches","Actual Pouches Packed","number"),field("laminateName","Laminate / Packing Material"),field("laminateQty","Laminate Used (unit)","number"),field("printingName","Printing Material Used"),field("printingQty","Printing Material Used (unit)","number"),field("pouchWeight","Actual Pouch Weight (g)","number"),field("machineHours","Machine Running Hours","number"),field("laborCost","Labour Cost (₹)","number"),field("otherCost","Other Variable Cost (₹)","number"),field("printingCost","Printing Expense (₹)","number"),field("note","Remarks")])}
+function salePage(){return form("Sales / Dispatch Entry",[field("date","Date","date",today()),field("party","Customer / Party"),field("product","Product / SKU"),field("pouches","Pouches Sold","number"),field("rate","Rate per Pouch (₹)","number"),field("transport","Transport / Dispatch Cost (₹)","number"),field("note","Invoice / Remarks")])}
+function expensePage(){return form("Other Business Expense",[field("date","Date","date",today()),field("category","Expense Head","select","Freight",["Freight","Rent","Electricity","Repair","Salary","Office","Other"]),field("detail","Description"),field("amount","Amount (₹)","number"),field("party","Paid To")])}
+function adjustmentPage(){return form("Inventory Stock Adjustment",[field("date","Date","date",today()),field("category","Stock Category","select","Raw Material",["Raw Material","Packing Material","Printing Material"]),field("item","Item Name"),field("direction","Adjustment","select","Add",["Add","Reduce"]),field("qty","Quantity","number"),field("reason","Reason")])}
+function stockPage(){let rows=[];[["Raw Material",db.raw],["Packing Material",db.packing],["Printing Material",db.printing]].forEach(([cat,a])=>a.forEach(x=>rows.push([cat,esc(x.name),qty(x.qty),esc(x.unit||"kg"),num(x.qty)<5?'<span class="warn">LOW</span>':'OK'])));let fm=finishedStock();return `<div class=card><h2>Live Inventory</h2>${table(["Category","Item","Available","Unit","Status"],rows)}</div><div class=card><h2>Finished Pouch Stock</h2>${table(["Product","Pouches","Packets (36)","Bags (720)","Loose Pouches"],Object.entries(fm).map(([k,v])=>[esc(k),qty(v),qty(Math.floor(v/36)),qty(Math.floor(v/720)),qty(v%720)]))}</div>`}
+function historyPage(type){let arr=type==="purchase"?db.purchases:type==="production"?db.productions:type==="batch"?db.batches:type==="sales"?db.sales:db.expenses;let rows=arr.slice().reverse().map(x=>type==="purchase"?[fmtDate(x.date),esc(x.bill||""),esc(x.party||""),esc(x.category),esc(x.material),qty(x.qty)+" "+esc(x.unit||""),money(x.rate),money(num(x.qty)*num(x.rate))]:type==="production"?[fmtDate(x.date),esc(x.rawName),qty(x.inputQty),qty(x.outputQty),qty(x.lossPct)+"%",esc(x.operator||"")]:type==="batch"?[fmtDate(x.date),esc(x.batchNo),esc(x.product),qty(x.pouches),money(x.totalCost),money(x.costPerPouch)]:type==="sales"?[fmtDate(x.date),esc(x.party),esc(x.product),qty(x.pouches),money(x.rate),money(x.pouches*x.rate)]:[fmtDate(x.date),esc(x.category),esc(x.detail),money(x.amount),esc(x.party||"")]);let heads=type==="purchase"?["Date","Bill","Party","Category","Item","Qty","Rate","Total"]:type==="production"?["Date","Raw Material","Input kg","Output kg","Loss %","Operator"]:type==="batch"?["Date","Batch","Product","Pouches","Batch Cost","Cost/Pouch"]:type==="sales"?["Date","Customer","Product","Pouches","Rate","Total"]:["Date","Head","Detail","Amount","Paid To"];return `<div class=card><h2>${type[0].toUpperCase()+type.slice(1)} History</h2>${table(heads,rows)}</div>`}
+function reportPage(){let month=$("monthFilter")?.value||today().slice(0,7),inMonth=x=>(x.date||"").slice(0,7)===month,ps=db.purchases.filter(inMonth),bs=db.batches.filter(inMonth),ss=db.sales.filter(inMonth),es=db.expenses.filter(inMonth);let buy=ps.reduce((a,x)=>a+x.qty*x.rate,0),cost=bs.reduce((a,x)=>a+x.totalCost,0),rev=ss.reduce((a,x)=>a+x.pouches*x.rate,0),exp=es.reduce((a,x)=>a+x.amount,0);return `<div class=card><h2>Monthly Business Report</h2><div class=formgrid>${field("monthFilter","Select Month","month",month)}</div><div class=grid style="margin-top:12px">${metric("Purchase Value",money(buy),ps.length+" entries")}${metric("Production Cost",money(cost),bs.length+" batches")}${metric("Sales Value",money(rev),ss.length+" dispatches")}${metric("Other Expenses",money(exp),es.length+" entries")}${metric("Gross Difference",money(rev-cost-exp),"Sales − production cost − expenses")}</div><h3>Monthly Production</h3>${table(["Date","Batch","Product","Pouches","Cost/Pouch"],bs.map(x=>[fmtDate(x.date),esc(x.batchNo),esc(x.product),qty(x.pouches),money(x.costPerPouch)]))}<h3>Monthly Sales</h3>${table(["Date","Party","Product","Pouches","Amount"],ss.map(x=>[fmtDate(x.date),esc(x.party),esc(x.product),qty(x.pouches),money(x.pouches*x.rate)]))}</div>`}
+function exportPage(){return `<div class=card><h2>Excel / CSV Export</h2><p class=muted>Har section ki alag CSV file download hogi. CSV Microsoft Excel mein khulti hai.</p><div class=actions>${["products","raw","packing","printing","parties","purchases","productions","batches","sales","expenses","adjustments"].map(k=>`<button class="btn" data-export="${k}">${k} CSV</button>`).join("")}<button class="btn secondary" id="allExport">Complete ERP CSV (ZIP not available)</button></div></div>`}
+function backupPage(){return `<div class=card><h2>Backup & Restore</h2><p class=muted>Backup ko phone ke Downloads folder mein rakhein. Restore karne se current data replace hoga.</p><button class="btn" id="backupDownload">Download Full JSON Backup</button><div class=field style="margin-top:16px"><label>Restore JSON Backup</label><input type=file id=restoreFile accept=".json,application/json"></div><button class="btn danger" id="restoreBtn">Restore Backup</button></div>`}
+function settingsPage(){return `<div class=card><h2>Company & Packing Rules</h2>
