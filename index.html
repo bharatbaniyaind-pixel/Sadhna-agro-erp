@@ -36,6 +36,7 @@ th,td{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left;white-sp
 th{color:var(--mu)}
 .res{background:var(--ok);border:1px solid var(--ac);border-radius:8px;padding:12px;margin-top:12px;font-size:14px;line-height:1.7}
 .low{color:var(--warn);font-weight:700}
+.ab{background:var(--nav);color:#fff;border:0;border-radius:6px;padding:5px 10px;font-size:12px;margin-right:4px}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:20px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:99;max-width:90%}
 #toast.show{opacity:1}
 </style>
@@ -72,14 +73,14 @@ return `<div class="card"><div class="k">Total SKUs</div><div class="kv">${db.pr
 <div class="card"><div class="k">Raw material stock</div><div class="kv">${f(db.raw.reduce((a,r)=>a+n(r.qty),0))} kg</div><div class="ks">${low.length?`<span class="low">Low: ${low.map(r=>E(r.name)).join(", ")}</span>`:"All lots above "+LOW+" kg"}</div></div>
 <div class="card"><div class="k">Packing batches</div><div class="kv">${db.batches.length}</div><div class="ks">${db.batches.reduce((a,b)=>a+n(b.pouches),0)} pouches packed, ${tp} in stock</div></div>
 <div class="card"><div class="k">Total sales</div><div class="kv">₹${f(rev)}</div><div class="ks">${db.sales.length} dispatch entries</div></div>`},
-product:{save(){const name=val("a");if(!name)return"Enter product name";db.products.push({name,weight:val("b"),mrp:val("c")})},
- html:()=>form("Product Master (Retail SKUs)",[["a","Product Name (e.g. Jeera 15g Pouch)"],["b","Pack Weight (g)","number"],["c","MRP (₹)","number"]],"+ Save Product",tbl(["Product","Weight","MRP"],db.products.map(p=>[E(p.name),E(p.weight)+"g","₹"+E(p.mrp)])))},
-raw:{save(){const name=val("a");if(!name)return"Enter name";const q=n(val("b")),e=db.raw.find(r=>same(r.name,name));e?e.qty=n(e.qty)+q:db.raw.push({name,qty:q})},
- html:()=>form("Raw Material Master",[["a","Raw Material (Jeera / Haldi / Makhana)"],["b","Opening Stock (kg)","number"]],"+ Save Raw Material",tbl(["Material","Stock"],db.raw.map(r=>[E(r.name),f(r.qty)+" kg"])))},
-packing:{save(){const name=val("a");if(!name)return"Enter item name";db.packing.push({name,unit:val("b")||"pcs",qty:n(val("c"))})},
- html:()=>form("Packing & Printing Master",[["a","Material (160mm Roll / Carton)"],["b","Unit (kg / pcs / rolls)"],["c","Opening Stock","number"]],"+ Save Packing Material",tbl(["Item","Stock","Unit"],db.packing.map(p=>[E(p.name),f(p.qty),E(p.unit)])))},
-party:{save(){const name=val("a");if(!name)return"Enter party name";db.parties.push({name,city:val("b")})},
- html:()=>form("Supplier / Party Master",[["a","Party / Supplier / Customer Name"],["b","City / Mandi"]],"+ Save Party",tbl(["Party","City"],db.parties.map(p=>[E(p.name),E(p.city)])))},
+product:{save(){const name=val("a");if(!name)return"Enter product name";if(ED){Object.assign(db.products[ED.i],{name,weight:val("b"),mrp:val("c")});ED=null;return}db.products.push({name,weight:val("b"),mrp:val("c")})},
+ html:()=>form("Product Master (Retail SKUs)",[["a","Product Name (e.g. Jeera 15g Pouch)"],["b","Pack Weight (g)","number"],["c","MRP (₹)","number"]],"+ Save Product",tbl(["Product","Weight","MRP",""],db.products.map((p,i)=>[E(p.name),E(p.weight)+"g","₹"+E(p.mrp),act("product",i)])))},
+raw:{save(){const name=val("a");if(!name)return"Enter name";const q=n(val("b"));if(ED){Object.assign(db.raw[ED.i],{name,qty:q});ED=null;return}const e=db.raw.find(r=>same(r.name,name));e?e.qty=n(e.qty)+q:db.raw.push({name,qty:q})},
+ html:()=>form("Raw Material Master",[["a","Raw Material (Jeera / Haldi / Makhana)"],["b","Opening Stock (kg)","number"]],"+ Save Raw Material",tbl(["Material","Stock",""],db.raw.map((r,i)=>[E(r.name),f(r.qty)+" kg",act("raw",i)])))},
+packing:{save(){const name=val("a");if(!name)return"Enter item name";if(ED){Object.assign(db.packing[ED.i],{name,unit:val("b")||"pcs",qty:n(val("c"))});ED=null;return}db.packing.push({name,unit:val("b")||"pcs",qty:n(val("c"))})},
+ html:()=>form("Packing & Printing Master",[["a","Material (160mm Roll / Carton)"],["b","Unit (kg / pcs / rolls)"],["c","Opening Stock","number"]],"+ Save Packing Material",tbl(["Item","Stock","Unit",""],db.packing.map((p,i)=>[E(p.name),f(p.qty),E(p.unit),act("packing",i)])))},
+party:{save(){const name=val("a");if(!name)return"Enter party name";if(ED){Object.assign(db.parties[ED.i],{name,city:val("b")});ED=null;return}db.parties.push({name,city:val("b")})},
+ html:()=>form("Supplier / Party Master",[["a","Party / Supplier / Customer Name"],["b","City / Mandi"]],"+ Save Party",tbl(["Party","City",""],db.parties.map((p,i)=>[E(p.name),E(p.city),act("party",i)])))},
 purchase:{save(){const material=val("e"),qty=n(val("f"));if(!material)return"Enter item name";if(qty<=0)return"Enter valid quantity";const category=val("d");
  db.purchases.push({date:val("a")||today,bill:val("b"),party:val("c")||"Cash / Mandi",category,material,qty,rate:n(val("g")),photo:PH});
  const arr=category==="Raw Material"?db.raw:db.packing,e=arr.find(r=>same(r.name,material));e?e.qty=n(e.qty)+qty:arr.push(category==="Raw Material"?{name:material,qty}:{name:material,unit:"kg/pcs",qty})},
@@ -113,7 +114,10 @@ backup:{save(){dl(JSON.stringify(db,null,2),"sadhna_agro_backup.json","applicati
 function dl(c,name,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c],{type}));a.download=name;a.click()}
 const G={dashboard:["Dashboard",["dashboard"]],masters:["Masters",["product","raw","packing","party"]],purchase:["Purchase",["purchase","inward"]],production:["Production",["daily","batch","costing"]],sales:["Sales",["sale"]],stock:["Stock",["stock"]],reports:["Reports & Backup",["report","export","backup"]]};
 const LB={dashboard:"Dashboard",product:"Product Master",raw:"Raw Material",packing:"Packing Master",party:"Party Master",purchase:"Purchase Entry",inward:"Inward History",daily:"Daily Production",batch:"Packing Batches",costing:"Costing Calc",sale:"Sales / Dispatch",stock:"Live Stock",report:"Batch Report",export:"CSV Export",backup:"Backup / Restore"};
-let grp="dashboard",pg="dashboard",PH="",EX=[],BILL={};
+let grp="dashboard",pg="dashboard",PH="",EX=[],BILL={},ED=null;
+const FM={product:["name","weight","mrp"],raw:["name","qty"],packing:["name","unit","qty"],party:["name","city"]};
+const arr=k=>db[{product:"products",raw:"raw",packing:"packing",party:"parties"}[k]];
+const act=(k,i)=>`<button class="ab" data-ed="${k}:${i}">Edit</button><button class="ab" data-dl="${k}:${i}">Delete</button>`;
 function st(m){const e=$("st");if(e){e.style.display="block";e.textContent=m}}
 function fill(id,v){const el=$(id);if(el&&v!==undefined&&v!==null&&v!=="")el.value=v}
 function fillItem(it){fill("a",BILL.date);fill("b",BILL.bill);fill("c",BILL.party);fill("d",/pack/i.test(it.category)?"Packing Material":"Raw Material");fill("e",it.name);fill("f",it.qty||"");fill("g",it.rate||"")}
@@ -130,21 +134,4 @@ async function readBill(blob){
 }
 function show(){PH="";
  $("nav").innerHTML=Object.keys(G).map(g=>`<button data-g="${g}" class="${g===grp?"on":""}">${G[g][0]}</button>`).join("");
- const ps=G[grp][1];$("sub").hidden=ps.length<2;$("sub").innerHTML=ps.map(p=>`<button data-p="${p}" class="${p===pg?"on":""}">${LB[p]}</button>`).join("");
- $("bc").textContent="SURYA SWAD > "+G[grp][0]+(ps.length>1?" > "+LB[pg]:"");
- const o=P[pg],h=typeof o==="function"?o():o.html();$("view").innerHTML=h;
- const go=$("go");if(go&&o.save)go.onclick=()=>{const r=o.save();if(r&&r!==0)return toast(r);if(r!==0){persist();toast("Saved ✓");show()}};
- if(pg==="backup")$("rs").onclick=()=>{const fi=$("rf").files[0];if(!fi)return toast("Select a .json file first");const rd=new FileReader();rd.onload=e=>{try{const x=JSON.parse(e.target.result);L.forEach(k=>db[k]=Array.isArray(x[k])?x[k]:[]);persist();toast("Backup restored ✓");show()}catch(er){toast("Invalid backup file")}};rd.readAsText(fi)};
- if(pg==="purchase"&&EX.length){const it=EX.shift();fillItem(it);PH=BILL.photo||"";toast("Agla item bhara: "+(it.name||"")+". Check karke Save karo")}else if(pg!=="purchase")EX=[];
-}
-$("nav").onclick=e=>{const g=e.target.dataset.g;if(g){grp=g;pg=G[g][1][0];show()}};
-document.addEventListener("change",e=>{if(e.target.id!=="h"||!e.target.files[0])return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);PH=c.toDataURL("image/jpeg",0.6);st("Bill padh raha hoon…");toast("Bill padh raha hoon… 🤖");c.toBlob(b=>readBill(b),"image/jpeg",0.7)};im.src=r.result};r.readAsDataURL(e.target.files[0])});
-document.addEventListener("click",e=>{const t=e.target;if(t.tagName==="IMG"&&t.dataset.ph!==undefined){$("lb").innerHTML=`<img src="${db.purchases[t.dataset.ph].photo}" style="max-width:100%;max-height:100%;border-radius:8px">`;$("lb").style.display="flex"}else if(t.closest("#lb"))$("lb").style.display="none"});
-$("sub").onclick=e=>{const p=e.target.dataset.p;if(p){pg=p;show()}};
-document.addEventListener("click",e=>{if(e.target.id!=="bk")return;const rows=$("bt").value.split("\n").map(x=>x.trim()).filter(Boolean),cat=val("d"),date=val("a")||today,bill=val("b"),party=val("c")||"Cash / Mandi";let ok=0;
-rows.forEach(l=>{const p=l.split(/[,\t|]/).map(x=>x.trim()),m=p[0],q=n(p[1]),r=n(p[2]),c=/^p/i.test(p[3]||"")?"Packing Material":cat;if(!m||q<=0)return;db.purchases.push({date,bill,party,category:c,material:m,qty:q,rate:r,photo:ok===0?PH:""});const arr=c==="Raw Material"?db.raw:db.packing,x=arr.find(y=>same(y.name,m));x?x.qty=n(x.qty)+q:arr.push(c==="Raw Material"?{name:m,qty:q}:{name:m,unit:"kg/pcs",qty:q});ok++});
-if(!ok)return toast("Koi valid line nahi mili (item, qty, rate)");persist();toast(ok+" purchase add ✓");show()});
-show();
-</script>
-</body>
-</html>
+ const ps=G[grp][1];$("sub").hidden=ps.length<2;$("sub").innerHTML=ps.map(p=>`<button data-p="${p}" cl
