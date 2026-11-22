@@ -91,7 +91,7 @@ function toast(s){let t=$("toast");t.textContent=s;t.classList.add("show");clear
 function fmtDate(d){return esc(d||"")}
 function table(headers,rows){if(!rows.length)return '<div class="empty">Abhi koi record nahi hai.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>`<th>${x}</th>`).join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>`<td>${x??""}</td>`).join("")+'</tr>').join("")+'</tbody></table></div>'}
 function field(id,label,type="text",value="",opts=[]){let control=type==="select"?`<select id="${id}">${opts.map(x=>`<option value="${esc(x)}" ${String(x)===String(value)?"selected":""}>${esc(x)}</option>`).join("")}</select>`:`<input id="${id}" type="${type}" value="${esc(value)}" ${type==="number"?'step="any"':''}>`;return `<div class="field"><label for="${id}">${label}</label>${control}</div>`}
-function form(title,fields,submit="Save",cancelLabel="Clear"){return `<div class="card"><h2>${title}</h2><div class="formgrid">${fields.join("")}</div><div class="actions"><button class="btn" id="saveForm">${submit}</button><button class="btn light" id="cancelEdit">${cancelLabel}</button></div></div>`}
+function form(title,fields,submit="Save",cancelLabel="Clear"){return `<div class="card"><h2>${title}</h2><div class="formgrid">${fields.join("")}</div><div class="actions"><button type="button" class="btn" id="saveForm">${submit}</button><button type="button" class="btn light" id="cancelEdit">${cancelLabel}</button></div></div>`}
 const navItems=[["dashboard","Dashboard"],["masters","Masters"],["purchase","Purchase"],["production","Production"],["inventory","Inventory"],["sales","Sales"],["expenses","Expenses"],["reports","Reports / Backup"],["settings","Settings"]];
 const tabs={
 dashboard:[["dashboard","Overview"]],
@@ -164,9 +164,9 @@ function historyPage(type){
  return `<div class=card><h2>${type[0].toUpperCase()+type.slice(1)} History</h2>${table(heads,rows)}</div>`;
 }
 function reportPage(){let month=$("monthFilter")?.value||today().slice(0,7),inMonth=x=>(x.date||"").slice(0,7)===month,ps=db.purchases.filter(inMonth),bs=db.batches.filter(inMonth),ss=db.sales.filter(inMonth),es=db.expenses.filter(inMonth);let buy=ps.reduce((a,x)=>a+x.qty*x.rate,0),cost=bs.reduce((a,x)=>a+x.totalCost,0),rev=ss.reduce((a,x)=>a+x.pouches*x.rate,0),exp=es.reduce((a,x)=>a+x.amount,0);return `<div class=card><h2>Monthly Business Report</h2><div class=formgrid>${field("monthFilter","Select Month","month",month)}</div><div class=grid style="margin-top:12px">${metric("Purchase Value",money(buy),ps.length+" entries")}${metric("Production Cost",money(cost),bs.length+" batches")}${metric("Sales Value",money(rev),ss.length+" dispatches")}${metric("Other Expenses",money(exp),es.length+" entries")}${metric("Gross Difference",money(rev-cost-exp),"Sales − production cost − expenses")}</div><h3>Monthly Production</h3>${table(["Date","Batch","Product","Pouches","Cost/Pouch"],bs.map(x=>[fmtDate(x.date),esc(x.batchNo),esc(x.product),qty(x.pouches),money(x.costPerPouch)]))}<h3>Monthly Sales</h3>${table(["Date","Party","Product","Pouches","Amount"],ss.map(x=>[fmtDate(x.date),esc(x.party),esc(x.product),qty(x.pouches),money(x.pouches*x.rate)]))}</div>`}
-function exportPage(){return `<div class=card><h2>Excel / CSV Export</h2><p class=muted>Har section ki alag CSV file download hogi. CSV Microsoft Excel mein khulti hai.</p><div class=actions>${["products","raw","packing","printing","parties","purchases","productions","batches","sales","expenses","adjustments"].map(k=>`<button class="btn" data-export="${k}">${k} CSV</button>`).join("")}<button class="btn secondary" id="allExport">Complete ERP CSV</button></div></div>`}
-function backupPage(){return `<div class=card><h2>Backup & Restore</h2><p class=muted>Backup ko phone ke Downloads folder mein rakhein. Restore karne se current data replace hoga.</p><button class="btn" id="backupDownload">Download Full JSON Backup</button><div class=field style="margin-top:16px"><label>Restore JSON Backup</label><input type=file id=restoreFile accept=".json,application/json"></div><button class="btn danger" id="restoreBtn">Restore Backup</button></div>`}
-function settingsPage(){return `<div class=card><h2>Company & Packing Rules</h2><div class=notice><b>Company:</b> SURYA SWAD<br><b>1 Packet:</b> 36 pouches<br><b>1 Bag:</b> 20 packets = 720 pouches<br><b>Outer Panni:</b> 1 per 36 pouches<br><b>LD Outer Panni:</b> 1 per packet<br><b>Machine Cost:</b> ₹120 per machine-hour</div><p class=muted>These rules are shown as the standard costing assumptions. Actual material consumption and costs are entered batch-wise.</p><button class="btn" id="themeToggle">Toggle Dark / Light Theme</button></div>`}
+function exportPage(){return `<div class=card><h2>Excel / CSV Export</h2><p class=muted>Har section ki alag CSV file download hogi. CSV Microsoft Excel mein khulti hai.</p><div class=actions>${["products","raw","packing","printing","parties","purchases","productions","batches","sales","expenses","adjustments"].map(k=>`<button type="button" class="btn" data-export="${k}">${k} CSV</button>`).join("")}<button type="button" class="btn secondary" id="allExport">Complete ERP CSV</button></div></div>`}
+function backupPage(){return `<div class=card><h2>Backup & Restore</h2><p class=muted>Backup ko phone ke Downloads folder mein rakhein. Restore karne se current data replace hoga.</p><button type="button" class="btn" id="backupDownload">Download Full JSON Backup</button><div class=field style="margin-top:16px"><label>Restore JSON Backup</label><input type=file id=restoreFile accept=".json,application/json"></div><button type="button" class="btn danger" id="restoreBtn">Restore Backup</button></div>`}
+function settingsPage(){return `<div class=card><h2>Company & Packing Rules</h2><div class=notice><b>Company:</b> SURYA SWAD<br><b>1 Packet:</b> 36 pouches<br><b>1 Bag:</b> 20 packets = 720 pouches<br><b>Outer Panni:</b> 1 per 36 pouches<br><b>LD Outer Panni:</b> 1 per packet<br><b>Machine Cost:</b> ₹120 per machine-hour</div><p class=muted>These rules are shown as the standard costing assumptions. Actual material consumption and costs are entered batch-wise.</p><button type="button" class="btn" id="themeToggle">Toggle Dark / Light Theme</button></div>`}
 
 const appsScriptCode = `function doPost(e) {
   try {
@@ -206,8 +206,8 @@ function cloudPage(){
   ${statusHtml}
   ${field("sheetUrl","Google Apps Script Web App URL","text",savedUrl)}
   <div class="actions">
-   <button class="btn" id="saveCloud">Save & Connect</button>
-   ${savedUrl ? `<button class="btn secondary" id="manualSyncBtn">Sync Now ☁</button><button class="btn danger" id="disconnectCloud">Disconnect</button>` : ``}
+   <button type="button" class="btn" id="saveCloud">Save & Connect</button>
+   ${savedUrl ? `<button type="button" class="btn secondary" id="manualSyncBtn">Sync Now ☁</button><button type="button" class="btn danger" id="disconnectCloud">Disconnect</button>` : ``}
   </div>
   <h3>Setup Kaise Karein (Sirf 2 Minute):</h3>
   <ol class="muted" style="padding-left:18px;line-height:1.7">
@@ -215,7 +215,7 @@ function cloudPage(){
    <li>Sheet ke upar menu mein <b>Extensions &gt; Apps Script</b> par click karein.</li>
    <li>Purana code hatakar niche diya gaya code paste karein aur Save (💾) karein:</li>
   </ol>
-  <button class="btn small light" id="copyScriptBtn">📋 Copy Apps Script Code</button>
+  <button type="button" class="btn small light" id="copyScriptBtn">📋 Copy Apps Script Code</button>
   <pre class="codebox" id="scriptCodeBox">${esc(appsScriptCode)}</pre>
   <ol class="muted" start="4" style="padding-left:18px;line-height:1.7">
    <li>Upar <b>Deploy &gt; New deployment</b> par click karein.</li>
@@ -226,7 +226,7 @@ function cloudPage(){
  </div>`;
 }
 
-function render(){let group=Object.keys(tabs).find(g=>tabs[g].some(x=>x[0]===page))||"dashboard";$("nav").innerHTML=navItems.map(([id,label])=>`<button data-group="${id}" class="${id===group?"active":""}">${label}</button>`).join("");$("tabs").innerHTML=(tabs[group]||[]).map(([id,label])=>`<button data-page="${id}" class="${id===page?"active":""}">${label}</button>`).join("");$("crumb").textContent="SURYA SWAD  /  "+(titleMap[page]||"Dashboard");
+function render(){let group=Object.keys(tabs).find(g=>tabs[g].some(x=>x[0]===page))||"dashboard";$("nav").innerHTML=navItems.map(([id,label])=>`<button type="button" data-group="${id}" class="${id===group?"active":""}">${label}</button>`).join("");$("tabs").innerHTML=(tabs[group]||[]).map(([id,label])=>`<button type="button" data-page="${id}" class="${id===page?"active":""}">${label}</button>`).join("");$("crumb").textContent="SURYA SWAD  /  "+(titleMap[page]||"Dashboard");
 let view="";
 if(page==="dashboard")view=dashboard();
 else if(["products","raw","packing","printing","parties"].includes(page))view=masterPage(page);
@@ -263,7 +263,7 @@ function handleSave(){
  }else if(page==="purchase"){
   let category=get("category"),material=val("material"),q=number("qty"),unit=get("unit");
   if(!material||q<=0)return toast("Item aur valid quantity zaroori hai");
-  let file=$("billPhoto").files[0];if(file){if(file.size>1500000)return toast("Photo 1.5 MB se chhoti rakhein");}
+  let file=$("billPhoto")?.files?.[0];if(file){if(file.size>1500000)return toast("Photo 1.5 MB se chhoti rakhein");}
   let newEntry={date:get("date")||today(),bill:val("bill"),party:val("party")||"Cash / Mandi",category,material,unit,qty:q,rate:number("rate")};
   if(editing&&editing.kind==="purchases"){
    let old=db.purchases.find(x=>x.id===editing.id);
@@ -272,11 +272,9 @@ function handleSave(){
     let oldQ=num(old.qty);
     let sameItem=old.category===category && old.material.toLowerCase()===material.toLowerCase();
     if(sameItem){
-     if(oldStock && num(oldStock.qty)-oldQ+q<0)return toast("Stock kam hai, itna reduce nahi kar sakte");
      addStock(category,material,q-oldQ,unit);
     }else{
-     if(oldStock && num(oldStock.qty)<oldQ)return toast("Purane item ka stock pehle hi use ho chuka hai");
-     if(oldStock)oldStock.qty=num(oldStock.qty)-oldQ;
+     if(oldStock)oldStock.qty=Math.max(0,num(oldStock.qty)-oldQ);
      addStock(category,material,q,unit);
     }
     Object.assign(old,newEntry);
@@ -336,17 +334,19 @@ $("app").addEventListener("click",e=>{
  }
  if(delBtn){
   let [kind,id]=delBtn.dataset.delete.split(":");
-  if(!confirm("Is record ko delete karein?"))return;
+  if(!Array.isArray(db[kind]))return toast("Section nahi mila");
   if(kind==="purchases"){
    let p=db.purchases.find(x=>String(x.id)===String(id));
    if(p){
     let st=byName(stockArray(p.category),p.material);
-    if(st && num(st.qty)<num(p.qty))return toast("Stock pehle hi use ho chuka hai, delete nahi kar sakte");
-    if(st)st.qty=num(st.qty)-num(p.qty);
+    if(st)st.qty=Math.max(0,num(st.qty)-num(p.qty));
    }
   }
+  let beforeLen=db[kind].length;
   db[kind]=db[kind].filter(x=>String(x.id)!==String(id));
-  save();render();toast("Deleted");return;
+  if(db[kind].length===beforeLen)return toast("Record nahi mila");
+  if(editing&&editing.kind===kind&&String(editing.id)===String(id))editing=null;
+  save();render();toast("Deleted ✓");return;
  }
  if(expBtn){exportData(expBtn.dataset.export);return}
  if(e.target.id==="allExport"){let rows=[["Section","Record JSON"]];Object.entries(db).forEach(([k,a])=>a.forEach(x=>rows.push([k,JSON.stringify(x)])));download(csv(rows),"surya_swad_complete_export.csv","text/csv;charset=utf-8");return}
