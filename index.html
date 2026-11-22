@@ -1,1299 +1,1789 @@
+```html
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SADHNA AGRO — Manufacturing & Packing ERP</title>
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<style>
-:root{--g:#173b32;--g2:#23574a;--bg:#f2f5f2;--line:#d8e0db;--muted:#5b6962;--warn:#b45309;--err:#a83434;--ok:#15803d;--card:#fff}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);font:14px/1.45 system-ui,-apple-system,sans-serif;color:#1a2620}
-header{background:var(--g);color:#fff;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:30;box-shadow:0 2px 6px rgba(0,0,0,.15)}
-header h1{font-size:18px;margin:0}
-header small{color:#d3e5d9;font-size:11.5px}
-.hdr-badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.pill{background:rgba(255,255,255,.15);padding:4px 9px;border-radius:16px;font-size:11.5px;font-weight:600}
-.pill.ok{background:#15803d}.pill.err{background:#a83434}.pill.warn{background:#b45309}
-.layout{display:flex;min-height:calc(100vh - 56px)}
-nav{width:235px;background:var(--card);border-right:1px solid var(--line);padding:8px;flex-shrink:0;overflow-y:auto}
-nav .grp{font-size:10.5px;font-weight:700;color:var(--muted);padding:10px 8px 3px;text-transform:uppercase;letter-spacing:.5px}
-nav button{display:block;width:100%;text-align:left;background:none;color:#23322a;padding:7px 9px;border-radius:7px;margin:2px 0;font-size:12.5px;font-weight:500}
-nav button.active,nav button:hover{background:#e6efe9;color:var(--g);font-weight:700}
-main{padding:16px;width:100%;max-width:1650px;margin:0 auto;overflow-x:hidden}
-h2{margin:0 0 12px;font-size:18px;color:var(--g);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-h3{margin:0 0 10px;font-size:15px;color:var(--g)}
-h4{margin:14px 0 8px;color:var(--g);border-bottom:1px solid var(--line);padding-bottom:4px;font-size:13px;display:flex;justify-content:space-between;align-items:center}
-button{border:0;border-radius:7px;background:var(--g);color:#fff;padding:8px 12px;font:inherit;font-weight:600;cursor:pointer}
-button:hover{background:var(--g2)}
-button:disabled{opacity:.5;cursor:not-allowed}
-.secondary{background:#e6ede8;color:var(--g)}
-.secondary:hover{background:#d4e0d8}
-.danger{background:var(--err);padding:4px 8px;font-size:11.5px}
-.sm-btn{padding:4px 8px;font-size:11.5px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin-bottom:12px}
-.metric{font-size:20px;font-weight:750;color:var(--g);margin-top:3px}
-.muted{color:var(--muted);font-size:12px}
-label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:3px;font-weight:600}
-input,select{width:100%;padding:7px 9px;border:1px solid #c3cfc7;border-radius:7px;background:#fff;font:inherit;color:#1a2620}
-input:focus,select:focus{outline:none;border-color:var(--g)}
-input[readonly]{background:#f0f4f1;color:#44524b;font-weight:600}
-.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;align-items:end}
-.line-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr auto;gap:7px;align-items:end;background:#f8faf8;padding:8px;border:1px solid var(--line);border-radius:7px;margin-bottom:6px}
-.print-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 1fr auto;gap:7px;align-items:end;background:#f8faf8;padding:8px;border:1px solid var(--line);border-radius:7px;margin-bottom:6px}
-.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
-table{width:100%;border-collapse:collapse;font-size:12px}
-td,th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
-th{background:#f6f9f7;color:var(--muted);font-weight:700}
-tr.cancelled td{text-decoration:line-through;opacity:.55;background:#fff5f5}
-.notice{background:#fff8eb;border:1px solid #f0d7a3;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#6b4608}
-.badge{display:inline-block;padding:2px 7px;border-radius:12px;font-size:11px;font-weight:700}
-.b-ok{background:#dcfce7;color:var(--ok)}
-.b-warn{background:#fef3c7;color:var(--warn)}
-.b-err{background:#fee2e2;color:var(--err)}
-.b-info{background:#e0f2fe;color:#0369a1}
-.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.summary-panel{background:#f3f8f4;border:1px solid #c9dcd0;border-radius:8px;padding:10px;margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}
-@media(max-width:860px){
-  .layout{display:block}
-  nav{width:100%;display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:6px}
-  nav .grp{display:none}
-  nav button{white-space:nowrap;width:auto}
-  .line-row,.print-row{grid-template-columns:1fr 1fr}
-  main{padding:10px}
-}
-@media print{
-  header,nav,.no-print{display:none!important}
-  .layout,main{display:block;width:100%;padding:0}
-  .card{break-inside:avoid;border:1px solid #aaa}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SADHNA AGRO — Manufacturing & Packing ERP</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Font Awesome for crisp ERP icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              dark: '#0f172a',
+              slate: '#1e293b',
+              emerald: '#059669',
+              emeraldDark: '#047857',
+              light: '#f8fafc',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Smooth custom transitions and dropdown handling */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    /* Desktop Dropdown Hover & Active Support */
+    @media (min-width: 1024px) {
+      .nav-dropdown:hover .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+    }
+
+    .dropdown-menu {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(6px);
+      transition: all 0.18s ease-out;
+    }
+
+    .dropdown-menu.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* View fade transition */
+    .erp-view {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .erp-view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Custom Scrollbar for wide tables */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
 </head>
-<body>
-<header>
-  <div>
-    <h1>🌾 SADHNA AGRO ERP</h1>
-    <small>Manufacturing, Multi-Material Costing, Stock & Dispatch System</small>
+<body class="min-h-screen flex flex-col">
+
+  <!-- =====================================================================
+       TOP HEADER & 6-HEAD NAVIGATION BAR
+  ====================================================================== -->
+  <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Brand Logo & Title -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('dashboard')">
+          <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center shadow-md shadow-emerald-950/50">
+            <i class="fa-solid fa-seedling text-white text-lg"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-lg tracking-tight text-white">SADHNA AGRO</span>
+              <span class="hidden sm:inline-block text-[10px] font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">ERP v2.0</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-none">Manufacturing & Packing Suite</p>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation: 6 Main Heads -->
+        <nav class="hidden lg:flex items-center space-x-1" id="desktop-nav">
+          
+          <!-- 1. DASHBOARD -->
+          <button type="button" data-head="dashboard" onclick="navigateTo('dashboard')"
+            class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie text-emerald-400 text-xs"></i>
+            <span>Dashboard</span>
+          </button>
+
+          <!-- 2. MASTERS (All Masters Consolidated Under One Head) -->
+          <div class="relative nav-dropdown">
+            <button type="button" data-head="masters" onclick="toggleDropdown(this)"
+              class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
+              <i class="fa-solid fa-database text-emerald-400 text-xs"></i>
+              <span>Masters</span>
+              <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+            </button>
+            <div class="dropdown-menu absolute left-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-2 text-slate-800 z-50">
+              <div class="px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
+                Core Master Setup
+              </div>
+              <button type="button" data-sub="product-master" onclick="navigateTo('product-master', 'masters')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-box-open w-4 text-emerald-600"></i>
+                <div>
+                  <div class="font-medium">Product Master</div>
+                  <div class="text-[11px] text-slate-400">Finished SKUs & Pouch Sizes</div>
+                </div>
+              </button>
+              <button type="button" data-sub="raw-material-master" onclick="navigateTo('raw-material-master', 'masters')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-wheat-awn w-4 text-amber-600"></i>
+                <div>
+                  <div class="font-medium">Raw Material Master</div>
+                  <div class="text-[11px] text-slate-400">Whole Spices, Grains & Dry Fruits</div>
+                </div>
+              </button>
+              <button type="button" data-sub="packing-master" onclick="navigateTo('packing-master', 'masters')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-layer-group w-4 text-blue-600"></i>
+                <div>
+                  <div class="font-medium">Packing & Printing Master</div>
+                  <div class="text-[11px] text-slate-400">Pouches, Rolls, Cartons & Labels</div>
+                </div>
+              </button>
+              <button type="button" data-sub="party-master" onclick="navigateTo('party-master', 'masters')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-truck-field w-4 text-purple-600"></i>
+                <div>
+                  <div class="font-medium">Supplier / Party Master</div>
+                  <div class="text-[11px] text-slate-400">Vendors, Mandis & Print Press</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. PURCHASE -->
+          <div class="relative nav-dropdown">
+            <button type="button" data-head="purchase" onclick="toggleDropdown(this)"
+              class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
+              <i class="fa-solid fa-cart-flatbed text-emerald-400 text-xs"></i>
+              <span>Purchase</span>
+              <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+            </button>
+            <div class="dropdown-menu absolute left-0 mt-1.5 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-2 text-slate-800 z-50">
+              <button type="button" data-sub="purchase-entry" onclick="navigateTo('purchase-entry', 'purchase')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-file-invoice-dollar w-4 text-emerald-600"></i>
+                <span>Purchase Entry</span>
+              </button>
+              <button type="button" data-sub="inward-history" onclick="navigateTo('inward-history', 'purchase')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-clock-rotate-left w-4 text-slate-600"></i>
+                <span>Inward History</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4. PRODUCTION -->
+          <div class="relative nav-dropdown">
+            <button type="button" data-head="production" onclick="toggleDropdown(this)"
+              class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
+              <i class="fa-solid fa-industry text-emerald-400 text-xs"></i>
+              <span>Production</span>
+              <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+            </button>
+            <div class="dropdown-menu absolute left-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-slate-200 py-2 text-slate-800 z-50">
+              <button type="button" data-sub="daily-production" onclick="navigateTo('daily-production', 'production')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-clipboard-check w-4 text-emerald-600"></i>
+                <span>Daily Production Sheet</span>
+              </button>
+              <button type="button" data-sub="packing-batches" onclick="navigateTo('packing-batches', 'production')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-boxes-packing w-4 text-amber-600"></i>
+                <span>Packing Batches</span>
+              </button>
+              <button type="button" data-sub="costing-calculator" onclick="navigateTo('costing-calculator', 'production')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-calculator w-4 text-blue-600"></i>
+                <span>Costing Calculator</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5. STOCK -->
+          <button type="button" data-head="stock" onclick="navigateTo('stock')"
+            class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
+            <i class="fa-solid fa-warehouse text-emerald-400 text-xs"></i>
+            <span>Stock</span>
+          </button>
+
+          <!-- 6. REPORTS & BACKUP -->
+          <div class="relative nav-dropdown">
+            <button type="button" data-head="reports" onclick="toggleDropdown(this)"
+              class="nav-main-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-emerald-400 text-xs"></i>
+              <span>Reports & Backup</span>
+              <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+            </button>
+            <div class="dropdown-menu absolute right-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-slate-200 py-2 text-slate-800 z-50">
+              <button type="button" data-sub="batch-costing-report" onclick="navigateTo('batch-costing-report', 'reports')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-file-contract w-4 text-emerald-600"></i>
+                <span>Batch Costing Report</span>
+              </button>
+              <button type="button" data-sub="excel-export" onclick="navigateTo('excel-export', 'reports')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-file-excel w-4 text-green-600"></i>
+                <span>Excel / CSV Export</span>
+              </button>
+              <button type="button" data-sub="data-backup" onclick="navigateTo('data-backup', 'reports')"
+                class="nav-sub-btn w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3 transition">
+                <i class="fa-solid fa-cloud-arrow-up w-4 text-indigo-600"></i>
+                <span>Data Backup & Restore</span>
+              </button>
+            </div>
+          </div>
+
+        </nav>
+
+        <!-- Mobile Menu Toggle Button -->
+        <div class="flex items-center lg:hidden">
+          <button type="button" onclick="toggleMobileMenu()" aria-label="Toggle Menu"
+            class="p-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 focus:outline-none">
+            <i id="mobile-menu-icon" class="fa-solid fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer (Collapsible 6 Main Heads + Sub-heads) -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-slate-800 border-t border-slate-700 px-4 pt-2 pb-5 space-y-1.5">
+      <!-- 1. Dashboard -->
+      <button type="button" data-head="dashboard" onclick="navigateTo('dashboard'); closeMobileMenu();"
+        class="mobile-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-white hover:bg-slate-700 flex items-center gap-3">
+        <i class="fa-solid fa-chart-pie text-emerald-400 w-5"></i> Dashboard
+      </button>
+
+      <!-- 2. Masters -->
+      <div class="rounded-lg bg-slate-850/60 border border-slate-700/70 overflow-hidden">
+        <button type="button" onclick="toggleMobileSub('mob-masters')"
+          class="w-full text-left px-3 py-2.5 text-sm font-medium text-white hover:bg-slate-700 flex items-center justify-between">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-database text-emerald-400 w-5"></i> Masters</span>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+        </button>
+        <div id="mob-masters" class="hidden bg-slate-900/60 px-3 py-1.5 space-y-1 border-t border-slate-700/60">
+          <button type="button" onclick="navigateTo('product-master', 'masters'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Product Master</button>
+          <button type="button" onclick="navigateTo('raw-material-master', 'masters'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Raw Material Master</button>
+          <button type="button" onclick="navigateTo('packing-master', 'masters'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Packing & Printing Master</button>
+          <button type="button" onclick="navigateTo('party-master', 'masters'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Supplier / Party Master</button>
+        </div>
+      </div>
+
+      <!-- 3. Purchase -->
+      <div class="rounded-lg bg-slate-850/60 border border-slate-700/70 overflow-hidden">
+        <button type="button" onclick="toggleMobileSub('mob-purchase')"
+          class="w-full text-left px-3 py-2.5 text-sm font-medium text-white hover:bg-slate-700 flex items-center justify-between">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-cart-flatbed text-emerald-400 w-5"></i> Purchase</span>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+        </button>
+        <div id="mob-purchase" class="hidden bg-slate-900/60 px-3 py-1.5 space-y-1 border-t border-slate-700/60">
+          <button type="button" onclick="navigateTo('purchase-entry', 'purchase'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Purchase Entry</button>
+          <button type="button" onclick="navigateTo('inward-history', 'purchase'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Inward History</button>
+        </div>
+      </div>
+
+      <!-- 4. Production -->
+      <div class="rounded-lg bg-slate-850/60 border border-slate-700/70 overflow-hidden">
+        <button type="button" onclick="toggleMobileSub('mob-production')"
+          class="w-full text-left px-3 py-2.5 text-sm font-medium text-white hover:bg-slate-700 flex items-center justify-between">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-industry text-emerald-400 w-5"></i> Production</span>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+        </button>
+        <div id="mob-production" class="hidden bg-slate-900/60 px-3 py-1.5 space-y-1 border-t border-slate-700/60">
+          <button type="button" onclick="navigateTo('daily-production', 'production'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Daily Production Sheet</button>
+          <button type="button" onclick="navigateTo('packing-batches', 'production'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Packing Batches</button>
+          <button type="button" onclick="navigateTo('costing-calculator', 'production'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Costing Calculator</button>
+        </div>
+      </div>
+
+      <!-- 5. Stock -->
+      <button type="button" data-head="stock" onclick="navigateTo('stock'); closeMobileMenu();"
+        class="mobile-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-white hover:bg-slate-700 flex items-center gap-3">
+        <i class="fa-solid fa-warehouse text-emerald-400 w-5"></i> Stock
+      </button>
+
+      <!-- 6. Reports & Backup -->
+      <div class="rounded-lg bg-slate-850/60 border border-slate-700/70 overflow-hidden">
+        <button type="button" onclick="toggleMobileSub('mob-reports')"
+          class="w-full text-left px-3 py-2.5 text-sm font-medium text-white hover:bg-slate-700 flex items-center justify-between">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-chart-line text-emerald-400 w-5"></i> Reports & Backup</span>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+        </button>
+        <div id="mob-reports" class="hidden bg-slate-900/60 px-3 py-1.5 space-y-1 border-t border-slate-700/60">
+          <button type="button" onclick="navigateTo('batch-costing-report', 'reports'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Batch Costing Report</button>
+          <button type="button" onclick="navigateTo('excel-export', 'reports'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Excel / CSV Export</button>
+          <button type="button" onclick="navigateTo('data-backup', 'reports'); closeMobileMenu();" class="block w-full text-left py-2 px-3 rounded text-xs text-slate-300 hover:bg-slate-700 hover:text-white">• Data Backup & Restore</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       BREADCRUMB & CONTEXT SUB-HEADER
+  ====================================================================== -->
+  <div class="bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
+        <span class="font-semibold text-slate-700">SADHNA AGRO</span>
+        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+        <span id="breadcrumb-head" class="capitalize font-medium text-emerald-700">Dashboard</span>
+        <span id="breadcrumb-sub-wrap" class="hidden items-center gap-2">
+          <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+          <span id="breadcrumb-sub" class="font-semibold text-slate-800">Overview</span>
+        </span>
+      </div>
+      <div class="flex items-center gap-3 text-xs text-slate-500">
+        <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-medium border border-emerald-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Local Storage Synced
+        </span>
+        <span id="current-date-badge" class="hidden sm:inline font-medium text-slate-600"></span>
+      </div>
+    </div>
   </div>
-  <div class="hdr-badges">
-    <span class="pill" id="dateBadge"></span>
-    <span class="pill" id="userBadge">Local User (Admin)</span>
-    <span class="pill" id="syncBadge">Local Mode</span>
-    <span class="pill" id="queueBadge">Queue: 0</span>
-  </div>
-</header>
 
-<div class="layout">
-  <nav id="nav">
-    <div class="grp">मुख्य (Overview)</div>
-    <button data-p="dashboard" class="active">1. Dashboard</button>
-    <div class="grp">मास्टर्स (Masters)</div>
-    <button data-p="m_product">2. Product Master</button>
-    <button data-p="m_raw">3. Raw Material Master</button>
-    <button data-p="m_print">4. Printing Material Master</button>
-    <button data-p="m_packing">5. Packing Material Master</button>
-    <button data-p="m_supplier">6. Supplier & Party Master</button>
-    <div class="grp">खरीद व इन्वेंटरी</div>
-    <button data-p="purchase">7. Purchase Management</button>
-    <button data-p="opening">8. Opening Stock</button>
-    <button data-p="ledger">9. Stock Ledger (Live)</button>
-    <div class="grp">उत्पादन व लागत</div>
-    <button data-p="production">10. Daily Production</button>
-    <button data-p="costing">11. Production Costing</button>
-    <div class="grp">डिस्पैच, गोदाम व बिक्री</div>
-    <button data-p="dispatch">12. Factory → Godown Dispatch</button>
-    <button data-p="godown">13. Godown Stock</button>
-    <button data-p="sales">14. Sales & Sales Return</button>
-    <button data-p="expenses">15. Expenses & Accounts</button>
-    <div class="grp">रिपोर्ट व प्रशासन</div>
-    <button data-p="reports">16. Monthly Reports (Excel/PDF)</button>
-    <button data-p="users">17. User Management</button>
-    <button data-p="cloud">18. Cloud Sync & Backup</button>
-    <button data-p="audit">19. Settings & Audit Log</button>
-  </nav>
-  <main id="app">ERP लोड हो रहा है...</main>
-</div>
+  <!-- Toast Notification Box (Replaces alert) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-<script>
-const SUPABASE_URL = 'https://pbqlgxuegsypormwplbd.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_JZk4q6E4DrU50EQddJKvbg_uUTojO36';
-const DB_KEY = 'sadhna_agro_erp_v4_prod';
-const LEGACY_KEYS = ['sadhna_agro_erp_v2', 'sadhna_agro_erp_v3', 'sadhna_agro_erp_prod_v1'];
-const QUEUE_KEY = 'sadhna_agro_queue_v4';
-const CFG_KEY = 'sadhna_agro_cfg_v4';
+  <!-- =====================================================================
+       MAIN CONTENT AREA (SPA VIEWS)
+  ====================================================================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-const $ = id => document.getElementById(id);
-const n = v => { const x = Number(v); return Number.isFinite(x) ? x : 0; };
-const r2 = v => Math.round((n(v) + Number.EPSILON) * 100) / 100;
-const r3 = v => Math.round((n(v) + Number.EPSILON) * 1000) / 1000;
-const money = v => '₹' + n(v).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
-const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('tx-' + Date.now() + '-' + Math.random().toString(36).slice(2,9));
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const today = () => { const nowObj = new Date(); return new Date(nowObj - nowObj.getTimezoneOffset()*60000).toISOString().slice(0,10); };
-const curMonth = () => today().slice(0,7);
+    <!-- 1. DASHBOARD VIEW -->
+    <section id="view-dashboard" class="erp-view active space-y-6">
+      <!-- KPI Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Products (SKUs)</p>
+            <h3 id="kpi-products" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+            <p class="text-xs text-emerald-600 mt-1 font-medium">Active Retail Pouches</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-box-open"></i>
+          </div>
+        </div>
 
-let cfg = {
-  machineRate: 120,
-  interestRate: 9.5,
-  interestDays: 30,
-  gstRate: 18,
-  activeRole: 'admin',
-  allowNegativeStockAdmin: false,
-  gsUrl: '',
-  gsToken: 'SADHNA-AGRO-2026-SECURE',
-  lastSyncStatus: 'Not Synced',
-  lastDailyBackup: '',
-  migrated: false
-};
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Raw Material Stock</p>
+            <h3 id="kpi-raw-stock" class="text-2xl font-bold text-slate-800 mt-1">0 kg</h3>
+            <p class="text-xs text-slate-500 mt-1">Across all spice & dry fruit lots</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-wheat-awn"></i>
+          </div>
+        </div>
 
-let store = {
-  masters: [],
-  parties: [],
-  transactions: [],
-  users: [
-    {id:'u-admin', name:'Akshay Bajaj Jain (Admin)', email:'admin@sadhnaagro.local', role:'admin', can_override_negative_stock:true}
-  ],
-  auditLogs: []
-};
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Packing Batches</p>
+            <h3 id="kpi-batches" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+            <p class="text-xs text-blue-600 mt-1 font-medium">Completed Floor Runs</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-boxes-packing"></i>
+          </div>
+        </div>
 
-let syncQueue = [];
-let page = 'dashboard';
-let sb = null, authUser = null, syncing = false;
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between cursor-pointer hover:border-rose-300 transition" onclick="navigateTo('stock')">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Low Stock Alerts</p>
+            <h3 id="kpi-low-stock" class="text-2xl font-bold text-rose-600 mt-1">0</h3>
+            <p class="text-xs text-rose-500 mt-1 font-medium">Click to inspect reorder items</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+        </div>
+      </div>
 
-const ROLE_ACCESS = {
-  admin:      { master:true, purchase:true, opening:true, production:true, dispatch:true, sales:true, expense:true, editDel:true, users:true, settings:true },
-  production: { master:false, purchase:false, opening:false, production:true, dispatch:true, sales:false, expense:false, editDel:false, users:false, settings:false },
-  store:      { master:true, purchase:true, opening:true, production:false, dispatch:true, sales:false, expense:false, editDel:false, users:false, settings:false },
-  accountant: { master:false, purchase:true, opening:false, production:false, dispatch:false, sales:true, expense:true, editDel:true, users:false, settings:true }
-};
-const hasPerm = p => !!(ROLE_ACCESS[cfg.activeRole] && ROLE_ACCESS[cfg.activeRole][p]);
+      <!-- Quick Shortcuts under New 6-Head Layout -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+        <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">Quick Operations</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <button type="button" onclick="navigateTo('product-master', 'masters')" class="p-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-left transition group">
+            <i class="fa-solid fa-plus-circle text-emerald-600 mb-1.5 text-base"></i>
+            <div class="text-xs font-semibold text-slate-800 group-hover:text-emerald-700">Add Product</div>
+            <div class="text-[11px] text-slate-400">Masters ▾</div>
+          </button>
+          <button type="button" onclick="navigateTo('raw-material-master', 'masters')" class="p-3 rounded-xl border border-slate-200 hover:border-amber-500 hover:bg-amber-50/50 text-left transition group">
+            <i class="fa-solid fa-wheat-awn text-amber-600 mb-1.5 text-base"></i>
+            <div class="text-xs font-semibold text-slate-800 group-hover:text-amber-700">Raw Material</div>
+            <div class="text-[11px] text-slate-400">Masters ▾</div>
+          </button>
+          <button type="button" onclick="navigateTo('packing-master', 'masters')" class="p-3 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-left transition group">
+            <i class="fa-solid fa-layer-group text-blue-600 mb-1.5 text-base"></i>
+            <div class="text-xs font-semibold text-slate-800 group-hover:text-blue-700">Packing Master</div>
+            <div class="text-[11px] text-slate-400">Masters ▾</div>
+          </button>
+          <button type="button" onclick="navigateTo('purchase-entry', 'purchase')" class="p-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-left transition group">
+            <i class="fa-solid fa-cart-plus text-emerald-600 mb-1.5 text-base"></i>
+            <div class="text-xs font-semibold text-slate-800 group-hover:text-emerald-700">New Purchase</div>
+            <div class="text-[11px] text-slate-400">Purchase ▾</div>
+          </button>
+          <button type="button" onclick="navigateTo('packing-batches', 'production')" class="p-3 rounded-xl border border-slate-200 hover:border-purple-500 hover:bg-purple-50/50 text-left transition group">
+            <i class="fa-solid fa-boxes-packing text-purple-600 mb-1.5 text-base"></i>
+            <div class="text-xs font-semibold text-slate-800 group-hover:text-purple-700">Pack Batch</div>
+            <div class="text-[11px] text-slate-400">Production ▾</div>
+          </button>
+          <button type="button" onclick="navigateTo('costing-calculator', 'production')" class="p-3 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-left transition group">
+            <i class="fa-solid fa-calculator text-indigo-600 mb-1.5 text-base"></i>
+            <div class="text-xs font-semibold text-slate-800 group-hover:text-indigo-700">Costing Calc</div>
+            <div class="text-[11px] text-slate-400">Production ▾</div>
+          </button>
+        </div>
+      </div>
 
-function loadStorage(){
-  try{
-    cfg = {...cfg, ...JSON.parse(localStorage.getItem(CFG_KEY) || '{}')};
-    const raw = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-    ['masters','parties','transactions','users','auditLogs'].forEach(k => {
-      if(Array.isArray(raw[k])){
-        const map = new Map();
-        raw[k].forEach(item => { if(item && item.id) map.set(item.id, item); });
-        store[k] = Array.from(map.values());
+      <!-- Recent Activity Table -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold text-slate-800">Recent Packing & Production Activity</h3>
+            <p class="text-xs text-slate-500">Latest batches packed on the floor</p>
+          </div>
+          <button type="button" onclick="navigateTo('packing-batches', 'production')" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">
+            View All Batches →
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-6">Batch No</th>
+                <th class="py-3 px-6">Date</th>
+                <th class="py-3 px-6">Product SKU</th>
+                <th class="py-3 px-6">Pouches Packed</th>
+                <th class="py-3 px-6">Raw Used (kg)</th>
+                <th class="py-3 px-6">Cost / Pouch</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-recent-table" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         2. MASTERS VIEWS (All Under 'Masters ▾')
+    ====================================================================== -->
+
+    <!-- 2A. PRODUCT MASTER -->
+    <section id="view-product-master" class="erp-view space-y-6">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Masters ▾ / Product Master</span>
+            <h2 class="text-xl font-bold text-slate-800">Finished Product Master</h2>
+          </div>
+        </div>
+        <form id="form-product" onsubmit="addProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div class="lg:col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Product / SKU Name *</label>
+            <input type="text" id="prod-name" required placeholder="e.g. Jeera Whole 15g Pouch"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Category *</label>
+            <select id="prod-category" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+              <option value="Whole Spices">Whole Spices</option>
+              <option value="Powdered Spices">Powdered Spices</option>
+              <option value="Dry Fruits">Dry Fruits</option>
+              <option value="Blended Masala">Blended Masala</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Net Weight (g) *</label>
+            <input type="number" id="prod-weight" required min="1" placeholder="15"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">MRP (₹) *</label>
+            <input type="number" id="prod-mrp" required step="0.01" min="0" placeholder="10.00"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
+              <i class="fa-solid fa-plus mr-1"></i> Save Product
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+          <h3 class="font-bold text-slate-800">Registered Product SKUs</h3>
+          <span id="product-count-badge" class="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">0 Items</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-6">SKU Code</th>
+                <th class="py-3 px-6">Product Name</th>
+                <th class="py-3 px-6">Category</th>
+                <th class="py-3 px-6">Net Wt (g)</th>
+                <th class="py-3 px-6">MRP (₹)</th>
+                <th class="py-3 px-6">Ready Stock (Pouches)</th>
+                <th class="py-3 px-6 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="table-products" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2B. RAW MATERIAL MASTER -->
+    <section id="view-raw-material-master" class="erp-view space-y-6">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600">Masters ▾ / Raw Material Master</span>
+        <h2 class="text-xl font-bold text-slate-800 mb-4">Raw Material Master (Bulk Spices & Dry Fruits)</h2>
+        <form id="form-raw" onsubmit="addRawMaterial(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div class="lg:col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Material Name *</label>
+            <input type="text" id="raw-name" required placeholder="e.g. Unjha Jeera (Machine Clean)"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Rate / Kg (₹) *</label>
+            <input type="number" id="raw-rate" required step="0.01" min="0" placeholder="285.00"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Opening Stock (Kg) *</label>
+            <input type="number" id="raw-stock" required step="0.01" min="0" placeholder="250"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
+              <i class="fa-solid fa-plus mr-1"></i> Save Raw Material
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200">
+          <h3 class="font-bold text-slate-800">Raw Material Inventory & Standard Rates</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-6">Code</th>
+                <th class="py-3 px-6">Raw Material</th>
+                <th class="py-3 px-6">Rate / Kg (₹)</th>
+                <th class="py-3 px-6">Current Stock (Kg)</th>
+                <th class="py-3 px-6">Stock Value (₹)</th>
+                <th class="py-3 px-6 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="table-raw-materials" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2C. PACKING & PRINTING MATERIAL MASTER -->
+    <section id="view-packing-master" class="erp-view space-y-6">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-blue-600">Masters ▾ / Packing & Printing Master</span>
+        <h2 class="text-xl font-bold text-slate-800 mb-4">Packing & Printing Material Master</h2>
+        <form id="form-packing" onsubmit="addPackingMaterial(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div class="lg:col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Packing Item Name *</label>
+            <input type="text" id="pack-name" required placeholder="e.g. Jeera 15g Laminated Center-Seal Pouch"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Type *</label>
+            <select id="pack-type" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+              <option value="Printed Pouch">Printed Pouch (Pcs)</option>
+              <option value="Laminate Roll">Laminate Roll (Kg)</option>
+              <option value="Master Carton">Master Carton (Pcs)</option>
+              <option value="BOPP Tape / Label">BOPP Tape / Label</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Cost / Unit (₹) *</label>
+            <input type="number" id="pack-rate" required step="0.01" min="0" placeholder="0.65"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Available Qty *</label>
+            <input type="number" id="pack-stock" required min="0" placeholder="12000"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
+              <i class="fa-solid fa-plus mr-1"></i> Add Item
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200">
+          <h3 class="font-bold text-slate-800">Packing & Printing Materials</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-6">Code</th>
+                <th class="py-3 px-6">Material Description</th>
+                <th class="py-3 px-6">Type</th>
+                <th class="py-3 px-6">Unit Cost (₹)</th>
+                <th class="py-3 px-6">Stock Available</th>
+                <th class="py-3 px-6 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="table-packing-materials" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2D. SUPPLIER / PARTY MASTER -->
+    <section id="view-party-master" class="erp-view space-y-6">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-purple-600">Masters ▾ / Supplier & Party Master</span>
+        <h2 class="text-xl font-bold text-slate-800 mb-4">Supplier / Party Master</h2>
+        <form id="form-party" onsubmit="addParty(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div class="lg:col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Firm / Party Name *</label>
+            <input type="text" id="party-name" required placeholder="e.g. Shree Balaji Flexo Printers"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Supply Category *</label>
+            <select id="party-type" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+              <option value="Raw Material / Mandi">Raw Material / Mandi</option>
+              <option value="Flexo / Pouch Printing">Flexo / Pouch Printing</option>
+              <option value="Corrugated Boxes">Corrugated Boxes</option>
+              <option value="Distributor / Buyer">Distributor / Buyer</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Phone / City *</label>
+            <input type="text" id="party-contact" required placeholder="98260-XXXXX (Indore)"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
+              <i class="fa-solid fa-plus mr-1"></i> Save Party
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200">
+          <h3 class="font-bold text-slate-800">Registered Vendors & Parties</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-6">Party Name</th>
+                <th class="py-3 px-6">Category</th>
+                <th class="py-3 px-6">Contact & Location</th>
+                <th class="py-3 px-6 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="table-parties" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         3. PURCHASE VIEWS (Under 'Purchase ▾')
+    ====================================================================== -->
+
+    <!-- 3A. PURCHASE ENTRY -->
+    <section id="view-purchase-entry" class="erp-view space-y-6">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Purchase ▾ / Purchase Entry</span>
+        <h2 class="text-xl font-bold text-slate-800 mb-1">Record Material Purchase (Auto-Updates Stock)</h2>
+        <p class="text-xs text-slate-500 mb-5">Adding a purchase entry automatically increases the selected Raw or Packing material inventory.</p>
+
+        <form id="form-purchase" onsubmit="addPurchase(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Date *</label>
+            <input type="date" id="pur-date" required
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Supplier *</label>
+            <select id="pur-party" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Material Type *</label>
+            <select id="pur-category" onchange="populatePurchaseItems()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+              <option value="raw">Raw Material</option>
+              <option value="packing">Packing Material</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Select Item *</label>
+            <select id="pur-item" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Qty (Kg / Pcs) *</label>
+            <input type="number" id="pur-qty" required step="0.01" min="0.1" placeholder="100"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Rate / Unit (₹) *</label>
+            <input type="number" id="pur-rate" required step="0.01" min="0" placeholder="280"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div class="sm:col-span-2 lg:col-span-6 flex justify-end pt-2">
+            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-6 rounded-xl text-sm shadow-sm transition">
+              <i class="fa-solid fa-check-circle mr-1.5"></i> Save Purchase & Update Stock
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- 3B. INWARD HISTORY -->
+    <section id="view-inward-history" class="erp-view space-y-6">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Purchase ▾ / Inward History</span>
+            <h2 class="text-lg font-bold text-slate-800">Purchase & Inward Ledger</h2>
+          </div>
+          <button type="button" onclick="navigateTo('purchase-entry', 'purchase')" class="bg-emerald-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl hover:bg-emerald-700">
+            + New Inward
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-6">Date</th>
+                <th class="py-3 px-6">Supplier</th>
+                <th class="py-3 px-6">Type</th>
+                <th class="py-3 px-6">Item Name</th>
+                <th class="py-3 px-6">Qty</th>
+                <th class="py-3 px-6">Rate (₹)</th>
+                <th class="py-3 px-6">Total Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="table-purchases" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         4. PRODUCTION VIEWS (Under 'Production ▾')
+    ====================================================================== -->
+
+    <!-- 4A. DAILY PRODUCTION SHEET -->
+    <section id="view-daily-production" class="erp-view space-y-6">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Production ▾ / Daily Production Sheet</span>
+        <h2 class="text-xl font-bold text-slate-800 mb-1">Daily Cleaning, Grinding & Processing Sheet</h2>
+        <p class="text-xs text-slate-500 mb-4">Track raw input weight vs cleaned/ground output weight and process loss %.</p>
+
+        <form id="form-daily-prod" onsubmit="addDailyProduction(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Date *</label>
+            <input type="date" id="dp-date" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Raw Material *</label>
+            <select id="dp-raw" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Input Issue (Kg) *</label>
+            <input type="number" id="dp-input" required step="0.01" min="0.1" placeholder="100" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Clean Output (Kg) *</label>
+            <input type="number" id="dp-output" required step="0.01" min="0.1" placeholder="97.5" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
+              Record Shift
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200">
+          <h3 class="font-bold text-slate-800">Daily Processing Log</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-6">Date</th>
+                <th class="py-3 px-6">Material</th>
+                <th class="py-3 px-6">Input (Kg)</th>
+                <th class="py-3 px-6">Clean Output (Kg)</th>
+                <th class="py-3 px-6">Process Loss</th>
+              </tr>
+            </thead>
+            <tbody id="table-daily-prod" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4B. PACKING BATCHES -->
+    <section id="view-packing-batches" class="erp-view space-y-6">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600">Production ▾ / Packing Batches</span>
+        <h2 class="text-xl font-bold text-slate-800 mb-1">Create Packing Batch (Auto-Deducts Raw & Pouches)</h2>
+        <p class="text-xs text-slate-500 mb-5">Automatically calculates required raw kg from pouch net weight, deducts raw & pouch stock, and adds finished pouches.</p>
+
+        <form id="form-batch" onsubmit="addPackingBatch(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Date *</label>
+            <input type="date" id="batch-date" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Finished Product SKU *</label>
+            <select id="batch-product" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Raw Material Used *</label>
+            <select id="batch-raw" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Pouch / Film Used *</label>
+            <select id="batch-pack" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Pouches Packed *</label>
+            <input type="number" id="batch-qty" required min="1" placeholder="2000" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition">
+              <i class="fa-solid fa-boxes-packing mr-1"></i> Run Batch
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200">
+          <h3 class="font-bold text-slate-800">Completed Packing Batches</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-6">Batch ID</th>
+                <th class="py-3 px-6">Date</th>
+                <th class="py-3 px-6">Product SKU</th>
+                <th class="py-3 px-6">Pouches</th>
+                <th class="py-3 px-6">Raw Consumed</th>
+                <th class="py-3 px-6">Batch Cost (₹)</th>
+                <th class="py-3 px-6">Cost / Pouch</th>
+              </tr>
+            </thead>
+            <tbody id="table-batches" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4C. COSTING CALCULATOR -->
+    <section id="view-costing-calculator" class="erp-view space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Input Panel -->
+        <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-blue-600">Production ▾ / Costing Calculator</span>
+          <h2 class="text-xl font-bold text-slate-800 mb-4">Pouch & Ladi Unit Costing Simulator</h2>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Pouch Net Weight (grams)</label>
+              <input type="number" id="calc-weight" value="15" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Raw Material Rate (₹ / Kg)</label>
+              <input type="number" id="calc-raw-rate" value="285" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Empty Pouch / Film Cost (₹ / Pouch)</label>
+              <input type="number" id="calc-pouch-cost" step="0.01" value="0.65" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Labor, Electricity & Overhead (₹ / Pouch)</label>
+              <input type="number" id="calc-overhead" step="0.01" value="0.35" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Pouches per Ladi / Master Pack</label>
+              <input type="number" id="calc-ladi-count" value="20" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Selling Price to Distributor (₹ / Pouch)</label>
+              <input type="number" id="calc-sell-price" step="0.01" value="7.50" oninput="calculatePouchCost()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Output Breakdown Card -->
+        <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-md flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-emerald-400 mb-4">Live Cost Breakdown</h3>
+            <div class="space-y-3 text-sm">
+              <div class="flex justify-between border-b border-slate-800 pb-2">
+                <span class="text-slate-400">Raw Material / Pouch:</span>
+                <span id="res-raw-cost" class="font-semibold">₹4.28</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-800 pb-2">
+                <span class="text-slate-400">Packing + Overhead:</span>
+                <span id="res-pack-cost" class="font-semibold">₹1.00</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-800 pb-2 text-base">
+                <span class="font-semibold text-white">Total Landing Cost / Pouch:</span>
+                <span id="res-total-pouch" class="font-bold text-emerald-400">₹5.28</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-800 pb-2">
+                <span class="text-slate-400">1 Ladi Cost (<span id="res-ladi-qty">20</span> Pouches):</span>
+                <span id="res-ladi-cost" class="font-semibold text-amber-300">₹105.50</span>
+              </div>
+              <div class="flex justify-between pt-1">
+                <span class="text-slate-400">Net Profit / Pouch:</span>
+                <span id="res-profit" class="font-bold text-emerald-400">₹2.23 (29.7%)</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-800 text-[11px] text-slate-400">
+            * Use this simulation to set distributor rates before launching new spice SKUs.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         5. STOCK VIEW (Direct Head 'Stock')
+    ====================================================================== -->
+    <section id="view-stock" class="erp-view space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Inventory & Warehouse</span>
+          <h2 class="text-xl font-bold text-slate-800">Live Stock Summary</h2>
+        </div>
+        <button type="button" onclick="exportAllCSV()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+          <i class="fa-solid fa-download mr-1"></i> Export Stock CSV
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Raw Material Stock -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="px-5 py-3.5 bg-amber-50/70 border-b border-amber-100 flex items-center justify-between">
+            <h3 class="font-bold text-sm text-amber-900"><i class="fa-solid fa-wheat-awn mr-1.5"></i> Raw Materials</h3>
+            <span class="text-[11px] text-amber-700 font-medium">Alert &lt; 50 kg</span>
+          </div>
+          <div id="stock-list-raw" class="divide-y divide-slate-100 p-2 text-sm"></div>
+        </div>
+
+        <!-- Packing Material Stock -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="px-5 py-3.5 bg-blue-50/70 border-b border-blue-100 flex items-center justify-between">
+            <h3 class="font-bold text-sm text-blue-900"><i class="fa-solid fa-layer-group mr-1.5"></i> Packing Materials</h3>
+            <span class="text-[11px] text-blue-700 font-medium">Alert &lt; 2,000 pcs</span>
+          </div>
+          <div id="stock-list-packing" class="divide-y divide-slate-100 p-2 text-sm"></div>
+        </div>
+
+        <!-- Finished Goods Stock -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="px-5 py-3.5 bg-emerald-50/70 border-b border-emerald-100 flex items-center justify-between">
+            <h3 class="font-bold text-sm text-emerald-900"><i class="fa-solid fa-box-open mr-1.5"></i> Finished Goods</h3>
+            <span class="text-[11px] text-emerald-700 font-medium">Ready to Dispatch</span>
+          </div>
+          <div id="stock-list-finished" class="divide-y divide-slate-100 p-2 text-sm"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         6. REPORTS & BACKUP VIEWS (Under 'Reports & Backup ▾')
+    ====================================================================== -->
+
+    <!-- 6A. BATCH COSTING REPORT -->
+    <section id="view-batch-costing-report" class="erp-view space-y-6">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Reports & Backup ▾ / Batch Costing Report</span>
+            <h2 class="text-lg font-bold text-slate-800">Production Costing & Valuation Report</h2>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-6">Batch ID</th>
+                <th class="py-3 px-6">Product SKU</th>
+                <th class="py-3 px-6">Qty Packed</th>
+                <th class="py-3 px-6">Raw Cost (₹)</th>
+                <th class="py-3 px-6">Packing Cost (₹)</th>
+                <th class="py-3 px-6">Total Cost (₹)</th>
+                <th class="py-3 px-6">Unit Cost (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="table-costing-report" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6B. EXCEL / CSV EXPORT -->
+    <section id="view-excel-export" class="erp-view space-y-6">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-green-600">Reports & Backup ▾ / Excel & CSV Export</span>
+        <h2 class="text-xl font-bold text-slate-800 mb-2">Download Registers for Excel / Tally</h2>
+        <p class="text-xs text-slate-500 mb-6">Export clean CSV spreadsheets directly compatible with Microsoft Excel and Google Sheets.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <button type="button" onclick="exportAllCSV()" class="p-5 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 text-left transition">
+            <i class="fa-solid fa-file-csv text-2xl text-emerald-600 mb-2"></i>
+            <div class="font-bold text-slate-800">Complete Stock Summary</div>
+            <p class="text-xs text-slate-500 mt-1">Raw Materials, Packing Items & Finished Goods</p>
+          </button>
+          <button type="button" onclick="exportPurchasesCSV()" class="p-5 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/40 text-left transition">
+            <i class="fa-solid fa-file-invoice text-2xl text-blue-600 mb-2"></i>
+            <div class="font-bold text-slate-800">Purchase Inward Register</div>
+            <p class="text-xs text-slate-500 mt-1">All supplier bills, quantities & rates</p>
+          </button>
+          <button type="button" onclick="exportBatchesCSV()" class="p-5 rounded-2xl border border-slate-200 hover:border-amber-500 hover:bg-amber-50/40 text-left transition">
+            <i class="fa-solid fa-boxes-packing text-2xl text-amber-600 mb-2"></i>
+            <div class="font-bold text-slate-800">Packing Batch Register</div>
+            <p class="text-xs text-slate-500 mt-1">Batch numbers, raw consumed & unit costs</p>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6C. DATA BACKUP & RESTORE -->
+    <section id="view-data-backup" class="erp-view space-y-6">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600">Reports & Backup ▾ / Data Backup & Restore</span>
+        <h2 class="text-xl font-bold text-slate-800 mb-2">ERP Database Backup & Recovery</h2>
+        <p class="text-xs text-slate-500 mb-6">Download a complete JSON snapshot of all Masters, Purchases, Production Batches, and Stock.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
+            <h3 class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-download text-emerald-600 mr-1.5"></i> Download Full JSON Backup</h3>
+            <p class="text-xs text-slate-500 mb-4">Save a timestamped backup file on your device or Google Drive.</p>
+            <button type="button" onclick="downloadJSONBackup()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition">
+              Download Backup (.json)
+            </button>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
+            <h3 class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-upload text-indigo-600 mr-1.5"></i> Restore from Backup File</h3>
+            <p class="text-xs text-slate-500 mb-3">Upload a previously saved SADHNA AGRO `.json` backup file.</p>
+            <input type="file" id="restore-file-input" accept=".json" onchange="restoreJSONBackup(event)"
+              class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700" />
+          </div>
+        </div>
+
+        <div class="mt-6 pt-5 border-t border-slate-200 flex items-center justify-between">
+          <span class="text-xs text-slate-400">Need to reset demo data to factory defaults?</span>
+          <button type="button" onclick="resetDemoData()" class="text-xs font-semibold text-rose-600 hover:text-rose-700 underline">
+            Reset Sample Data
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       FOOTER
+  ====================================================================== -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <div>© 2026 <span class="font-semibold text-slate-700">SADHNA AGRO</span> — Spices & Dry Fruits Manufacturing ERP</div>
+      <div>Streamlined 6-Head Navigation Architecture</div>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       APPLICATION JAVASCRIPT (State Management, Navigation & ERP Logic)
+  ====================================================================== -->
+  <script>
+    const STORAGE_KEY = 'sadhna_agro_erp_v2';
+
+    // Default Sample Data for Spices & Dry Fruits Packing Unit
+    const defaultData = {
+      products: [
+        { id: 'SKU-101', name: 'Jeera Whole 15g Pouch', category: 'Whole Spices', weight: 15, mrp: 10, stock: 4500 },
+        { id: 'SKU-102', name: 'Haldi Powder 45g Pouch', category: 'Powdered Spices', weight: 45, mrp: 15, stock: 3200 },
+        { id: 'SKU-103', name: 'California Almonds 50g Pouch', category: 'Dry Fruits', weight: 50, mrp: 60, stock: 1450 },
+        { id: 'SKU-104', name: 'Mirchi Powder 100g Pouch', category: 'Powdered Spices', weight: 100, mrp: 35, stock: 2100 }
+      ],
+      rawMaterials: [
+        { id: 'RM-01', name: 'Unjha Jeera (Machine Clean)', rate: 285, stock: 420 },
+        { id: 'RM-02', name: 'Salem Haldi Powder (Sortex)', rate: 165, stock: 310 },
+        { id: 'RM-03', name: 'California Almond Kernels', rate: 740, stock: 42 }, // Low stock example
+        { id: 'RM-04', name: 'Guntur Red Chilli Powder', rate: 210, stock: 185 }
+      ],
+      packingMaterials: [
+        { id: 'PM-01', name: 'Jeera 15g Center-Seal Laminated Pouch', type: 'Printed Pouch', rate: 0.65, stock: 18500 },
+        { id: 'PM-02', name: 'Haldi 45g Pillow Pouch', type: 'Printed Pouch', rate: 0.85, stock: 9400 },
+        { id: 'PM-03', name: 'Almonds 50g Stand-up Zipper Pouch', type: 'Printed Pouch', rate: 2.40, stock: 1600 }, // Low stock example
+        { id: 'PM-04', name: '5-Ply Master Corrugated Box', type: 'Master Carton', rate: 24.00, stock: 850 }
+      ],
+      parties: [
+        { id: 'PTY-01', name: 'Unjha Agro Commodities', type: 'Raw Material / Mandi', contact: '98250-41120 (Unjha)' },
+        { id: 'PTY-02', name: 'Shree Balaji Flexo Printers', type: 'Flexo / Pouch Printing', contact: '94250-78210 (Indore)' },
+        { id: 'PTY-03', name: 'Narmada Packaging & Cartons', type: 'Corrugated Boxes', contact: '98260-33490 (Sanwer)' }
+      ],
+      purchases: [
+        { id: 'PUR-01', date: '2026-11-18', party: 'Unjha Agro Commodities', category: 'Raw Material', item: 'Unjha Jeera (Machine Clean)', qty: 200, rate: 285, total: 57000 },
+        { id: 'PUR-02', date: '2026-11-20', party: 'Shree Balaji Flexo Printers', category: 'Packing Material', item: 'Jeera 15g Center-Seal Laminated Pouch', qty: 10000, rate: 0.65, total: 6500 }
+      ],
+      dailyProduction: [
+        { id: 'DP-01', date: '2026-11-21', raw: 'Unjha Jeera (Machine Clean)', inputKg: 150, outputKg: 147.2, lossPct: '1.87%' }
+      ],
+      batches: [
+        { id: 'BCH-1001', date: '2026-11-21', product: 'Jeera Whole 15g Pouch', pouches: 2000, rawKg: 30, rawCost: 8550, packCost: 1300, totalCost: 9850, unitCost: 4.93 },
+        { id: 'BCH-1002', date: '2026-11-22', product: 'Haldi Powder 45g Pouch', pouches: 1200, rawKg: 54, rawCost: 8910, packCost: 1020, totalCost: 9930, unitCost: 8.28 }
+      ]
+    };
+
+    let erpState = loadState();
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) return JSON.parse(saved);
+      } catch (e) {
+        console.error('Error loading localStorage:', e);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
+      return JSON.parse(JSON.stringify(defaultData));
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(erpState));
+      refreshAllUI();
+    }
+
+    // =====================================================================
+    // NAVIGATION & DROPDOWN CONTROLLER
+    // =====================================================================
+    const viewTitles = {
+      'dashboard': ['Dashboard', ''],
+      'product-master': ['Masters', 'Product Master'],
+      'raw-material-master': ['Masters', 'Raw Material Master'],
+      'packing-master': ['Masters', 'Packing & Printing Master'],
+      'party-master': ['Masters', 'Supplier / Party Master'],
+      'purchase-entry': ['Purchase', 'Purchase Entry'],
+      'inward-history': ['Purchase', 'Inward History'],
+      'daily-production': ['Production', 'Daily Production Sheet'],
+      'packing-batches': ['Production', 'Packing Batches'],
+      'costing-calculator': ['Production', 'Costing Calculator'],
+      'stock': ['Stock', 'Live Inventory Summary'],
+      'batch-costing-report': ['Reports & Backup', 'Batch Costing Report'],
+      'excel-export': ['Reports & Backup', 'Excel / CSV Export'],
+      'data-backup': ['Reports & Backup', 'Data Backup & Restore']
+    };
+
+    function navigateTo(viewId, parentHead = null) {
+      // Hide all views
+      document.querySelectorAll('.erp-view').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('view-' + viewId);
+      if (target) target.classList.add('active');
+
+      // Close open dropdowns
+      document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('open'));
+
+      // Highlight Active Main Head
+      const activeHead = parentHead || viewId;
+      document.querySelectorAll('.nav-main-btn').forEach(btn => {
+        if (btn.dataset.head === activeHead) {
+          btn.classList.add('bg-emerald-600', 'text-white');
+          btn.classList.remove('text-slate-200', 'hover:bg-slate-800');
+        } else {
+          btn.classList.remove('bg-emerald-600', 'text-white');
+          btn.classList.add('text-slate-200', 'hover:bg-slate-800');
+        }
+      });
+
+      // Highlight Active Sub-head
+      document.querySelectorAll('.nav-sub-btn').forEach(btn => {
+        if (btn.dataset.sub === viewId) {
+          btn.classList.add('bg-emerald-50', 'text-emerald-700', 'font-semibold');
+        } else {
+          btn.classList.remove('bg-emerald-50', 'text-emerald-700', 'font-semibold');
+        }
+      });
+
+      // Update Breadcrumbs
+      const [headLabel, subLabel] = viewTitles[viewId] || ['Dashboard', ''];
+      document.getElementById('breadcrumb-head').textContent = headLabel;
+      const subWrap = document.getElementById('breadcrumb-sub-wrap');
+      if (subLabel) {
+        subWrap.classList.remove('hidden');
+        subWrap.classList.add('flex');
+        document.getElementById('breadcrumb-sub').textContent = subLabel;
+      } else {
+        subWrap.classList.add('hidden');
+        subWrap.classList.remove('flex');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleDropdown(btn) {
+      const menu = btn.nextElementSibling;
+      const isOpen = menu.classList.contains('open');
+      document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+      if (!isOpen) menu.classList.add('open');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.nav-dropdown')) {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
       }
     });
-    syncQueue = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
-    if(!Array.isArray(syncQueue)) syncQueue = [];
-  }catch(e){ console.error('Storage load error:', e); }
-  refreshBadges();
-}
 
-function persist(){
-  try{
-    localStorage.setItem(DB_KEY, JSON.stringify(store));
-    localStorage.setItem(QUEUE_KEY, JSON.stringify(syncQueue));
-    localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-  }catch(e){ console.error('Persist error:', e); }
-  refreshBadges();
-}
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const icon = document.getElementById('mobile-menu-icon');
+      menu.classList.toggle('hidden');
+      icon.classList.toggle('fa-bars');
+      icon.classList.toggle('fa-xmark');
+    }
 
-function refreshBadges(){
-  if($('dateBadge')) $('dateBadge').textContent = new Date().toLocaleDateString('hi-IN', {dateStyle:'medium'});
-  if($('userBadge')) $('userBadge').textContent = `${authUser ? authUser.email : 'Local'} (${cfg.activeRole.toUpperCase()})`;
-  if($('queueBadge')) $('queueBadge').textContent = `Pending Queue: ${syncQueue.length}`;
-  const sbEl = $('syncBadge');
-  if(sbEl){
-    sbEl.textContent = cfg.lastSyncStatus;
-    sbEl.className = 'pill ' + (cfg.lastSyncStatus.includes('Synced') ? 'ok' : cfg.lastSyncStatus.includes('Fail') ? 'err' : 'warn');
-  }
-}
+    function closeMobileMenu() {
+      document.getElementById('mobile-menu').classList.add('hidden');
+      const icon = document.getElementById('mobile-menu-icon');
+      icon.classList.add('fa-bars');
+      icon.classList.remove('fa-xmark');
+    }
 
-function addAudit(action, module, txId, summary){
-  const entry = {
-    id: uid(),
-    actor_email: authUser?.email || 'Local-Operator',
-    actor_role: cfg.activeRole,
-    action, module, tx_id: String(txId), summary,
-    created_at: new Date().toISOString()
-  };
-  store.auditLogs.unshift(entry);
-  if(store.auditLogs.length > 1500) store.auditLogs.length = 1500;
-  syncQueue.push({op:'audit', id: entry.id, data: entry, retries:0, lastError:''});
-}
+    function toggleMobileSub(id) {
+      document.getElementById(id).classList.toggle('hidden');
+    }
 
-function queueUpsert(op, id, data){
-  syncQueue = syncQueue.filter(q => !(q.op === op && q.id === id));
-  syncQueue.push({op, id, data, retries:0, lastError:''});
-  persist();
-}
+    // =====================================================================
+    // TOAST NOTIFICATION HELPER
+    // =====================================================================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bg = type === 'error' ? 'bg-rose-600' : 'bg-slate-900 border border-emerald-500/40';
+      const icon = type === 'error' ? 'fa-circle-exclamation text-white' : 'fa-circle-check text-emerald-400';
 
-function evaluateProduction(p){
-  p = p || {};
-  const estPouches = Math.max(0, n(p.estimated_pouches));
-  const actualPouches = Math.max(0, n(p.actual_pouches));
-  const pouchWtG = Math.max(0, n(p.pouch_wt_g));
-  const outputKg = r3((actualPouches * pouchWtG) / 1000);
-  const packets = r2(actualPouches / 36);
-  const boris = r3(actualPouches / 720);
-  const outerCount = Math.ceil(actualPouches / 36);
-  const boriCount = Math.ceil(actualPouches / 720);
+      toast.className = `${bg} text-white px-4 py-3 rounded-xl shadow-xl text-xs sm:text-sm font-medium flex items-center gap-2.5 pointer-events-auto transition-all`;
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
+      container.appendChild(toast);
 
-  const rawLines = Array.isArray(p.raw_lines) ? p.raw_lines : [];
-  let totalRawQty = 0, totalRawCost = 0;
-  const evaluatedRaw = rawLines.map(line => {
-    const consumed = Math.max(0, r3(n(line.open) - n(line.close)));
-    const cost = r2(consumed * n(line.rate));
-    totalRawQty = r3(totalRawQty + consumed);
-    totalRawCost = r2(totalRawCost + cost);
-    return {...line, consumed, cost};
-  });
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 250);
+      }, 3000);
+    }
 
-  const printLines = Array.isArray(p.print_lines) ? p.print_lines : [];
-  let totalPrintUsed = 0, totalPrintWastage = 0, totalPrintGoodUsed = 0;
-  let totalPrintGoodCost = 0, totalPrintWastageCost = 0;
-  const evaluatedPrint = printLines.map(line => {
-    const physicalUsed = Math.max(0, r3(n(line.open) - n(line.close)));
-    const wastageQty = Math.min(physicalUsed, Math.max(0, r3(n(line.wastage))));
-    const netGoodUsed = Math.max(0, r3(physicalUsed - wastageQty));
-    const goodCost = r2(netGoodUsed * n(line.rate));
-    const wasteCost = r2(wastageQty * n(line.rate));
-    totalPrintUsed = r3(totalPrintUsed + physicalUsed);
-    totalPrintWastage = r3(totalPrintWastage + wastageQty);
-    totalPrintGoodUsed = r3(totalPrintGoodUsed + netGoodUsed);
-    totalPrintGoodCost = r2(totalPrintGoodCost + goodCost);
-    totalPrintWastageCost = r2(totalPrintWastageCost + wasteCost);
-    return {...line, physicalUsed, wastageQty, netGoodUsed, goodCost, wasteCost};
-  });
+    // =====================================================================
+    // CRUD OPERATIONS (MASTERS, PURCHASE, PRODUCTION)
+    // =====================================================================
+    function addProduct(e) {
+      e.preventDefault();
+      const name = document.getElementById('prod-name').value.trim();
+      const category = document.getElementById('prod-category').value;
+      const weight = parseFloat(document.getElementById('prod-weight').value);
+      const mrp = parseFloat(document.getElementById('prod-mrp').value);
+      const id = 'SKU-' + (101 + erpState.products.length);
 
-  const otherPrintCost = r2(n(p.other_printing_cost));
-  const labourHrs = n(p.labour_hrs), labourRate = n(p.labour_rate), labourCost = r2(labourHrs * labourRate);
-  const machHrs = n(p.mach_hrs), machRate = p.machine_rate !== undefined ? n(p.machine_rate) : cfg.machineRate, machineCost = r2(machHrs * machRate);
-  const packingCost = r2(n(p.packing_cost));
-  const outerRate = n(p.outer_rate), boriRate = n(p.bori_rate);
-  const outerCost = r2(outerCount * outerRate), boriCost = r2(boriCount * boriRate);
-  const denglerCost = r2(n(p.dengler_cost)), marketingCost = r2(n(p.marketing_cost));
+      erpState.products.push({ id, name, category, weight, mrp, stock: 0 });
+      e.target.reset();
+      saveState();
+      showToast(`Product "${name}" added to Product Master.`);
+    }
 
-  const directOperationalCost = r2(totalRawCost + totalPrintGoodCost + totalPrintWastageCost + otherPrintCost + labourCost + machineCost + packingCost + outerCost + boriCost + denglerCost + marketingCost);
-  const intRate = p.interest_rate !== undefined ? n(p.interest_rate) : cfg.interestRate;
-  const intDays = p.interest_days !== undefined ? n(p.interest_days) : cfg.interestDays;
-  const interestCost = r2((directOperationalCost * intRate * intDays) / 36500);
-  const netProductionCost = r2(directOperationalCost + interestCost);
-  const gstRate = p.gst_rate !== undefined ? n(p.gst_rate) : cfg.gstRate;
-  const itcEligible = p.itc_eligible !== false;
-  const gstAmount = r2((netProductionCost * gstRate) / 100);
-  const grossCostWithGst = r2(netProductionCost + gstAmount);
-  const effectiveFinalCost = itcEligible ? netProductionCost : grossCostWithGst;
+    function deleteItem(collection, index) {
+      erpState[collection].splice(index, 1);
+      saveState();
+      showToast('Record removed.');
+    }
 
-  return {
-    estPouches, actualPouches, pouchWtG, outputKg, packets, boris, outerCount, boriCount,
-    evaluatedRaw, totalRawQty, totalRawCost, evaluatedPrint, totalPrintUsed, totalPrintWastage,
-    totalPrintGoodUsed, totalPrintGoodCost, totalPrintWastageCost, otherPrintCost,
-    labourHrs, labourRate, labourCost, machHrs, machRate, machineCost, packingCost,
-    outerRate, outerCost, boriRate, boriCost, denglerCost, marketingCost,
-    directOperationalCost, intRate, intDays, interestCost, netProductionCost,
-    gstRate, itcEligible, gstAmount, grossCostWithGst, effectiveFinalCost,
-    costPerPouch: actualPouches ? r2(effectiveFinalCost / actualPouches) : 0,
-    costPerPacket: packets ? r2(effectiveFinalCost / packets) : 0,
-    costPerKg: outputKg ? r2(effectiveFinalCost / outputKg) : 0
-  };
-}
+    function addRawMaterial(e) {
+      e.preventDefault();
+      const name = document.getElementById('raw-name').value.trim();
+      const rate = parseFloat(document.getElementById('raw-rate').value);
+      const stock = parseFloat(document.getElementById('raw-stock').value);
+      const id = 'RM-0' + (1 + erpState.rawMaterials.length);
 
-function buildStockLedger(excludeTxId = null){
-  const map = new Map();
-  store.masters.filter(m => m.status === 'active').forEach(m => {
-    map.set(m.id, {
-      ...m, opening:0, purchased:0, purchaseReturn:0, consumed:0,
-      produced:0, dispatched:0, sold:0, saleReturn:0, factoryStock:0, godownStock:0, movements:[]
-    });
-  });
+      erpState.rawMaterials.push({ id, name, rate, stock });
+      e.target.reset();
+      saveState();
+      showToast(`Raw Material "${name}" saved.`);
+    }
 
-  const activeTxs = store.transactions
-    .filter(t => t.status === 'active' && t.id !== excludeTxId)
-    .sort((a,b) => String(a.tx_date || '').localeCompare(String(b.tx_date || '')));
+    function addPackingMaterial(e) {
+      e.preventDefault();
+      const name = document.getElementById('pack-name').value.trim();
+      const type = document.getElementById('pack-type').value;
+      const rate = parseFloat(document.getElementById('pack-rate').value);
+      const stock = parseFloat(document.getElementById('pack-stock').value);
+      const id = 'PM-0' + (1 + erpState.packingMaterials.length);
 
-  activeTxs.forEach(tx => {
-    const p = tx.payload || {};
-    const recMove = (item, loc, change, label) => {
-      item.movements.push({ tx_id:tx.id, tx_number:tx.tx_number, date:tx.tx_date, type:tx.tx_type, location:loc, change, label });
-    };
-    if(tx.tx_type === 'opening_stock'){
-      const it = map.get(p.item_id);
-      if(it){
-        const q = r3(n(p.qty));
-        if(p.location === 'godown') it.godownStock = r3(it.godownStock + q);
-        else { it.opening = r3(it.opening + q); it.factoryStock = r3(it.factoryStock + q); }
-        recMove(it, p.location || 'factory', q, 'Opening Stock');
-      }
-    } else if(tx.tx_type === 'purchase'){
-      const it = map.get(p.item_id);
-      if(it){ const q = r3(n(p.qty)); it.purchased = r3(it.purchased + q); it.factoryStock = r3(it.factoryStock + q); recMove(it, 'factory', +q, `Purchase (${p.party_name||''})`); }
-    } else if(tx.tx_type === 'purchase_return'){
-      const it = map.get(p.item_id);
-      if(it){ const q = r3(n(p.qty)); it.purchaseReturn = r3(it.purchaseReturn + q); it.factoryStock = r3(it.factoryStock - q); recMove(it, 'factory', -q, `Purchase Return (${p.party_name||''})`); }
-    } else if(tx.tx_type === 'production'){
-      const c = evaluateProduction(p);
-      c.evaluatedRaw.forEach(rl => {
-        const it = map.get(rl.item_id);
-        if(it && rl.consumed > 0){ it.consumed = r3(it.consumed + rl.consumed); it.factoryStock = r3(it.factoryStock - rl.consumed); recMove(it, 'factory', -rl.consumed, `Production Batch ${tx.tx_number}`); }
+      erpState.packingMaterials.push({ id, name, type, rate, stock });
+      e.target.reset();
+      saveState();
+      showToast(`Packing Item "${name}" saved.`);
+    }
+
+    function addParty(e) {
+      e.preventDefault();
+      const name = document.getElementById('party-name').value.trim();
+      const type = document.getElementById('party-type').value;
+      const contact = document.getElementById('party-contact').value.trim();
+      const id = 'PTY-0' + (1 + erpState.parties.length);
+
+      erpState.parties.push({ id, name, type, contact });
+      e.target.reset();
+      saveState();
+      showToast(`Supplier / Party "${name}" saved.`);
+    }
+
+    function populatePurchaseItems() {
+      const cat = document.getElementById('pur-category').value;
+      const select = document.getElementById('pur-item');
+      select.innerHTML = '';
+      const list = cat === 'raw' ? erpState.rawMaterials : erpState.packingMaterials;
+      list.forEach((item, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = item.name;
+        select.appendChild(opt);
       });
-      c.evaluatedPrint.forEach(pl => {
-        const it = map.get(pl.item_id);
-        if(it && pl.physicalUsed > 0){ it.consumed = r3(it.consumed + pl.physicalUsed); it.factoryStock = r3(it.factoryStock - pl.physicalUsed); recMove(it, 'factory', -pl.physicalUsed, `Printing Batch ${tx.tx_number}`); }
+    }
+
+    function addPurchase(e) {
+      e.preventDefault();
+      const date = document.getElementById('pur-date').value;
+      const party = document.getElementById('pur-party').value;
+      const cat = document.getElementById('pur-category').value;
+      const itemIdx = parseInt(document.getElementById('pur-item').value, 10);
+      const qty = parseFloat(document.getElementById('pur-qty').value);
+      const rate = parseFloat(document.getElementById('pur-rate').value);
+
+      const list = cat === 'raw' ? erpState.rawMaterials : erpState.packingMaterials;
+      const targetItem = list[itemIdx];
+      if (!targetItem) return;
+
+      // Update Stock & Latest Rate
+      targetItem.stock = Number((targetItem.stock + qty).toFixed(2));
+      targetItem.rate = rate;
+
+      erpState.purchases.unshift({
+        id: 'PUR-' + (10 + erpState.purchases.length),
+        date,
+        party,
+        category: cat === 'raw' ? 'Raw Material' : 'Packing Material',
+        item: targetItem.name,
+        qty,
+        rate,
+        total: Number((qty * rate).toFixed(2))
       });
-      const prod = map.get(p.product_id);
-      if(prod){
-        const addQty = (prod.unit === 'pouch' || prod.unit === 'piece') ? c.actualPouches : c.outputKg;
-        prod.produced = r3(prod.produced + addQty); prod.factoryStock = r3(prod.factoryStock + addQty); recMove(prod, 'factory', +addQty, `Production Output ${tx.tx_number}`);
+
+      e.target.reset();
+      setDefaultDates();
+      saveState();
+      showToast(`Purchase recorded! +${qty} added to ${targetItem.name}.`);
+    }
+
+    function addDailyProduction(e) {
+      e.preventDefault();
+      const date = document.getElementById('dp-date').value;
+      const rawName = document.getElementById('dp-raw').value;
+      const inputKg = parseFloat(document.getElementById('dp-input').value);
+      const outputKg = parseFloat(document.getElementById('dp-output').value);
+      const loss = inputKg > 0 ? (((inputKg - outputKg) / inputKg) * 100).toFixed(2) + '%' : '0%';
+
+      erpState.dailyProduction.unshift({
+        id: 'DP-' + (10 + erpState.dailyProduction.length),
+        date,
+        raw: rawName,
+        inputKg,
+        outputKg,
+        lossPct: loss
+      });
+
+      e.target.reset();
+      setDefaultDates();
+      saveState();
+      showToast('Daily production shift recorded.');
+    }
+
+    function addPackingBatch(e) {
+      e.preventDefault();
+      const date = document.getElementById('batch-date').value;
+      const prodIdx = parseInt(document.getElementById('batch-product').value, 10);
+      const rawIdx = parseInt(document.getElementById('batch-raw').value, 10);
+      const packIdx = parseInt(document.getElementById('batch-pack').value, 10);
+      const pouches = parseInt(document.getElementById('batch-qty').value, 10);
+
+      const product = erpState.products[prodIdx];
+      const raw = erpState.rawMaterials[rawIdx];
+      const pack = erpState.packingMaterials[packIdx];
+
+      if (!product || !raw || !pack) return;
+
+      const requiredRawKg = Number(((product.weight * pouches) / 1000).toFixed(2));
+
+      if (raw.stock < requiredRawKg) {
+        showToast(`Insufficient raw stock! Need ${requiredRawKg} kg of ${raw.name}.`, 'error');
+        return;
       }
-    } else if(tx.tx_type === 'dispatch'){
-      const prod = map.get(p.product_id);
-      if(prod){ const q = r3(n(p.qty)); prod.dispatched = r3(prod.dispatched + q); prod.factoryStock = r3(prod.factoryStock - q); prod.godownStock = r3(prod.godownStock + q); recMove(prod, 'factory->godown', q, `Dispatch to ${p.godown_name||'Godown'}`); }
-    } else if(tx.tx_type === 'sale'){
-      const prod = map.get(p.product_id);
-      if(prod){ const q = r3(n(p.qty)); prod.sold = r3(prod.sold + q); prod.godownStock = r3(prod.godownStock - q); recMove(prod, 'godown', -q, `Sale (${p.party_name||''})`); }
-    } else if(tx.tx_type === 'sale_return'){
-      const prod = map.get(p.product_id);
-      if(prod){ const q = r3(n(p.qty)); prod.saleReturn = r3(prod.saleReturn + q); prod.godownStock = r3(prod.godownStock + q); recMove(prod, 'godown', +q, `Sales Return (${p.party_name||''})`); }
-    }
-  });
-  return Array.from(map.values());
-}
-
-const getMaster = id => store.masters.find(m => m.id === id);
-const masterName = id => getMaster(id)?.name || id || '-';
-const masterOpts = type => store.masters.filter(m => m.status === 'active' && (!type || m.master_type === type)).map(m => `<option value="${esc(m.id)}">${esc(m.name)} (${esc(m.unit)})</option>`).join('');
-const canBypassNegativeStock = () => cfg.activeRole === 'admin' && cfg.allowNegativeStockAdmin;
-
-async function connectSupabase(){
-  if(!window.supabase) return;
-  if(!sb) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const {data} = await sb.auth.getSession();
-  authUser = data?.session?.user || null;
-}
-
-async function runCloudSync(includeGoogleSheets = false){
-  if(syncing) return;
-  syncing = true;
-  cfg.lastSyncStatus = 'Syncing...';
-  refreshBadges();
-
-  let sbOk = false, gsOk = false, errMsg = '';
-  try{
-    if(sb && authUser && navigator.onLine){
-      const remainingQueue = [];
-      for(const q of syncQueue){
-        let res = {error: null};
-        if(q.op === 'master') res = await sb.from('sadhna_masters').upsert({...q.data, user_id: authUser.id}, {onConflict:'id'});
-        else if(q.op === 'party') res = await sb.from('sadhna_parties').upsert({...q.data, user_id: authUser.id}, {onConflict:'id'});
-        else if(q.op === 'tx') res = await sb.from('sadhna_transactions').upsert({...q.data, user_id: authUser.id}, {onConflict:'id'});
-        else if(q.op === 'audit') res = await sb.from('sadhna_audit_logs').upsert({...q.data, user_id: authUser.id}, {onConflict:'id'});
-        if(res.error){ q.retries = (q.retries||0)+1; q.lastError = res.error.message||'Supabase Error'; errMsg = q.lastError; remainingQueue.push(q); }
+      if (pack.stock < pouches) {
+        showToast(`Insufficient pouches! Need ${pouches} pcs of ${pack.name}.`, 'error');
+        return;
       }
-      syncQueue = remainingQueue;
 
-      if(syncQueue.length === 0){
-        const [mRes, pRes, tRes] = await Promise.all([
-          sb.from('sadhna_masters').select('*').eq('user_id', authUser.id),
-          sb.from('sadhna_parties').select('*').eq('user_id', authUser.id),
-          sb.from('sadhna_transactions').select('*').eq('user_id', authUser.id)
-        ]);
-        if(mRes.error) throw mRes.error;
-        if(pRes.error) throw pRes.error;
-        if(tRes.error) throw tRes.error;
-        mergeByTimestamp('masters', mRes.data || []);
-        mergeByTimestamp('parties', pRes.data || []);
-        mergeByTimestamp('transactions', tRes.data || []);
-        sbOk = true;
-      }
+      // Deduct Raw & Packing Stock, Add Finished Goods Stock
+      raw.stock = Number((raw.stock - requiredRawKg).toFixed(2));
+      pack.stock = Math.max(0, pack.stock - pouches);
+      product.stock += pouches;
+
+      const rawCost = Number((requiredRawKg * raw.rate).toFixed(2));
+      const packCost = Number((pouches * pack.rate).toFixed(2));
+      const totalCost = Number((rawCost + packCost).toFixed(2));
+      const unitCost = Number((totalCost / pouches).toFixed(2));
+
+      erpState.batches.unshift({
+        id: 'BCH-' + (1001 + erpState.batches.length),
+        date,
+        product: product.name,
+        pouches,
+        rawKg: requiredRawKg,
+        rawCost,
+        packCost,
+        totalCost,
+        unitCost
+      });
+
+      e.target.reset();
+      setDefaultDates();
+      saveState();
+      showToast(`Batch packed! ${pouches} pouches added to ${product.name}.`);
     }
 
-    if(includeGoogleSheets){
-      const gsUrlVal = String(cfg.gsUrl || '').trim();
-      if(!gsUrlVal || !gsUrlVal.startsWith('https://script.google.com/')){
-        throw new Error('Google Apps Script Web App URL सेट नहीं है');
-      }
-      const payloadRecords = [
-        ...store.masters.map(m => ({category: m.master_type, monthly: false, record: m})),
-        ...store.parties.map(p => ({category: p.party_type, monthly: false, record: p})),
-        ...store.transactions.map(t => ({
-          category: t.tx_type, monthly: true,
-          record: {...t, summary: `${t.tx_type.toUpperCase()} #${t.tx_number}`, ...(t.payload||{})}
-        }))
-      ];
-      let totalSynced = 0;
-      for(let i = 0; i < payloadRecords.length; i += 75){
-        const resp = await fetch(gsUrlVal, {
-          method: 'POST',
-          headers: {'Content-Type': 'text/plain;charset=utf-8'},
-          body: JSON.stringify({token: cfg.gsToken, records: payloadRecords.slice(i, i + 75)})
-        });
-        const rawText = await resp.text();
-        if(!resp.ok) throw new Error(`HTTP ${resp.status}: ${rawText.slice(0, 120)}`);
-        let data = null;
-        try { data = JSON.parse(rawText); }
-        catch(_) { throw new Error(`Invalid JSON: ${rawText.slice(0, 120)}`); }
-        if(!data || !data.ok) throw new Error((data && data.error) || 'Google Sheets Script Error');
-        totalSynced += n(data.synced);
-      }
-      gsOk = true;
-      addAudit('GS_SYNC', 'GoogleSheets', 'BATCH', `Google Sheets में ${totalSynced} रिकॉर्ड Sync हुए`);
+    // =====================================================================
+    // COSTING CALCULATOR
+    // =====================================================================
+    function calculatePouchCost() {
+      const weight = parseFloat(document.getElementById('calc-weight').value) || 0;
+      const rawRate = parseFloat(document.getElementById('calc-raw-rate').value) || 0;
+      const pouchCost = parseFloat(document.getElementById('calc-pouch-cost').value) || 0;
+      const overhead = parseFloat(document.getElementById('calc-overhead').value) || 0;
+      const ladiCount = parseInt(document.getElementById('calc-ladi-count').value, 10) || 1;
+      const sellPrice = parseFloat(document.getElementById('calc-sell-price').value) || 0;
+
+      const rawPerPouch = (weight / 1000) * rawRate;
+      const packAndOv = pouchCost + overhead;
+      const totalPouch = rawPerPouch + packAndOv;
+      const ladiCost = totalPouch * ladiCount;
+      const profit = sellPrice - totalPouch;
+      const marginPct = sellPrice > 0 ? ((profit / sellPrice) * 100).toFixed(1) : '0.0';
+
+      document.getElementById('res-raw-cost').textContent = '₹' + rawPerPouch.toFixed(2);
+      document.getElementById('res-pack-cost').textContent = '₹' + packAndOv.toFixed(2);
+      document.getElementById('res-total-pouch').textContent = '₹' + totalPouch.toFixed(2);
+      document.getElementById('res-ladi-qty').textContent = ladiCount;
+      document.getElementById('res-ladi-cost').textContent = '₹' + ladiCost.toFixed(2);
+      document.getElementById('res-profit').textContent = `₹${profit.toFixed(2)} (${marginPct}%)`;
     }
 
-    const nowTime = new Date().toLocaleTimeString('hi-IN', {hour:'2-digit', minute:'2-digit'});
-    if(sbOk || gsOk) cfg.lastSyncStatus = `Synced (${nowTime})`;
-    else if(!authUser) cfg.lastSyncStatus = 'Local Mode (Login Required for Cloud)';
-    else if(errMsg) cfg.lastSyncStatus = 'Sync Failed: ' + String(errMsg).slice(0, 28);
-    else if(syncQueue.length > 0) cfg.lastSyncStatus = 'Pending Queue';
-  } catch(e){
-    cfg.lastSyncStatus = 'Sync Failed';
-    console.error('Sync failure:', e);
-    if(includeGoogleSheets) alert('❌ Sync विफल: ' + (e && e.message ? e.message : String(e)));
-  } finally{
-    syncing = false;
-    persist();
-    if(page === 'cloud') safeRender();
-  }
-}
+    // =====================================================================
+    // RENDER ALL TABLES, DROPDOWNS & KPIs
+    // =====================================================================
+    function refreshAllUI() {
+      // KPIs
+      document.getElementById('kpi-products').textContent = erpState.products.length;
+      const totalRawKg = erpState.rawMaterials.reduce((sum, r) => sum + Number(r.stock), 0);
+      document.getElementById('kpi-raw-stock').textContent = totalRawKg.toFixed(1) + ' kg';
+      document.getElementById('kpi-batches').textContent = erpState.batches.length;
 
-function mergeByTimestamp(key, remoteList){
-  const map = new Map((store[key] || []).map(x => [x.id, x]));
-  (remoteList || []).forEach(rem => {
-    if(!rem || !rem.id) return;
-    const loc = map.get(rem.id);
-    const remTs = new Date(rem.updated_at || rem.created_at || 0).getTime() || 0;
-    const locTs = loc ? (new Date(loc.updated_at || loc.created_at || 0).getTime() || 0) : -1;
-    if(!loc || remTs >= locTs) map.set(rem.id, rem);
-  });
-  store[key] = Array.from(map.values());
-}
+      const lowRaw = erpState.rawMaterials.filter(r => r.stock < 50).length;
+      const lowPack = erpState.packingMaterials.filter(p => p.stock < 2000).length;
+      document.getElementById('kpi-low-stock').textContent = lowRaw + lowPack;
 
-function saveTransaction(tx, isEdit = false){
-  if(!isEdit && store.transactions.some(t => t.id === tx.id)){ alert('Duplicate Transaction ID!'); return false; }
-  if(isEdit){
-    const idx = store.transactions.findIndex(t => t.id === tx.id);
-    if(idx !== -1) store.transactions[idx] = tx;
-    addAudit('EDIT', tx.tx_type, tx.tx_number, 'रिकॉर्ड संशोधित किया गया');
-  } else {
-    store.transactions.unshift(tx);
-    addAudit('CREATE', tx.tx_type, tx.tx_number, `नया ${tx.tx_type} रिकॉर्ड (${tx.tx_date}) दर्ज`);
-  }
-  queueUpsert('tx', tx.id, tx);
-  runCloudSync(false);
-  return true;
-}
+      // Dashboard Recent Batches
+      const dashTable = document.getElementById('dashboard-recent-table');
+      dashTable.innerHTML = erpState.batches.slice(0, 5).map(b => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-6 font-semibold text-emerald-700">${b.id}</td>
+          <td class="py-3 px-6 text-slate-500">${b.date}</td>
+          <td class="py-3 px-6 font-medium text-slate-800">${b.product}</td>
+          <td class="py-3 px-6">${b.pouches.toLocaleString()} pcs</td>
+          <td class="py-3 px-6">${b.rawKg} kg</td>
+          <td class="py-3 px-6 font-semibold text-slate-800">₹${b.unitCost.toFixed(2)}</td>
+        </tr>
+      `).join('');
 
-function toggleCancelTx(id){
-  if(!hasPerm('editDel')){ alert('केवल Admin या Accountant ही Cancel/Restore कर सकते हैं।'); return; }
-  const tx = store.transactions.find(t => t.id === id);
-  if(!tx) return;
-  const nextStatus = tx.status === 'active' ? 'cancelled' : 'active';
-  const reason = prompt(nextStatus === 'cancelled' ? 'Cancel करने का कारण:' : 'Restore करने का कारण:');
-  if(!reason) return;
-  tx.status = nextStatus;
-  tx.updated_at = new Date().toISOString();
-  addAudit(nextStatus === 'cancelled' ? 'CANCEL' : 'RESTORE', tx.tx_type, tx.tx_number, reason);
-  queueUpsert('tx', tx.id, tx);
-  runCloudSync(false);
-  safeRender();
-}
+      // Products Table
+      document.getElementById('product-count-badge').textContent = `${erpState.products.length} Items`;
+      document.getElementById('table-products').innerHTML = erpState.products.map((p, idx) => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-6 font-semibold text-slate-600">${p.id}</td>
+          <td class="py-3 px-6 font-semibold text-slate-800">${p.name}</td>
+          <td class="py-3 px-6"><span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-0.5 rounded-full font-medium">${p.category}</span></td>
+          <td class="py-3 px-6">${p.weight} g</td>
+          <td class="py-3 px-6">₹${Number(p.mrp).toFixed(2)}</td>
+          <td class="py-3 px-6 font-bold text-emerald-700">${p.stock.toLocaleString()} pcs</td>
+          <td class="py-3 px-6 text-right">
+            <button onclick="deleteItem('products', ${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Delete</button>
+          </td>
+        </tr>
+      `).join('');
 
-function go(p){
-  page = p;
-  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.p === p));
-  safeRender();
-}
-$('nav').onclick = e => { const b = e.target.closest('[data-p]'); if(b) go(b.dataset.p); };
+      // Raw Materials Table
+      document.getElementById('table-raw-materials').innerHTML = erpState.rawMaterials.map((r, idx) => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-6 font-semibold text-slate-600">${r.id}</td>
+          <td class="py-3 px-6 font-semibold text-slate-800">${r.name}</td>
+          <td class="py-3 px-6">₹${Number(r.rate).toFixed(2)} / kg</td>
+          <td class="py-3 px-6 font-bold ${r.stock < 50 ? 'text-rose-600' : 'text-slate-800'}">${r.stock} kg</td>
+          <td class="py-3 px-6 text-slate-600">₹${(r.stock * r.rate).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</td>
+          <td class="py-3 px-6 text-right">
+            <button onclick="deleteItem('rawMaterials', ${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Delete</button>
+          </td>
+        </tr>
+      `).join('');
 
-function safeRender(){
-  try{
-    render();
-  }catch(err){
-    console.error('Render error:', err);
-    $('app').innerHTML = `<div class="card"><h3>⚠️ Display Error</h3><p class="muted">${esc(err && err.message ? err.message : String(err))}</p><button onclick="go('dashboard')">Dashboard पर जाएं</button></div>`;
-  }
-}
+      // Packing Materials Table
+      document.getElementById('table-packing-materials').innerHTML = erpState.packingMaterials.map((p, idx) => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-6 font-semibold text-slate-600">${p.id}</td>
+          <td class="py-3 px-6 font-semibold text-slate-800">${p.name}</td>
+          <td class="py-3 px-6"><span class="bg-blue-50 text-blue-700 text-xs px-2.5 py-0.5 rounded-full font-medium">${p.type}</span></td>
+          <td class="py-3 px-6">₹${Number(p.rate).toFixed(2)}</td>
+          <td class="py-3 px-6 font-bold ${p.stock < 2000 ? 'text-rose-600' : 'text-slate-800'}">${p.stock.toLocaleString()}</td>
+          <td class="py-3 px-6 text-right">
+            <button onclick="deleteItem('packingMaterials', ${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Delete</button>
+          </td>
+        </tr>
+      `).join('');
 
-function render(){
-  const ledger = buildStockLedger();
-  const activeTxs = store.transactions.filter(t => t.status === 'active');
+      // Parties Table
+      document.getElementById('table-parties').innerHTML = erpState.parties.map((p, idx) => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-6 font-semibold text-slate-800">${p.name}</td>
+          <td class="py-3 px-6"><span class="bg-purple-50 text-purple-700 text-xs px-2.5 py-0.5 rounded-full font-medium">${p.type}</span></td>
+          <td class="py-3 px-6 text-slate-600">${p.contact}</td>
+          <td class="py-3 px-6 text-right">
+            <button onclick="deleteItem('parties', ${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Delete</button>
+          </td>
+        </tr>
+      `).join('');
 
-  if(page === 'dashboard'){
-    const prods = activeTxs.filter(t => t.tx_type === 'production');
-    const pouches = prods.reduce((s,t) => s + evaluateProduction(t.payload).actualPouches, 0);
-    const prodCost = prods.reduce((s,t) => s + evaluateProduction(t.payload).effectiveFinalCost, 0);
-    const purTotal = activeTxs.filter(t => t.tx_type === 'purchase').reduce((s,t) => s + n(t.payload?.grand_total), 0);
-    const saleTotal = activeTxs.filter(t => t.tx_type === 'sale').reduce((s,t) => s + n(t.payload?.grand_total), 0);
-    const expTotal = activeTxs.filter(t => t.tx_type === 'expense').reduce((s,t) => s + n(t.payload?.amount), 0);
+      // Purchases Table
+      document.getElementById('table-purchases').innerHTML = erpState.purchases.map(p => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-6 text-slate-500">${p.date}</td>
+          <td class="py-3 px-6 font-medium text-slate-800">${p.party}</td>
+          <td class="py-3 px-6 text-xs">${p.category}</td>
+          <td class="py-3 px-6 font-semibold text-slate-800">${p.item}</td>
+          <td class="py-3 px-6">${p.qty}</td>
+          <td class="py-3 px-6">₹${p.rate}</td>
+          <td class="py-3 px-6 font-bold text-emerald-700">₹${Number(p.total).toLocaleString('en-IN')}</td>
+        </tr>
+      `).join('');
 
-    $('app').innerHTML = `
-      <h2>1. SADHNA AGRO — Live Production & Stock Dashboard</h2>
-      ${cfg.lastDailyBackup !== today() ? `<div class="notice no-print">⚠️ आज (${today()}) का Daily Backup अभी नहीं लिया गया है। <button class="sm-btn" onclick="downloadBackup('daily')">अभी Daily Backup डाउनलोड करें</button></div>` : ''}
-      <div class="grid">
-        <div class="card"><div class="muted">कुल उत्पादित पाउच</div><div class="metric">${pouches.toLocaleString('en-IN')}</div></div>
-        <div class="card"><div class="muted">कुल उत्पादन लागत (Net)</div><div class="metric">${money(prodCost)}</div></div>
-        <div class="card"><div class="muted">कुल खरीद (Purchases)</div><div class="metric">${money(purTotal)}</div></div>
-        <div class="card"><div class="muted">कुल बिक्री (Sales)</div><div class="metric">${money(saleTotal)}</div></div>
-        <div class="card"><div class="muted">कुल अन्य खर्चे</div><div class="metric">${money(expTotal)}</div></div>
-        <div class="card"><div class="muted">Pending Sync Queue</div><div class="metric">${syncQueue.length}</div></div>
-      </div>
-      <div class="card">
-        <h3>लाइव स्टॉक स्थिति (Factory vs Godown)</h3>
-        <div class="tablewrap"><table>
-          <tr><th>आइटम</th><th>श्रेणी</th><th>यूनिट</th><th>Factory Stock</th><th>Godown Stock</th><th>Min Stock</th><th>स्थिति</th></tr>
-          ${ledger.map(l => {
-            const low = l.min_stock > 0 && l.factoryStock <= l.min_stock;
-            return `<tr>
-              <td><b>${esc(l.name)}</b></td><td>${esc(l.master_type.toUpperCase())}</td><td>${esc(l.unit)}</td>
-              <td><b>${l.factoryStock}</b></td><td><b>${l.godownStock}</b></td><td>${l.min_stock}</td>
-              <td><span class="badge ${l.factoryStock<0?'b-err':low?'b-warn':'b-ok'}">${l.factoryStock<0?'Negative':low?'Low Stock':'OK'}</span></td>
-            </tr>`;
-          }).join('') || '<tr><td colspan="7">मास्टर में आइटम जोड़कर शुरुआत करें।</td></tr>'}
-        </table></div>
-      </div>`;
-    return;
-  }
+      // Daily Production Table
+      document.getElementById('table-daily-prod').innerHTML = erpState.dailyProduction.map(d => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-6 text-slate-500">${d.date}</td>
+          <td class="py-3 px-6 font-semibold text-slate-800">${d.raw}</td>
+          <td class="py-3 px-6">${d.inputKg} kg</td>
+          <td class="py-3 px-6 font-bold text-emerald-700">${d.outputKg} kg</td>
+          <td class="py-3 px-6 text-amber-600 font-medium">${d.lossPct}</td>
+        </tr>
+      `).join('');
 
-  if(['m_product','m_raw','m_print','m_packing'].includes(page)){
-    const mapCfg = {
-      m_product: {type:'product', title:'2. Product Master (तैयार उत्पाद)', isProd:true},
-      m_raw:     {type:'raw',     title:'3. Raw Material Master (कच्चा माल)', isProd:false},
-      m_print:   {type:'print',   title:'4. Printing Material Master (रोल / लेबल)', isProd:false},
-      m_packing: {type:'packing', title:'5. Packing Material Master (LD Outer / बोरी)', isProd:false}
-    }[page];
-    const items = store.masters.filter(m => m.master_type === mapCfg.type);
+      // Packing Batches & Costing Report Tables
+      document.getElementById('table-batches').innerHTML = erpState.batches.map(b => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-6 font-semibold text-emerald-700">${b.id}</td>
+          <td class="py-3 px-6 text-slate-500">${b.date}</td>
+          <td class="py-3 px-6 font-semibold text-slate-800">${b.product}</td>
+          <td class="py-3 px-6">${b.pouches.toLocaleString()} pcs</td>
+          <td class="py-3 px-6">${b.rawKg} kg</td>
+          <td class="py-3 px-6">₹${b.totalCost.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-6 font-bold text-slate-900">₹${b.unitCost.toFixed(2)}</td>
+        </tr>
+      `).join('');
 
-    $('app').innerHTML = `
-      <h2>${mapCfg.title}</h2>
-      ${hasPerm('master') ? `
-      <div class="card"><form id="mForm" class="form">
-        <input type="hidden" name="id">
-        <div><label>कोड</label><input name="code" placeholder="SKU-01"></div>
-        <div><label>नाम *</label><input name="name" required></div>
-        <div><label>कैटेगरी</label><input name="category" value="${mapCfg.isProd?'मसाले':'Material'}"></div>
-        <div><label>यूनिट *</label><select name="unit"><option value="kg">kg</option><option value="pouch">pouch</option><option value="piece">piece</option><option value="roll">roll</option></select></div>
-        ${mapCfg.isProd ? `<div><label>Pouch Weight (gram)</label><input name="pouch_wt_g" type="number" step=".1" value="15"></div>` : ''}
-        <div><label>GST %</label><input name="gst_rate" type="number" step=".01" value="${cfg.gstRate}"></div>
-        <div><label>Default Rate ₹</label><input name="default_rate" type="number" step=".01" value="0"></div>
-        <div><label>Min Stock Alert</label><input name="min_stock" type="number" step=".001" value="0"></div>
-        <button>सेव करें</button>
-      </form></div>` : ''}
-      <div class="card tablewrap"><table>
-        <tr><th>कोड</th><th>नाम</th><th>कैटेगरी</th><th>यूनिट</th>${mapCfg.isProd?'<th>वजन (g)</th>':''}<th>GST %</th><th>Rate ₹</th><th>Min Stock</th><th>एक्शन</th></tr>
-        ${items.map(it => `<tr>
-          <td>${esc(it.code)}</td><td><b>${esc(it.name)}</b></td><td>${esc(it.category)}</td><td>${esc(it.unit)}</td>
-          ${mapCfg.isProd?`<td>${n(it.pouch_wt_g)}g</td>`:''}
-          <td>${n(it.gst_rate)}%</td><td>${money(it.default_rate)}</td><td>${n(it.min_stock)}</td>
-          <td>${hasPerm('master') ? `<button class="secondary sm-btn" onclick="fillMasterForm('${it.id}')">Edit</button>` : '-'}</td>
-        </tr>`).join('') || '<tr><td colspan="9">कोई रिकॉर्ड नहीं</td></tr>'}
-      </table></div>`;
+      document.getElementById('table-costing-report').innerHTML = erpState.batches.map(b => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-6 font-semibold text-emerald-700">${b.id}</td>
+          <td class="py-3 px-6 font-semibold text-slate-800">${b.product}</td>
+          <td class="py-3 px-6">${b.pouches.toLocaleString()}</td>
+          <td class="py-3 px-6">₹${b.rawCost.toFixed(2)}</td>
+          <td class="py-3 px-6">₹${b.packCost.toFixed(2)}</td>
+          <td class="py-3 px-6 font-bold text-slate-800">₹${b.totalCost.toFixed(2)}</td>
+          <td class="py-3 px-6 font-bold text-emerald-700">₹${b.unitCost.toFixed(2)}</td>
+        </tr>
+      `).join('');
 
-    if($('mForm')){
-      $('mForm').onsubmit = e => {
-        e.preventDefault();
-        const f = new FormData(e.target);
-        const editId = f.get('id');
-        const obj = {
-          id: editId || uid(), master_type: mapCfg.type, code: String(f.get('code')||'').trim(), name: String(f.get('name')||'').trim(),
-          category: String(f.get('category')||'').trim(), unit: f.get('unit'), pouch_wt_g: n(f.get('pouch_wt_g')),
-          gst_rate: n(f.get('gst_rate')), default_rate: n(f.get('default_rate')), min_stock: n(f.get('min_stock')),
-          status: 'active', updated_at: new Date().toISOString()
-        };
-        if(editId){ const i = store.masters.findIndex(x => x.id === editId); if(i !== -1) store.masters[i] = obj; addAudit('EDIT', mapCfg.type, obj.name, 'मास्टर अपडेट'); }
-        else { store.masters.push(obj); addAudit('CREATE', mapCfg.type, obj.name, 'नया मास्टर जोड़ा गया'); }
-        queueUpsert('master', obj.id, obj);
-        runCloudSync(false);
-        safeRender();
-      };
-    }
-    return;
-  }
-
-  if(page === 'm_supplier'){
-    $('app').innerHTML = `
-      <h2>6. Supplier & Customer Master</h2>
-      ${hasPerm('master') ? `
-      <div class="card"><form id="pForm" class="form">
-        <div><label>प्रकार</label><select name="party_type"><option value="supplier">Supplier</option><option value="customer">Customer</option></select></div>
-        <div><label>नाम *</label><input name="name" required></div>
-        <div><label>फ़ोन</label><input name="phone"></div>
-        <div><label>GSTIN</label><input name="gstin"></div>
-        <div><label>पता</label><input name="address"></div>
-        <button>सेव करें</button>
-      </form></div>` : ''}
-      <div class="card tablewrap"><table>
-        <tr><th>प्रकार</th><th>नाम</th><th>फ़ोन</th><th>GSTIN</th><th>पता</th></tr>
-        ${store.parties.map(p => `<tr><td><span class="badge b-info">${esc(p.party_type).toUpperCase()}</span></td><td><b>${esc(p.name)}</b></td><td>${esc(p.phone)}</td><td>${esc(p.gstin)}</td><td>${esc(p.address)}</td></tr>`).join('') || '<tr><td colspan="5">कोई पार्टी नहीं</td></tr>'}
-      </table></div>`;
-
-    if($('pForm')){
-      $('pForm').onsubmit = e => {
-        e.preventDefault();
-        const f = new FormData(e.target);
-        const obj = {
-          id: uid(), party_type: f.get('party_type'), name: String(f.get('name')||'').trim(), phone: String(f.get('phone')||'').trim(),
-          gstin: String(f.get('gstin')||'').trim(), address: String(f.get('address')||'').trim(), status: 'active', updated_at: new Date().toISOString()
-        };
-        store.parties.push(obj);
-        addAudit('CREATE', 'Party', obj.name, `${obj.party_type} जोड़ा गया`);
-        queueUpsert('party', obj.id, obj);
-        runCloudSync(false);
-        safeRender();
-      };
-    }
-    return;
-  }
-
-  if(page === 'purchase'){
-    const txs = store.transactions.filter(t => ['purchase','purchase_return'].includes(t.tx_type));
-    $('app').innerHTML = `
-      <h2>7. Purchase & Purchase Return Management</h2>
-      ${hasPerm('purchase') ? `
-      <div class="card"><form id="purForm" class="form">
-        <input type="hidden" name="edit_id">
-        <div><label>प्रकार</label><select name="tx_type"><option value="purchase">Purchase (+Stock)</option><option value="purchase_return">Purchase Return (-Stock)</option></select></div>
-        <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
-        <div><label>बिल नंबर *</label><input name="tx_number" value="PUR-${Date.now().toString().slice(-5)}" required></div>
-        <div><label>सप्लायर *</label><input name="party_name" list="supDL" required><datalist id="supDL">${store.parties.filter(p=>p.party_type==='supplier').map(p=>`<option value="${esc(p.name)}">`).join('')}</datalist></div>
-        <div><label>आइटम *</label><select name="item_id" required>${masterOpts()}</select></div>
-        <div><label>मात्रा *</label><input name="qty" type="number" step=".001" min=".001" required></div>
-        <div><label>रेट ₹ *</label><input name="rate" type="number" step=".01" min="0" required></div>
-        <div><label>GST %</label><input name="gst_rate" type="number" step=".01" value="${cfg.gstRate}"></div>
-        <button>खरीद सेव करें</button>
-      </form></div>` : ''}
-      <div class="card tablewrap"><table>
-        <tr><th>दिनांक</th><th>प्रकार</th><th>बिल नं.</th><th>सप्लायर</th><th>आइटम</th><th>मात्रा</th><th>Taxable ₹</th><th>GST (ITC) ₹</th><th>कुल ₹</th><th>एक्शन</th></tr>
-        ${txs.map(t => {
-          const p = t.payload || {};
-          return `<tr class="${t.status==='cancelled'?'cancelled':''}">
-            <td>${esc(t.tx_date)}</td><td><span class="badge ${t.tx_type==='purchase'?'b-ok':'b-warn'}">${t.tx_type.toUpperCase()}</span></td>
-            <td><b>${esc(t.tx_number)}</b></td><td>${esc(p.party_name)}</td><td>${esc(masterName(p.item_id))}</td>
-            <td>${n(p.qty)}</td><td>${money(p.base_amount)}</td><td>${money(p.gst_amount)}</td><td><b>${money(p.grand_total)}</b></td>
-            <td>${hasPerm('editDel') ? `<button class="secondary sm-btn" onclick="editSimpleTx('${t.id}')">Edit</button> <button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}</td>
-          </tr>`;
-        }).join('') || '<tr><td colspan="10">कोई खरीद नहीं</td></tr>'}
-      </table></div>`;
-
-    if($('purForm')){
-      $('purForm').onsubmit = e => {
-        e.preventDefault();
-        const f = new FormData(e.target);
-        const editId = f.get('edit_id');
-        const type = f.get('tx_type'), itemId = f.get('item_id'), qty = n(f.get('qty')), rate = n(f.get('rate')), gst = n(f.get('gst_rate'));
-        const tempLedger = buildStockLedger(editId || null);
-        if(type === 'purchase_return'){
-          const st = tempLedger.find(l => l.id === itemId);
-          if(!canBypassNegativeStock() && (!st || qty > st.factoryStock)){ alert(`❌ अपर्याप्त स्टॉक! Factory Stock: ${st ? st.factoryStock : 0}`); return; }
-        }
-        const base = r2(qty * rate), gstAmt = r2(base * gst / 100);
-        saveTransaction({
-          id: editId || uid(), tx_type: type, tx_number: String(f.get('tx_number')||'').trim(), tx_date: f.get('tx_date'),
-          status: 'active', created_by: authUser?.email || 'Local', created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-          payload: { item_id: itemId, party_name: String(f.get('party_name')||'').trim(), qty, rate, gst_rate: gst, base_amount: base, gst_amount: gstAmt, grand_total: r2(base+gstAmt) }
-        }, !!editId);
-        safeRender();
-      };
-    }
-    return;
-  }
-
-  if(page === 'opening'){
-    const opTxs = store.transactions.filter(t => t.tx_type === 'opening_stock');
-    $('app').innerHTML = `
-      <h2>8. Opening Stock Entry (प्रारंभिक स्टॉक)</h2>
-      ${hasPerm('opening') ? `
-      <div class="card"><form id="opForm" class="form">
-        <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
-        <div><label>आइटम *</label><select name="item_id" required>${masterOpts()}</select></div>
-        <div><label>स्थान (Location)</label><select name="location"><option value="factory">Factory Store</option><option value="godown">Godown</option></select></div>
-        <div><label>Opening Quantity *</label><input name="qty" type="number" step=".001" required></div>
-        <div><label>टिप्पणी</label><input name="note" value="Opening Balance"></div>
-        <button>Opening Stock सेव करें</button>
-      </form></div>` : ''}
-      <div class="card tablewrap"><table>
-        <tr><th>दिनांक</th><th>वाउचर</th><th>आइटम</th><th>स्थान</th><th>मात्रा</th><th>टिप्पणी</th><th>एक्शन</th></tr>
-        ${opTxs.map(t => `<tr class="${t.status==='cancelled'?'cancelled':''}">
-          <td>${esc(t.tx_date)}</td><td>${esc(t.tx_number)}</td><td><b>${esc(masterName(t.payload?.item_id))}</b></td>
-          <td>${esc(t.payload?.location).toUpperCase()}</td><td>${n(t.payload?.qty)}</td><td>${esc(t.payload?.note)}</td>
-          <td>${hasPerm('editDel') ? `<button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}</td>
-        </tr>`).join('') || '<tr><td colspan="7">कोई Opening Stock एंट्री नहीं</td></tr>'}
-      </table></div>`;
-
-    if($('opForm')){
-      $('opForm').onsubmit = e => {
-        e.preventDefault();
-        const f = new FormData(e.target);
-        saveTransaction({
-          id: uid(), tx_type: 'opening_stock', tx_number: 'OPN-' + Date.now().toString().slice(-5),
-          tx_date: f.get('tx_date'), status: 'active', created_by: authUser?.email || 'Local',
-          created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-          payload: { item_id: f.get('item_id'), location: f.get('location'), qty: n(f.get('qty')), note: String(f.get('note')||'').trim() }
-        });
-        safeRender();
-      };
-    }
-    return;
-  }
-
-  if(page === 'ledger'){
-    $('app').innerHTML = `
-      <h2>9. Automatic Stock Ledger</h2>
-      <div class="card tablewrap"><table>
-        <tr><th>आइटम</th><th>श्रेणी</th><th>यूनिट</th><th>Opening</th><th>खरीद (+)</th><th>खपत (-)</th><th>उत्पादन (+)</th><th>Factory Stock</th><th>Godown Stock</th><th>बिक्री (-)</th><th>इतिहास</th></tr>
-        ${ledger.map(l => `<tr>
-          <td><b>${esc(l.name)}</b></td><td>${esc(l.master_type.toUpperCase())}</td><td>${esc(l.unit)}</td>
-          <td>${l.opening}</td><td>${l.purchased}</td><td>${l.consumed}</td><td>${l.produced}</td>
-          <td><span class="badge ${l.factoryStock<0?'b-err':'b-ok'}">${l.factoryStock}</span></td>
-          <td><span class="badge b-info">${l.godownStock}</span></td><td>${l.sold}</td>
-          <td><button class="secondary sm-btn" onclick="viewItemMoves('${l.id}')">Ledger (${l.movements.length})</button></td>
-        </tr>`).join('') || '<tr><td colspan="11">कोई डेटा नहीं</td></tr>'}
-      </table></div>
-      <div id="moveHistoryBox"></div>`;
-    return;
-  }
-
-  if(page === 'production'){
-    const prodTxs = store.transactions.filter(t => t.tx_type === 'production');
-    $('app').innerHTML = `
-      <h2>10. Daily Production</h2>
-      <div class="notice">नियम: <b>36 Pouches = 1 Packet</b> | <b>720 Pouches = 1 Bori</b> | Machine Default ₹${cfg.machineRate}/hr | Interest ${cfg.interestRate}% | GST ${cfg.gstRate}%।</div>
-      ${hasPerm('production') ? `
-      <div class="card"><form id="prodForm">
-        <input type="hidden" name="edit_id">
-        <h4>1. बैच व उत्पाद विवरण</h4>
-        <div class="form">
-          <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
-          <div><label>Batch Number *</label><input name="tx_number" value="B-${today().replace(/-/g,'')}-${prodTxs.length+1}" required></div>
-          <div><label>Finished Product *</label><select name="product_id" id="prodItemSel" required><option value="">-- उत्पाद चुनें --</option>${masterOpts('product')}</select></div>
-          <div><label>Estimated Pouches *</label><input name="estimated_pouches" type="number" min="0" required></div>
-          <div><label>Actual Pouches *</label><input name="actual_pouches" type="number" min="1" required></div>
-          <div><label>Pouch Weight (gram) *</label><input name="pouch_wt_g" type="number" step=".1" required></div>
-          <div><label>Total Output KG</label><input id="outKgPrev" readonly></div>
+      // Live Stock Summary Cards
+      document.getElementById('stock-list-raw').innerHTML = erpState.rawMaterials.map(r => `
+        <div class="p-3 flex items-center justify-between">
+          <div>
+            <div class="font-semibold text-slate-800">${r.name}</div>
+            <div class="text-xs text-slate-400">Rate: ₹${r.rate}/kg</div>
+          </div>
+          <div class="text-right">
+            <span class="font-bold ${r.stock < 50 ? 'text-rose-600' : 'text-slate-800'}">${r.stock} kg</span>
+            ${r.stock < 50 ? '<div class="text-[10px] font-bold uppercase text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">Low Stock</div>' : ''}
+          </div>
         </div>
-        <h4>2. Raw Materials <button type="button" class="secondary sm-btn" id="addRawRowBtn">+ Raw Material</button></h4>
-        <div id="rawLinesWrap"></div>
-        <h4>3. Printing Materials <button type="button" class="secondary sm-btn" id="addPrintRowBtn">+ Printing Material</button></h4>
-        <div id="printLinesWrap"></div>
-        <h4>4. Packing, Labour, Machine & Overheads</h4>
-        <div class="form">
-          <div><label>Other Printing Expense ₹</label><input name="other_printing_cost" type="number" step=".01" value="0"></div>
-          <div><label>Labour Hours</label><input name="labour_hrs" type="number" step=".25" value="0"></div>
-          <div><label>Labour Rate ₹/hr</label><input name="labour_rate" type="number" step=".01" value="0"></div>
-          <div><label>Machine Hours</label><input name="mach_hrs" type="number" step=".25" value="0"></div>
-          <div><label>Machine Rate ₹/hr</label><input name="machine_rate" type="number" step=".01" value="${cfg.machineRate}"></div>
-          <div><label>Packing Material ₹</label><input name="packing_cost" type="number" step=".01" value="0"></div>
-          <div><label>LD Outer Rate ₹</label><input name="outer_rate" type="number" step=".01" value="0"></div>
-          <div><label>Bori Rate ₹</label><input name="bori_rate" type="number" step=".01" value="0"></div>
-          <div><label>Dengler Expense ₹</label><input name="dengler_cost" type="number" step=".01" value="0"></div>
-          <div><label>Marketing Expense ₹</label><input name="marketing_cost" type="number" step=".01" value="0"></div>
+      `).join('');
+
+      document.getElementById('stock-list-packing').innerHTML = erpState.packingMaterials.map(p => `
+        <div class="p-3 flex items-center justify-between">
+          <div>
+            <div class="font-semibold text-slate-800">${p.name}</div>
+            <div class="text-xs text-slate-400">${p.type}</div>
+          </div>
+          <div class="text-right">
+            <span class="font-bold ${p.stock < 2000 ? 'text-rose-600' : 'text-slate-800'}">${p.stock.toLocaleString()}</span>
+            ${p.stock < 2000 ? '<div class="text-[10px] font-bold uppercase text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">Reorder</div>' : ''}
+          </div>
         </div>
-        <h4>5. Interest & GST / ITC</h4>
-        <div class="form">
-          <div><label>Interest Rate %</label><input name="interest_rate" type="number" step=".01" value="${cfg.interestRate}"></div>
-          <div><label>Interest Days</label><input name="interest_days" type="number" value="${cfg.interestDays}"></div>
-          <div><label>GST Rate %</label><input name="gst_rate" type="number" step=".01" value="${cfg.gstRate}"></div>
-          <div><label>GST ITC</label><select name="itc_eligible"><option value="true">Yes (ITC Separate)</option><option value="false">No (In Cost)</option></select></div>
+      `).join('');
+
+      document.getElementById('stock-list-finished').innerHTML = erpState.products.map(p => `
+        <div class="p-3 flex items-center justify-between">
+          <div>
+            <div class="font-semibold text-slate-800">${p.name}</div>
+            <div class="text-xs text-slate-400">MRP: ₹${p.mrp}</div>
+          </div>
+          <div class="text-right">
+            <span class="font-bold text-emerald-700">${p.stock.toLocaleString()} pcs</span>
+          </div>
         </div>
-        <div class="summary-panel" id="prodLiveSummary"></div>
-        <br><button type="submit">उत्पादन सेव करें</button>
-      </form></div>` : ''}
-      <div class="card tablewrap"><table>
-        <tr><th>दिनांक</th><th>Batch</th><th>उत्पाद</th><th>Act/Est Pouches</th><th>Output KG</th><th>Net Cost ₹</th><th>GST ₹</th><th>₹/Pouch</th><th>₹/Packet</th><th>₹/KG</th><th>एक्शन</th></tr>
-        ${prodTxs.map(t => {
-          const c = evaluateProduction(t.payload);
-          return `<tr class="${t.status==='cancelled'?'cancelled':''}">
-            <td>${esc(t.tx_date)}</td><td><b>${esc(t.tx_number)}</b></td><td>${esc(masterName(t.payload?.product_id))}</td>
-            <td>${c.actualPouches} / ${c.estPouches}</td><td>${c.outputKg} kg</td><td><b>${money(c.effectiveFinalCost)}</b></td>
-            <td>${money(c.gstAmount)}</td><td>${money(c.costPerPouch)}</td><td>${money(c.costPerPacket)}</td><td>${money(c.costPerKg)}</td>
-            <td>${hasPerm('editDel') ? `<button class="secondary sm-btn" onclick="editProductionTx('${t.id}')">Edit</button> <button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}</td>
-          </tr>`;
-        }).join('') || '<tr><td colspan="11">कोई उत्पादन बैच नहीं</td></tr>'}
-      </table></div>`;
+      `).join('');
 
-    if($('prodForm')){
-      const form = $('prodForm'), rawWrap = $('rawLinesWrap'), printWrap = $('printLinesWrap');
-      window.addRawRow = (data = {}) => {
-        const div = document.createElement('div');
-        div.className = 'line-row raw-line';
-        div.innerHTML = `
-          <div><label>Raw Material</label><select class="r-item"><option value="">-- चुनें --</option>${masterOpts('raw')}</select></div>
-          <div><label>Opening</label><input type="number" step=".001" class="r-open" value="${data.open ?? 0}"></div>
-          <div><label>Closing</label><input type="number" step=".001" class="r-close" value="${data.close ?? 0}"></div>
-          <div><label>Consumed</label><input class="r-cons" readonly></div>
-          <div><label>Rate ₹</label><input type="number" step=".01" class="r-rate" value="${data.rate ?? 0}"></div>
-          <div><label>Cost ₹</label><input class="r-cost" readonly></div>
-          <div><button type="button" class="danger" onclick="this.closest('.raw-line').remove();recalcProdForm()">✕</button></div>`;
-        rawWrap.appendChild(div);
-        if(data.item_id) div.querySelector('.r-item').value = data.item_id;
-      };
-      window.addPrintRow = (data = {}) => {
-        const div = document.createElement('div');
-        div.className = 'print-row print-line';
-        div.innerHTML = `
-          <div><label>Printing Material</label><select class="p-item"><option value="">-- चुनें --</option>${masterOpts('print')}</select></div>
-          <div><label>Opening</label><input type="number" step=".001" class="p-open" value="${data.open ?? 0}"></div>
-          <div><label>Closing</label><input type="number" step=".001" class="p-close" value="${data.close ?? 0}"></div>
-          <div><label>Used</label><input class="p-used" readonly></div>
-          <div><label>Wastage</label><input type="number" step=".001" class="p-waste" value="${data.wastage ?? 0}"></div>
-          <div><label>Rate ₹</label><input type="number" step=".01" class="p-rate" value="${data.rate ?? 0}"></div>
-          <div><label>Print ₹</label><input class="p-cost" readonly></div>
-          <div><button type="button" class="danger" onclick="this.closest('.print-line').remove();recalcProdForm()">✕</button></div>`;
-        printWrap.appendChild(div);
-        if(data.item_id) div.querySelector('.p-item').value = data.item_id;
-      };
-      $('addRawRowBtn').onclick = () => { window.addRawRow(); window.recalcProdForm(); };
-      $('addPrintRowBtn').onclick = () => { window.addPrintRow(); window.recalcProdForm(); };
-      window.addRawRow(); window.addPrintRow();
+      // Populate Form Select Dropdowns
+      const purParty = document.getElementById('pur-party');
+      purParty.innerHTML = erpState.parties.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+      populatePurchaseItems();
 
-      $('prodItemSel').onchange = e => {
-        const it = getMaster(e.target.value);
-        if(it){ if(it.pouch_wt_g) form.elements.pouch_wt_g.value = it.pouch_wt_g; form.elements.gst_rate.value = it.gst_rate ?? cfg.gstRate; }
-        window.recalcProdForm();
-      };
+      document.getElementById('dp-raw').innerHTML = erpState.rawMaterials.map(r => `<option value="${r.name}">${r.name}</option>`).join('');
+      document.getElementById('batch-product').innerHTML = erpState.products.map((p, i) => `<option value="${i}">${p.name} (${p.weight}g)</option>`).join('');
+      document.getElementById('batch-raw').innerHTML = erpState.rawMaterials.map((r, i) => `<option value="${i}">${r.name} (${r.stock} kg)</option>`).join('');
+      document.getElementById('batch-pack').innerHTML = erpState.packingMaterials.map((p, i) => `<option value="${i}">${p.name} (${p.stock} pcs)</option>`).join('');
+    }
 
-      window.collectProdPayload = () => {
-        const fd = new FormData(form);
-        const raw_lines = Array.from(rawWrap.querySelectorAll('.raw-line')).map(el => ({
-          item_id: el.querySelector('.r-item').value, open: n(el.querySelector('.r-open').value),
-          close: n(el.querySelector('.r-close').value), rate: n(el.querySelector('.r-rate').value)
-        })).filter(r => r.item_id || r.open > 0);
-        const print_lines = Array.from(printWrap.querySelectorAll('.print-line')).map(el => ({
-          item_id: el.querySelector('.p-item').value, open: n(el.querySelector('.p-open').value),
-          close: n(el.querySelector('.p-close').value), wastage: n(el.querySelector('.p-waste').value), rate: n(el.querySelector('.p-rate').value)
-        })).filter(p => p.item_id || p.open > 0);
+    // =====================================================================
+    // CSV EXPORT & JSON BACKUP / RESTORE
+    // =====================================================================
+    function triggerCSVDownload(filename, csvContent) {
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(`Exported ${filename}`);
+    }
 
-        return {
-          product_id: fd.get('product_id'), estimated_pouches: n(fd.get('estimated_pouches')), actual_pouches: n(fd.get('actual_pouches')),
-          pouch_wt_g: n(fd.get('pouch_wt_g')), raw_lines, print_lines,
-          other_printing_cost: n(fd.get('other_printing_cost')), labour_hrs: n(fd.get('labour_hrs')), labour_rate: n(fd.get('labour_rate')),
-          mach_hrs: n(fd.get('mach_hrs')), machine_rate: n(fd.get('machine_rate')), packing_cost: n(fd.get('packing_cost')),
-          outer_rate: n(fd.get('outer_rate')), bori_rate: n(fd.get('bori_rate')), dengler_cost: n(fd.get('dengler_cost')),
-          marketing_cost: n(fd.get('marketing_cost')), interest_rate: n(fd.get('interest_rate')), interest_days: n(fd.get('interest_days')),
-          gst_rate: n(fd.get('gst_rate')), itc_eligible: fd.get('itc_eligible') === 'true'
-        };
-      };
+    function exportAllCSV() {
+      let rows = [['Category', 'Code', 'Item Name', 'Stock Qty', 'Rate (INR)']];
+      erpState.rawMaterials.forEach(r => rows.push(['Raw Material', r.id, r.name, r.stock + ' kg', r.rate]));
+      erpState.packingMaterials.forEach(p => rows.push(['Packing Material', p.id, p.name, p.stock + ' pcs', p.rate]));
+      erpState.products.forEach(f => rows.push(['Finished Product', f.id, f.name, f.stock + ' pouches', f.mrp]));
+      const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+      triggerCSVDownload('SADHNA_AGRO_Stock_Summary.csv', csv);
+    }
 
-      window.recalcProdForm = () => {
-        const payload = window.collectProdPayload();
-        const c = evaluateProduction(payload);
-        rawWrap.querySelectorAll('.raw-line').forEach(el => {
-          const cons = Math.max(0, r3(n(el.querySelector('.r-open').value) - n(el.querySelector('.r-close').value)));
-          el.querySelector('.r-cons').value = cons;
-          el.querySelector('.r-cost').value = money(cons * n(el.querySelector('.r-rate').value));
-        });
-        printWrap.querySelectorAll('.print-line').forEach(el => {
-          const used = Math.max(0, r3(n(el.querySelector('.p-open').value) - n(el.querySelector('.p-close').value)));
-          el.querySelector('.p-used').value = used;
-          el.querySelector('.p-cost').value = money(used * n(el.querySelector('.p-rate').value));
-        });
-        $('outKgPrev').value = c.outputKg + ' kg';
-        $('prodLiveSummary').innerHTML = `
-          <div><span class="muted">Packets / Outers:</span><br><b>${c.packets} Pkt (${c.outerCount} = ${money(c.outerCost)})</b></div>
-          <div><span class="muted">Boris:</span><br><b>${c.boris} (${c.boriCount} = ${money(c.boriCost)})</b></div>
-          <div><span class="muted">Raw + Print (Good/Waste):</span><br><b>${money(c.totalRawCost)} + ${money(c.totalPrintGoodCost)} / ${money(c.totalPrintWastageCost)}</b></div>
-          <div><span class="muted">Labour + Mach + Int:</span><br><b>${money(c.labourCost)} + ${money(c.machineCost)} + ${money(c.interestCost)}</b></div>
-          <div><span class="muted">GST (${c.gstRate}%):</span><br><b>${money(c.gstAmount)}</b></div>
-          <div><span class="muted">Final Cost:</span><br><b>${money(c.effectiveFinalCost)}</b></div>
-          <div><span class="muted">₹/Pouch | ₹/Pkt | ₹/KG:</span><br><b>${money(c.costPerPouch)} | ${money(c.costPerPacket)} | ${money(c.costPerKg)}</b></div>`;
-      };
-      form.oninput = window.recalcProdForm;
-      window.recalcProdForm();
+    function exportPurchasesCSV() {
+      let rows = [['Date', 'Supplier', 'Category', 'Item', 'Qty', 'Rate', 'Total']];
+      erpState.purchases.forEach(p => rows.push([p.date, p.party, p.category, p.item, p.qty, p.rate, p.total]));
+      const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+      triggerCSVDownload('SADHNA_AGRO_Purchase_Register.csv', csv);
+    }
 
-      form.onsubmit = e => {
-        e.preventDefault();
-        const fd = new FormData(form);
-        const editId = fd.get('edit_id');
-        const payload = window.collectProdPayload();
-        const c = evaluateProduction(payload);
-        for(const rl of payload.raw_lines){ if(rl.close > rl.open){ alert('Raw Closing Opening से अधिक नहीं हो सकता।'); return; } }
-        for(const pl of payload.print_lines){
-          if(pl.close > pl.open){ alert('Print Closing Opening से अधिक नहीं हो सकता।'); return; }
-          if(pl.wastage > (pl.open - pl.close)){ alert('Wastage कुल खपत से अधिक नहीं हो सकती।'); return; }
-        }
-        const checkLedger = buildStockLedger(editId || null);
-        if(!canBypassNegativeStock()){
-          for(const rl of c.evaluatedRaw){
-            if(rl.item_id){ const st = checkLedger.find(x => x.id === rl.item_id); if(st && rl.consumed > st.factoryStock){ alert(`❌ ${st.name} स्टॉक अपर्याप्त (${st.factoryStock})`); return; } }
+    function exportBatchesCSV() {
+      let rows = [['Batch ID', 'Date', 'Product SKU', 'Pouches', 'Raw Used (kg)', 'Total Cost', 'Cost Per Pouch']];
+      erpState.batches.forEach(b => rows.push([b.id, b.date, b.product, b.pouches, b.rawKg, b.totalCost, b.unitCost]));
+      const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+      triggerCSVDownload('SADHNA_AGRO_Packing_Batches.csv', csv);
+    }
+
+    function downloadJSONBackup() {
+      const dataStr = JSON.stringify(erpState, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const today = new Date().toISOString().split('T')[0];
+      a.href = url;
+      a.download = `SADHNA_AGRO_Backup_${today}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Full ERP JSON backup downloaded.');
+    }
+
+    function restoreJSONBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed.products && parsed.rawMaterials) {
+            erpState = parsed;
+            saveState();
+            showToast('Backup restored successfully!');
+          } else {
+            showToast('Invalid SADHNA AGRO backup file.', 'error');
           }
-          for(const pl of c.evaluatedPrint){
-            if(pl.item_id){ const st = checkLedger.find(x => x.id === pl.item_id); if(st && pl.physicalUsed > st.factoryStock){ alert(`❌ ${st.name} स्टॉक अपर्याप्त (${st.factoryStock})`); return; } }
-          }
+        } catch (err) {
+          showToast('Error reading JSON file.', 'error');
         }
-        saveTransaction({
-          id: editId || uid(), tx_type: 'production', tx_number: String(fd.get('tx_number')||'').trim(),
-          tx_date: fd.get('tx_date'), status: 'active', created_by: authUser?.email || 'Local',
-          created_at: new Date().toISOString(), updated_at: new Date().toISOString(), payload
-        }, !!editId);
-        safeRender();
       };
+      reader.readAsText(file);
     }
-    return;
-  }
 
-  if(page === 'costing'){
-    const prodTxs = activeTxs.filter(t => t.tx_type === 'production');
-    const products = store.masters.filter(m => m.master_type === 'product');
-    $('app').innerHTML = `
-      <h2>11. Production Costing Breakdown</h2>
-      <div class="card"><h3>Product-wise Costing</h3><div class="tablewrap"><table>
-        <tr><th>उत्पाद</th><th>बैच</th><th>Pouches</th><th>Packets</th><th>Output KG</th><th>Net Cost ₹</th><th>Avg ₹/Pouch</th><th>Avg ₹/Packet</th><th>Avg ₹/KG</th></tr>
-        ${products.map(pr => {
-          const list = prodTxs.filter(t => t.payload?.product_id === pr.id);
-          const pSum = list.reduce((s,t) => s + evaluateProduction(t.payload).actualPouches, 0);
-          const pktSum = r2(pSum / 36);
-          const kgSum = list.reduce((s,t) => s + evaluateProduction(t.payload).outputKg, 0);
-          const cSum = list.reduce((s,t) => s + evaluateProduction(t.payload).effectiveFinalCost, 0);
-          return `<tr><td><b>${esc(pr.name)}</b></td><td>${list.length}</td><td>${pSum}</td><td>${pktSum}</td><td>${r3(kgSum)} kg</td><td><b>${money(cSum)}</b></td><td>${pSum?money(cSum/pSum):'₹0.00'}</td><td>${pktSum?money(cSum/pktSum):'₹0.00'}</td><td>${kgSum?money(cSum/kgSum):'₹0.00'}</td></tr>`;
-        }).join('') || '<tr><td colspan="9">कोई उत्पाद नहीं</td></tr>'}
-      </table></div></div>`;
-    return;
-  }
-
-  if(page === 'dispatch'){
-    const disTxs = store.transactions.filter(t => t.tx_type === 'dispatch');
-    $('app').innerHTML = `
-      <h2>12. Factory to Godown Dispatch</h2>
-      ${hasPerm('dispatch') ? `<div class="card"><form id="disForm" class="form">
-        <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
-        <div><label>Challan *</label><input name="tx_number" value="DSP-${Date.now().toString().slice(-5)}" required></div>
-        <div><label>उत्पाद *</label><select name="product_id" required>${masterOpts('product')}</select></div>
-        <div><label>Qty *</label><input name="qty" type="number" step=".001" min=".001" required></div>
-        <div><label>Godown *</label><input name="godown_name" value="Main Godown Jabalpur" required></div>
-        <div><label>Vehicle</label><input name="vehicle_no"></div>
-        <button>Dispatch सेव करें</button>
-      </form></div>` : ''}
-      <div class="card tablewrap"><table>
-        <tr><th>दिनांक</th><th>Challan</th><th>उत्पाद</th><th>Qty</th><th>Godown</th><th>Vehicle</th><th>एक्शन</th></tr>
-        ${disTxs.map(t => `<tr class="${t.status==='cancelled'?'cancelled':''}">
-          <td>${esc(t.tx_date)}</td><td><b>${esc(t.tx_number)}</b></td><td>${esc(masterName(t.payload?.product_id))}</td>
-          <td>${n(t.payload?.qty)}</td><td>${esc(t.payload?.godown_name)}</td><td>${esc(t.payload?.vehicle_no)}</td>
-          <td>${hasPerm('editDel') ? `<button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}</td>
-        </tr>`).join('') || '<tr><td colspan="7">कोई Dispatch नहीं</td></tr>'}
-      </table></div>`;
-    if($('disForm')){
-      $('disForm').onsubmit = e => {
-        e.preventDefault();
-        const f = new FormData(e.target);
-        const prodId = f.get('product_id'), qty = n(f.get('qty'));
-        const st = ledger.find(l => l.id === prodId);
-        if(!canBypassNegativeStock() && (!st || qty > st.factoryStock)){ alert(`❌ Factory Stock अपर्याप्त (${st?st.factoryStock:0})`); return; }
-        saveTransaction({ id: uid(), tx_type: 'dispatch', tx_number: String(f.get('tx_number')||'').trim(), tx_date: f.get('tx_date'), status: 'active', created_by: authUser?.email||'Local', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), payload: { product_id: prodId, qty, godown_name: String(f.get('godown_name')||'').trim(), vehicle_no: String(f.get('vehicle_no')||'').trim() } });
-        safeRender();
-      };
-    }
-    return;
-  }
-
-  if(page === 'godown'){
-    const prods = ledger.filter(l => l.master_type === 'product');
-    $('app').innerHTML = `<h2>13. Godown Stock Register</h2><div class="card tablewrap"><table>
-      <tr><th>उत्पाद</th><th>यूनिट</th><th>Factory से (+)</th><th>Sales Return (+)</th><th>बिक्री (-)</th><th>Godown Stock</th></tr>
-      ${prods.map(p => `<tr><td><b>${esc(p.name)}</b></td><td>${esc(p.unit)}</td><td>${p.dispatched}</td><td>${p.saleReturn}</td><td>${p.sold}</td><td><span class="badge ${p.godownStock>0?'b-ok':'b-warn'}">${p.godownStock}</span></td></tr>`).join('') || '<tr><td colspan="6">कोई उत्पाद नहीं</td></tr>'}
-    </table></div>`;
-    return;
-  }
-
-  if(page === 'sales'){
-    const saleTxs = store.transactions.filter(t => ['sale','sale_return'].includes(t.tx_type));
-    $('app').innerHTML = `
-      <h2>14. Sales & Sales Return</h2>
-      ${hasPerm('sales') ? `<div class="card"><form id="saleForm" class="form">
-        <div><label>प्रकार</label><select name="tx_type"><option value="sale">Sales (-Godown)</option><option value="sale_return">Sales Return (+Godown)</option></select></div>
-        <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
-        <div><label>Bill No. *</label><input name="tx_number" value="SAL-${Date.now().toString().slice(-5)}" required></div>
-        <div><label>ग्राहक *</label><input name="party_name" required></div>
-        <div><label>उत्पाद *</label><select name="product_id" required>${masterOpts('product')}</select></div>
-        <div><label>Qty *</label><input name="qty" type="number" step=".001" min=".001" required></div>
-        <div><label>Rate ₹ *</label><input name="rate" type="number" step=".01" min="0" required></div>
-        <div><label>GST %</label><input name="gst_rate" type="number" step=".01" value="${cfg.gstRate}"></div>
-        <button>बिक्री सेव करें</button>
-      </form></div>` : ''}
-      <div class="card tablewrap"><table>
-        <tr><th>दिनांक</th><th>प्रकार</th><th>Bill No.</th><th>ग्राहक</th><th>उत्पाद</th><th>Qty</th><th>Taxable ₹</th><th>GST ₹</th><th>कुल ₹</th><th>एक्शन</th></tr>
-        ${saleTxs.map(t => {
-          const p = t.payload || {};
-          return `<tr class="${t.status==='cancelled'?'cancelled':''}">
-            <td>${esc(t.tx_date)}</td><td>${t.tx_type.toUpperCase()}</td><td><b>${esc(t.tx_number)}</b></td>
-            <td>${esc(p.party_name)}</td><td>${esc(masterName(p.product_id))}</td><td>${n(p.qty)}</td>
-            <td>${money(p.base_amount)}</td><td>${money(p.gst_amount)}</td><td><b>${money(p.grand_total)}</b></td>
-            <td>${hasPerm('editDel') ? `<button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}</td>
-          </tr>`;
-        }).join('') || '<tr><td colspan="10">कोई बिक्री नहीं</td></tr>'}
-      </table></div>`;
-    if($('saleForm')){
-      $('saleForm').onsubmit = e => {
-        e.preventDefault();
-        const f = new FormData(e.target);
-        const type = f.get('tx_type'), prodId = f.get('product_id'), qty = n(f.get('qty')), rate = n(f.get('rate')), gst = n(f.get('gst_rate'));
-        if(type === 'sale'){
-          const st = ledger.find(l => l.id === prodId);
-          if(!canBypassNegativeStock() && (!st || qty > st.godownStock)){ alert(`❌ Godown Stock अपर्याप्त (${st?st.godownStock:0})`); return; }
-        }
-        const base = r2(qty * rate), gstAmt = r2(base * gst / 100);
-        saveTransaction({ id: uid(), tx_type: type, tx_number: String(f.get('tx_number')||'').trim(), tx_date: f.get('tx_date'), status: 'active', created_by: authUser?.email||'Local', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), payload: { product_id: prodId, party_name: String(f.get('party_name')||'').trim(), qty, rate, gst_rate: gst, base_amount: base, gst_amount: gstAmt, grand_total: r2(base+gstAmt) } });
-        safeRender();
-      };
-    }
-    return;
-  }
-
-  if(page === 'expenses'){
-    const expTxs = store.transactions.filter(t => t.tx_type === 'expense');
-    $('app').innerHTML = `
-      <h2>15. Expenses & Accounts</h2>
-      ${hasPerm('expense') ? `<div class="card"><form id="expForm" class="form">
-        <div><label>दिनांक *</label><input name="tx_date" type="date" value="${today()}" required></div>
-        <div><label>खर्च मद *</label><select name="head"><option>Labour & Wages</option><option>Electricity & Power</option><option>Machine Maintenance</option><option>Printing & Packaging</option><option>Transport & Freight</option><option>Marketing & Dengler</option><option>Interest & Finance</option><option>Office & General</option></select></div>
-        <div><label>विवरण *</label><input name="description" required></div>
-        <div><label>राशि ₹ *</label><input name="amount" type="number" step=".01" min=".01" required></div>
-        <div><label>GST ₹</label><input name="gst_amount" type="number" step=".01" value="0"></div>
-        <div><label>माध्यम</label><select name="mode"><option>Cash</option><option>Bank / UPI</option><option>Credit</option></select></div>
-        <button>खर्च सेव करें</button>
-      </form></div>` : ''}
-      <div class="card tablewrap"><table>
-        <tr><th>दिनांक</th><th>मद</th><th>विवरण</th><th>माध्यम</th><th>राशि ₹</th><th>GST ₹</th><th>कुल ₹</th><th>एक्शन</th></tr>
-        ${expTxs.map(t => `<tr class="${t.status==='cancelled'?'cancelled':''}">
-          <td>${esc(t.tx_date)}</td><td><b>${esc(t.payload?.head)}</b></td><td>${esc(t.payload?.description)}</td><td>${esc(t.payload?.mode)}</td>
-          <td>${money(t.payload?.amount)}</td><td>${money(t.payload?.gst_amount)}</td><td><b>${money(n(t.payload?.amount)+n(t.payload?.gst_amount))}</b></td>
-          <td>${hasPerm('editDel') ? `<button class="danger" onclick="toggleCancelTx('${t.id}')">${t.status==='active'?'Cancel':'Restore'}</button>` : '-'}</td>
-        </tr>`).join('') || '<tr><td colspan="8">कोई खर्च नहीं</td></tr>'}
-      </table></div>`;
-    if($('expForm')){
-      $('expForm').onsubmit = e => {
-        e.preventDefault();
-        const f = new FormData(e.target);
-        saveTransaction({ id: uid(), tx_type: 'expense', tx_number: 'EXP-' + Date.now().toString().slice(-5), tx_date: f.get('tx_date'), status: 'active', created_by: authUser?.email||'Local', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), payload: { head: f.get('head'), description: String(f.get('description')||'').trim(), amount: n(f.get('amount')), gst_amount: n(f.get('gst_amount')), mode: f.get('mode') } });
-        safeRender();
-      };
-    }
-    return;
-  }
-
-  if(page === 'reports'){
-    const products = store.masters.filter(m => m.master_type === 'product');
-    $('app').innerHTML = `
-      <h2>16. Monthly Reports & 11-Sheet Excel / PDF Export</h2>
-      <div class="card no-print">
-        <div class="form">
-          <div><label>महीना</label><input type="month" id="repM" value="${curMonth()}"></div>
-          <div><label>उत्पाद</label><select id="repP"><option value="all">सभी उत्पाद</option>${products.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select></div>
-          <button id="runRepBtn">रिपोर्ट दिखाएँ</button>
-        </div>
-        <div class="actions" style="margin-top:10px">
-          <button id="xl11Btn">📊 11-Sheet Excel (.xlsx)</button>
-          <button id="pdfRepBtn" class="secondary">📄 PDF डाउनलोड</button>
-        </div>
-      </div>
-      <div id="repOut"></div>`;
-
-    const buildMonthly = () => {
-      const m = $('repM').value, pid = $('repP').value;
-      const inM = t => t.status === 'active' && (!m || String(t.tx_date||'').startsWith(m));
-      const rProd = activeTxs.filter(t => inM(t) && t.tx_type==='production' && (pid==='all' || t.payload?.product_id===pid));
-      const rPur  = activeTxs.filter(t => inM(t) && ['purchase','purchase_return'].includes(t.tx_type) && (pid==='all' || t.payload?.item_id===pid));
-      const rDisp = activeTxs.filter(t => inM(t) && t.tx_type==='dispatch' && (pid==='all' || t.payload?.product_id===pid));
-      const rSale = activeTxs.filter(t => inM(t) && ['sale','sale_return'].includes(t.tx_type) && (pid==='all' || t.payload?.product_id===pid));
-      const rExp  = activeTxs.filter(t => inM(t) && t.tx_type==='expense');
-
-      const prodCostTotal = r2(rProd.reduce((s,t) => s + evaluateProduction(t.payload).effectiveFinalCost, 0));
-      const pouchesTotal  = rProd.reduce((s,t) => s + evaluateProduction(t.payload).actualPouches, 0);
-      const salesExGst    = r2(rSale.reduce((s,t) => s + (t.tx_type==='sale'?1:-1)*n(t.payload?.base_amount), 0));
-      const purExGst      = r2(rPur.reduce((s,t) => s + (t.tx_type==='purchase'?1:-1)*n(t.payload?.base_amount), 0));
-      const directExp     = r2(rExp.reduce((s,t) => s + n(t.payload?.amount), 0));
-      const netPL         = r2(salesExGst - prodCostTotal - directExp);
-
-      $('repOut').innerHTML = `<div id="pdfTarget"><div class="card">
-        <h3>Monthly Report (${esc(m||'All')})</h3>
-        <div class="grid">
-          <div class="card"><div class="muted">उत्पादित पाउच</div><div class="metric">${pouchesTotal}</div></div>
-          <div class="card"><div class="muted">उत्पादन लागत</div><div class="metric">${money(prodCostTotal)}</div></div>
-          <div class="card"><div class="muted">खरीद (Ex-GST)</div><div class="metric">${money(purExGst)}</div></div>
-          <div class="card"><div class="muted">बिक्री (Ex-GST)</div><div class="metric">${money(salesExGst)}</div></div>
-          <div class="card"><div class="muted">अन्य खर्चे</div><div class="metric">${money(directExp)}</div></div>
-          <div class="card"><div class="muted">Net P/L</div><div class="metric">${money(netPL)}</div></div>
-        </div>
-      </div></div>`;
-      window.__repPayload = { m, pid, rProd, rPur, rDisp, rSale, rExp, ledger, summary:{pouchesTotal, prodCostTotal, purExGst, salesExGst, directExp, netPL} };
-    };
-    $('runRepBtn').onclick = buildMonthly;
-    buildMonthly();
-
-    $('xl11Btn').onclick = () => {
-      if(!window.XLSX){ alert('Excel लाइब्रेरी लोड नहीं हुई।'); return; }
-      const d = window.__repPayload;
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Metric','Value'],['Pouches',d.summary.pouchesTotal],['Prod Cost',d.summary.prodCostTotal],['Purchase',d.summary.purExGst],['Sales',d.summary.salesExGst],['Expenses',d.summary.directExp],['Net PL',d.summary.netPL]]), 'Summary');
-      XLSX.writeFile(wb, `Sadhna-Agro-Report-${d.m||'all'}.xlsx`);
-    };
-    $('pdfRepBtn').onclick = async () => {
-      if(!window.html2pdf){ alert('PDF लाइब्रेरी लोड नहीं हुई।'); return; }
-      await html2pdf().from($('pdfTarget')).save(`Sadhna-Agro-Report-${$('repM').value||'all'}.pdf`);
-    };
-    return;
-  }
-
-  if(page === 'users'){
-    $('app').innerHTML = `
-      <h2>17. User Management</h2>
-      <div class="card"><div class="form">
-        <div><label>Role</label><select id="activeRoleSel"><option value="admin" ${cfg.activeRole==='admin'?'selected':''}>Admin</option><option value="production" ${cfg.activeRole==='production'?'selected':''}>Production</option><option value="store" ${cfg.activeRole==='store'?'selected':''}>Store</option><option value="accountant" ${cfg.activeRole==='accountant'?'selected':''}>Accountant</option></select></div>
-        <div><label>Negative Stock</label><select id="negStockSel" ${cfg.activeRole!=='admin'?'disabled':''}><option value="false" ${!cfg.allowNegativeStockAdmin?'selected':''}>Blocked</option><option value="true" ${cfg.allowNegativeStockAdmin?'selected':''}>Allowed</option></select></div>
-        <button id="applyRoleBtn">लागू करें</button>
-      </div></div>`;
-    $('applyRoleBtn').onclick = () => {
-      cfg.activeRole = $('activeRoleSel').value;
-      cfg.allowNegativeStockAdmin = cfg.activeRole === 'admin' && $('negStockSel').value === 'true';
-      persist(); safeRender();
-    };
-    return;
-  }
-
-  if(page === 'cloud'){
-    $('app').innerHTML = `
-      <h2>18. Cloud Sync (Supabase + Google Sheets) & Backup</h2>
-      <div class="card">
-        <h3>Supabase Authentication & Real Queue Sync</h3>
-        <div class="form">
-          <div><label>Supabase Login Email</label><input id="loginEmail" type="email" value="${esc(authUser?.email||'')}" placeholder="आपका ईमेल"></div>
-          <button id="sendOtpBtn">Login Link भेजें</button>
-          <button id="syncSbBtn" class="secondary">☁ Sync Now (${syncQueue.length} Pending)</button>
-          <button id="signOutBtn" class="secondary">Sign Out</button>
-        </div>
-        <p class="muted" style="margin-top:8px">स्थिति: <b>${esc(cfg.lastSyncStatus)}</b> | Pending Queue: <b>${syncQueue.length}</b></p>
-      </div>
-      <div class="card">
-        <h3>Google Sheets Monthly Auto-Tab Sync</h3>
-        <div class="form">
-          <div><label>Apps Script Web App URL</label><input id="gsUrlInp" type="url" value="${esc(cfg.gsUrl)}" placeholder="https://script.google.com/macros/s/.../exec"></div>
-          <div><label>Security Token</label><input id="gsTokInp" value="${esc(cfg.gsToken)}"></div>
-          <button id="saveGsCfgBtn">Save Settings</button>
-          <button id="pushGsBtn" class="secondary">📊 Sync & Verify Google Sheets</button>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Daily & Full JSON Backup / Safe Restore</h3>
-        <div class="actions">
-          <button onclick="downloadBackup('daily')">📅 Daily Backup</button>
-          <button onclick="downloadBackup('full')" class="secondary">💾 Complete Backup</button>
-          <button id="restBtn" class="secondary">♻ Restore Backup</button>
-          <input type="file" id="restFile" accept="application/json" style="display:none">
-        </div>
-      </div>`;
-
-    $('sendOtpBtn').onclick = async () => {
-      try{
-        await connectSupabase();
-        const email = $('loginEmail').value.trim();
-        if(!email){ alert('ईमेल दर्ज करें।'); return; }
-        const redirect = location.href.startsWith('http') ? location.origin + location.pathname : undefined;
-        const {error} = await sb.auth.signInWithOtp({email, options:{emailRedirectTo: redirect}});
-        if(error) throw error;
-        alert('✅ Login Link ईमेल पर भेज दिया गया है।');
-      }catch(e){ alert('❌ Login Error: ' + e.message); }
-    };
-    $('syncSbBtn').onclick = async () => { await connectSupabase(); await runCloudSync(false); safeRender(); };
-    $('signOutBtn').onclick = async () => { if(sb) await sb.auth.signOut(); authUser = null; cfg.lastSyncStatus = 'Signed Out'; persist(); safeRender(); };
-    $('saveGsCfgBtn').onclick = () => { cfg.gsUrl = $('gsUrlInp').value.trim(); cfg.gsToken = $('gsTokInp').value.trim(); persist(); alert('Google Sheets सेटिंग सेव हो गई।'); };
-    $('pushGsBtn').onclick = () => runCloudSync(true);
-    $('restBtn').onclick = () => $('restFile').click();
-    $('restFile').onchange = async e => {
-      const file = e.target.files[0];
-      if(!file) return;
-      try{
-        const parsed = JSON.parse(await file.text());
-        const src = parsed.store || parsed;
-        if(Array.isArray(src.masters)) mergeByTimestamp('masters', src.masters);
-        if(Array.isArray(src.parties)) mergeByTimestamp('parties', src.parties);
-        if(Array.isArray(src.transactions)) mergeByTimestamp('transactions', src.transactions);
-        persist(); alert('✅ डेटा Restore हो गया।'); go('dashboard');
-      }catch(err){ alert('❌ अमान्य फाइल: ' + err.message); }
-    };
-    return;
-  }
-
-  if(page === 'audit'){
-    $('app').innerHTML = `
-      <h2>19. Settings & Audit Log</h2>
-      <div class="card tablewrap"><table>
-        <tr><th>समय</th><th>Actor</th><th>Role</th><th>Action</th><th>Module</th><th>Ref ID</th><th>विवरण</th></tr>
-        ${store.auditLogs.map(a => `<tr><td>${new Date(a.created_at).toLocaleString('hi-IN')}</td><td>${esc(a.actor_email)}</td><td>${esc(a.actor_role)}</td><td><b>${esc(a.action)}</b></td><td>${esc(a.module)}</td><td>${esc(a.tx_id)}</td><td>${esc(a.summary)}</td></tr>`).join('') || '<tr><td colspan="7">कोई लॉग नहीं</td></tr>'}
-      </table></div>`;
-    return;
-  }
-}
-
-window.fillMasterForm = id => {
-  const it = store.masters.find(m => m.id === id);
-  const f = $('mForm');
-  if(!it || !f) return;
-  f.elements.id.value = it.id; f.elements.code.value = it.code||''; f.elements.name.value = it.name||'';
-  f.elements.category.value = it.category||''; f.elements.unit.value = it.unit||'kg';
-  if(f.elements.pouch_wt_g) f.elements.pouch_wt_g.value = it.pouch_wt_g||0;
-  f.elements.gst_rate.value = it.gst_rate ?? 18; f.elements.default_rate.value = it.default_rate||0; f.elements.min_stock.value = it.min_stock||0;
-  window.scrollTo({top:0, behavior:'smooth'});
-};
-
-window.editSimpleTx = id => {
-  const tx = store.transactions.find(t => t.id === id);
-  const f = $('purForm');
-  if(!tx || !f) return;
-  f.elements.edit_id.value = tx.id; f.elements.tx_type.value = tx.tx_type; f.elements.tx_date.value = tx.tx_date;
-  f.elements.tx_number.value = tx.tx_number; f.elements.party_name.value = tx.payload?.party_name||'';
-  f.elements.item_id.value = tx.payload?.item_id||''; f.elements.qty.value = tx.payload?.qty||0;
-  f.elements.rate.value = tx.payload?.rate||0; f.elements.gst_rate.value = tx.payload?.gst_rate ?? 18;
-  window.scrollTo({top:0, behavior:'smooth'});
-};
-
-window.editProductionTx = id => {
-  const tx = store.transactions.find(t => t.id === id);
-  const f = $('prodForm');
-  if(!tx || !f) return;
-  const p = tx.payload || {};
-  f.elements.edit_id.value = tx.id; f.elements.tx_date.value = tx.tx_date; f.elements.tx_number.value = tx.tx_number;
-  f.elements.product_id.value = p.product_id||''; f.elements.estimated_pouches.value = p.estimated_pouches||0;
-  f.elements.actual_pouches.value = p.actual_pouches||0; f.elements.pouch_wt_g.value = p.pouch_wt_g||0;
-  $('rawLinesWrap').innerHTML = ''; (p.raw_lines && p.raw_lines.length ? p.raw_lines : [{}]).forEach(r => window.addRawRow(r));
-  $('printLinesWrap').innerHTML = ''; (p.print_lines && p.print_lines.length ? p.print_lines : [{}]).forEach(pr => window.addPrintRow(pr));
-  window.recalcProdForm();
-  window.scrollTo({top:0, behavior:'smooth'});
-};
-
-window.viewItemMoves = id => {
-  const item = buildStockLedger().find(l => l.id === id);
-  const box = $('moveHistoryBox');
-  if(!item || !box) return;
-  box.innerHTML = `<div class="card"><h3>Movements: ${esc(item.name)}</h3><div class="tablewrap"><table>
-    <tr><th>दिनांक</th><th>Voucher</th><th>Type</th><th>Location</th><th>Qty</th><th>विवरण</th></tr>
-    ${item.movements.map(m => `<tr><td>${esc(m.date)}</td><td>${esc(m.tx_number)}</td><td>${esc(m.type)}</td><td>${esc(m.location)}</td><td><b>${m.change}</b></td><td>${esc(m.label)}</td></tr>`).join('') || '<tr><td colspan="6">कोई मूवमेंट नहीं</td></tr>'}
-  </table></div></div>`;
-};
-
-window.downloadBackup = mode => {
-  const t = today();
-  const data = mode === 'daily'
-    ? { mode:'daily', date:t, store:{ ...store, transactions: store.transactions.filter(x => x.tx_date === t) } }
-    : { mode:'full', exportedAt: new Date().toISOString(), store };
-  if(mode === 'daily') cfg.lastDailyBackup = t;
-  persist();
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}));
-  a.download = `Sadhna-Agro-${mode.toUpperCase()}-${t}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  safeRender();
-};
-
-window.toggleCancelTx = toggleCancelTx;
-
-loadStorage();
-safeRender();
-window.addEventListener('online', () => runCloudSync(false));
-window.addEventListener('DOMContentLoaded', async () => {
-  try{
-    await connectSupabase();
-    await runCloudSync(false);
-    safeRender();
-  }catch(e){ console.warn('Offline startup:', e); }
-});
-</script>
-</body>
-</html>
+    function resetDemoData() {
+      erpState = JSON.parse(JSON.stringify(defaultData))
