@@ -134,22 +134,4 @@ async function readBill(blob){
 }
 function show(){PH="";
  $("nav").innerHTML=Object.keys(G).map(g=>`<button data-g="${g}" class="${g===grp?"on":""}">${G[g][0]}</button>`).join("");
- const ps=G[grp][1];$("sub").hidden=ps.length<2;$("sub").innerHTML=ps.map(p=>`<button data-p="${p}" class="${p===pg?"on":""}">${LB[p]}</button>`).join("");
- $("bc").textContent="SURYA SWAD > "+G[grp][0]+(ps.length>1?" > "+LB[pg]:"");
- const o=P[pg],h=typeof o==="function"?o():o.html();$("view").innerHTML=h;
- const go=$("go");if(ED&&ED.k===pg&&go){const rec=arr(ED.k)[ED.i];if(rec){FM[pg].forEach((key,j)=>{$("abc"[j]).value=rec[key]??""});go.textContent="✓ Update"}else ED=null}if(go&&o.save)go.onclick=()=>{const r=o.save();if(r&&r!==0)return toast(r);if(r!==0){persist();toast("Saved ✓");show()}};
- if(pg==="backup")$("rs").onclick=()=>{const fi=$("rf").files[0];if(!fi)return toast("Select a .json file first");const rd=new FileReader();rd.onload=e=>{try{const x=JSON.parse(e.target.result);L.forEach(k=>db[k]=Array.isArray(x[k])?x[k]:[]);persist();toast("Backup restored ✓");show()}catch(er){toast("Invalid backup file")}};rd.readAsText(fi)};
- if(pg==="purchase"&&EX.length){const it=EX.shift();fillItem(it);PH=BILL.photo||"";toast("Agla item bhara: "+(it.name||"")+". Check karke Save karo")}else if(pg!=="purchase")EX=[];
-}
-$("nav").onclick=e=>{const g=e.target.dataset.g;if(g){ED=null;grp=g;pg=G[g][1][0];show()}};
-document.addEventListener("change",e=>{if(e.target.id!=="h"||!e.target.files[0])return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);PH=c.toDataURL("image/jpeg",0.6);st("Bill padh raha hoon…");toast("Bill padh raha hoon… 🤖");c.toBlob(b=>readBill(b),"image/jpeg",0.7)};im.src=r.result};r.readAsDataURL(e.target.files[0])});
-document.addEventListener("click",e=>{const t=e.target;if(t.tagName==="IMG"&&t.dataset.ph!==undefined){$("lb").innerHTML=`<img src="${db.purchases[t.dataset.ph].photo}" style="max-width:100%;max-height:100%;border-radius:8px">`;$("lb").style.display="flex"}else if(t.closest("#lb"))$("lb").style.display="none"});
-$("sub").onclick=e=>{const p=e.target.dataset.p;if(p){ED=null;pg=p;show()}};
-document.addEventListener("click",e=>{if(e.target.id!=="bk")return;const rows=$("bt").value.split("\n").map(x=>x.trim()).filter(Boolean),cat=val("d"),date=val("a")||today,bill=val("b"),party=val("c")||"Cash / Mandi";let ok=0;
-rows.forEach(l=>{const p=l.split(/[,\t|]/).map(x=>x.trim()),m=p[0],q=n(p[1]),r=n(p[2]),c=/^p/i.test(p[3]||"")?"Packing Material":cat;if(!m||q<=0)return;db.purchases.push({date,bill,party,category:c,material:m,qty:q,rate:r,photo:ok===0?PH:""});const arr=c==="Raw Material"?db.raw:db.packing,x=arr.find(y=>same(y.name,m));x?x.qty=n(x.qty)+q:arr.push(c==="Raw Material"?{name:m,qty:q}:{name:m,unit:"kg/pcs",qty:q});ok++});
-if(!ok)return toast("Koi valid line nahi mili (item, qty, rate)");persist();toast(ok+" purchase add ✓");show()});
-document.addEventListener("click",e=>{const t=e.target;if(t.dataset&&t.dataset.ed){const[k,i]=t.dataset.ed.split(":");ED={k,i:+i};show();window.scrollTo(0,0)}else if(t.dataset&&t.dataset.dl){if(t.dataset.arm){const[k,i]=t.dataset.dl.split(":");arr(k).splice(+i,1);ED=null;persist();toast("Delete ho gaya");show()}else{t.dataset.arm=1;t.textContent="Pakka?"}}});
-show();
-</script>
-</body>
-</html>
+ const ps=G[grp][1];$("sub").hidden=ps.length<2;$("sub").innerHTML=ps.map(p=>`<button data-p="${p}" cl
