@@ -54,10 +54,24 @@ const qty=v=>num(v).toLocaleString("en-IN",{maximumFractionDigits:3});
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const blank=()=>({products:[],raw:[],packing:[],printing:[],parties:[],purchases:[],productions:[],batches:[],sales:[],expenses:[],adjustments:[]});
 let db=blank(), page="dashboard", editing=null;
+
+function ensureIds(obj){
+ let d={...blank(),...(obj||{})};
+ Object.keys(d).forEach(k=>{
+  if(Array.isArray(d[k])){
+   d[k]=d[k].map((item,idx)=>item && typeof item==="object" ? ({...item, id: item.id || ("rec_"+k+"_"+idx+"_"+uid())}) : item);
+  }
+ });
+ return d;
+}
+
 try{
  let saved=localStorage.getItem(NEWKEY);
- if(saved) db={...blank(),...JSON.parse(saved)};
- else {let old=JSON.parse(localStorage.getItem(KEY)||"{}");db={...blank(),products:old.products||[],raw:old.raw||[],packing:old.packing||[],parties:old.parties||[],purchases:old.purchases||[],batches:old.batches||[],sales:old.sales||[],productions:old.dailyProd||[],expenses:[]};}
+ if(saved) db=ensureIds(JSON.parse(saved));
+ else {
+  let old=JSON.parse(localStorage.getItem(KEY)||"{}");
+  db=ensureIds({...blank(),products:old.products||[],raw:old.raw||[],packing:old.packing||[],parties:old.parties||[],purchases:old.purchases||[],batches:old.batches||[],sales:old.sales||[],productions:old.dailyProd||[],expenses:[]});
+ }
 }catch(e){db=blank()}
 
 async function syncToSheet(silent=false){
@@ -118,11 +132,11 @@ raw:{arr:"raw",title:"Raw Material Master",fields:[field("name","Material Name")
 packing:{arr:"packing",title:"Packing Material Master",fields:[field("name","Material Name"),field("unit","Unit","select","pcs",["pcs","kg","roll","box"]),field("qty","Opening Stock","number")],cols:["Material","Unit","Stock"]},
 printing:{arr:"printing",title:"Printing Material Master",fields:[field("name","Printing Item / Roll / Ink"),field("unit","Unit","select","kg",["kg","roll","pcs"]),field("qty","Opening Stock","number")],cols:["Printing Item","Unit","Stock"]},
 parties:{arr:"parties",title:"Supplier / Customer Master",fields:[field("name","Party Name"),field("city","City / Mandi"),field("phone","Mobile (optional)")],cols:["Party","City","Mobile"]}
-}[kind],arr=db[cfg.arr],edit=editing&&editing.kind===kind?arr.find(x=>x.id===editing.id):null;
+}[kind],arr=db[cfg.arr],edit=editing&&editing.kind===kind?arr.find(x=>String(x.id)===String(editing.id)):null;
 let rows=arr.map(x=>[esc(x.name),kind==="products"?qty(x.weight)+" g":kind==="parties"?esc(x.city||""):esc(x.unit||"kg"),kind==="products"?money(x.mrp):kind==="parties"?esc(x.phone||""):qty(x.qty),`<button type="button" class="btn small light" data-edit="${kind}:${esc(x.id)}">Edit</button><button type="button" class="btn small danger" data-delete="${kind}:${esc(x.id)}">Delete</button>`]);
 return form(cfg.title,cfg.fields,edit?"Update":"Save",edit?"Cancel Edit":"Clear")+"<div class=card><h2>Saved Records</h2>"+table([...cfg.cols,"Stock / Action"],rows)+"</div>"}
 function purchasePage(){
- let edit=editing&&editing.kind==="purchases"?db.purchases.find(x=>x.id===editing.id):null;
+ let edit=editing&&editing.kind==="purchases"?db.purchases.find(x=>String(x.id)===String(editing.id)):null;
  return form(
   edit?"Edit Purchase / Inward Entry":"Purchase / Inward Entry",
   [
@@ -148,13 +162,15 @@ function adjustmentPage(){return form("Inventory Stock Adjustment",[field("date"
 function stockPage(){let rows=[];[["Raw Material",db.raw],["Packing Material",db.packing],["Printing Material",db.printing]].forEach(([cat,a])=>a.forEach(x=>rows.push([cat,esc(x.name),qty(x.qty),esc(x.unit||"kg"),num(x.qty)<5?'<span class="warn">LOW</span>':'OK'])));let fm=finishedStock();return `<div class=card><h2>Live Inventory</h2>${table(["Category","Item","Available","Unit","Status"],rows)}</div><div class=card><h2>Finished Pouch Stock</h2>${table(["Product","Pouches","Packets (36)","Bags (720)","Loose Pouches"],Object.entries(fm).map(([k,v])=>[esc(k),qty(v),qty(Math.floor(v/36)),qty(Math.floor(v/720)),qty(v%720)]))}</div>`}
 function historyPage(type){
  let arr=type==="purchase"?db.purchases:type==="production"?db.productions:type==="batch"?db.batches:type==="sales"?db.sales:db.expenses;
- let rows=arr.slice().reverse().map(x=>
-  type==="purchase"?[fmtDate(x.date),esc(x.bill||""),esc(x.party||""),esc(x.category),esc(x.material),qty(x.qty)+" "+esc(x.unit||""),money(x.rate),money(num(x.qty)*num(x.rate)),`<button type="button" class="btn small light" data-edit="purchases:${esc(x.id)}">Edit</button><button type="button" class="btn small danger" data-delete="purchases:${esc(x.id)}">Delete</button>`]:
+ let rows=arr.slice().reverse().map((x,revIdx)=>{
+  let realIdx=arr.length-1-revIdx;
+  if(!x.id)x.id="rec_"+type+"_"+realIdx+"_"+uid();
+  return type==="purchase"?[fmtDate(x.date),esc(x.bill||""),esc(x.party||""),esc(x.category),esc(x.material),qty(x.qty)+" "+esc(x.unit||""),money(x.rate),money(num(x.qty)*num(x.rate)),`<button type="button" class="btn small light" data-edit="purchases:${esc(x.id)}">Edit</button><button type="button" class="btn small danger" data-delete="purchases:${esc(x.id)}">Delete</button>`]:
   type==="production"?[fmtDate(x.date),esc(x.rawName),qty(x.inputQty),qty(x.outputQty),qty(x.lossPct)+"%",esc(x.operator||"")]:
   type==="batch"?[fmtDate(x.date),esc(x.batchNo),esc(x.product),qty(x.pouches),money(x.totalCost),money(x.costPerPouch)]:
   type==="sales"?[fmtDate(x.date),esc(x.party),esc(x.product),qty(x.pouches),money(x.rate),money(x.pouches*x.rate)]:
-  [fmtDate(x.date),esc(x.category),esc(x.detail),money(x.amount),esc(x.party||"")]
- );
+  [fmtDate(x.date),esc(x.category),esc(x.detail),money(x.amount),esc(x.party||"")];
+ });
  let heads=
   type==="purchase"?["Date","Bill","Party","Category","Item","Qty","Rate","Total","Action"]:
   type==="production"?["Date","Raw Material","Input kg","Output kg","Loss %","Operator"]:
@@ -258,7 +274,7 @@ function handleSave(){
   let data={name};if(page==="products")Object.assign(data,{weight:number("weight"),mrp:number("mrp")});
   else if(page==="parties")Object.assign(data,{city:val("city"),phone:val("phone")});
   else Object.assign(data,{unit:get("unit")||"kg",qty:number("qty")});
-  if(editing&&editing.kind===page){let old=arr.find(x=>x.id===editing.id);if(old)Object.assign(old,data);editing=null}
+  if(editing&&editing.kind===page){let old=arr.find(x=>String(x.id)===String(editing.id));if(old)Object.assign(old,data);editing=null}
   else {if(arr.some(x=>x.name.toLowerCase()===name.toLowerCase()))return toast("Ye naam pehle se hai");arr.push({id:uid(),...data})}
  }else if(page==="purchase"){
   let category=get("category"),material=val("material"),q=number("qty"),unit=get("unit");
@@ -266,7 +282,7 @@ function handleSave(){
   let file=$("billPhoto")?.files?.[0];if(file){if(file.size>1500000)return toast("Photo 1.5 MB se chhoti rakhein");}
   let newEntry={date:get("date")||today(),bill:val("bill"),party:val("party")||"Cash / Mandi",category,material,unit,qty:q,rate:number("rate")};
   if(editing&&editing.kind==="purchases"){
-   let old=db.purchases.find(x=>x.id===editing.id);
+   let old=db.purchases.find(x=>String(x.id)===String(editing.id));
    if(old){
     let oldStock=byName(stockArray(old.category),old.material);
     let oldQ=num(old.qty);
@@ -351,7 +367,7 @@ $("app").addEventListener("click",e=>{
  if(expBtn){exportData(expBtn.dataset.export);return}
  if(e.target.id==="allExport"){let rows=[["Section","Record JSON"]];Object.entries(db).forEach(([k,a])=>a.forEach(x=>rows.push([k,JSON.stringify(x)])));download(csv(rows),"surya_swad_complete_export.csv","text/csv;charset=utf-8");return}
  if(e.target.id==="backupDownload"){download(JSON.stringify(db,null,2),"surya_swad_backup_"+today()+".json","application/json");return}
- if(e.target.id==="restoreBtn"){let f=$("restoreFile").files[0];if(!f)return toast("Backup file select karein");let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x||typeof x!=="object")throw 0;db={...blank(),...x};save();render();toast("Backup restored ✓")}catch(e){toast("Invalid backup file")}};r.readAsText(f);return}
+ if(e.target.id==="restoreBtn"){let f=$("restoreFile").files[0];if(!f)return toast("Backup file select karein");let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x||typeof x!=="object")throw 0;db=ensureIds({...blank(),...x});save();render();toast("Backup restored ✓")}catch(e){toast("Invalid backup file")}};r.readAsText(f);return}
  if(e.target.id==="themeToggle"){document.documentElement.dataset.theme=document.documentElement.dataset.theme==="dark"?"light":"dark";return}
  if(e.target.id==="saveCloud"){
   let u=val("sheetUrl");
