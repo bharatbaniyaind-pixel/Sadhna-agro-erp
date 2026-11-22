@@ -119,7 +119,7 @@ packing:{arr:"packing",title:"Packing Material Master",fields:[field("name","Mat
 printing:{arr:"printing",title:"Printing Material Master",fields:[field("name","Printing Item / Roll / Ink"),field("unit","Unit","select","kg",["kg","roll","pcs"]),field("qty","Opening Stock","number")],cols:["Printing Item","Unit","Stock"]},
 parties:{arr:"parties",title:"Supplier / Customer Master",fields:[field("name","Party Name"),field("city","City / Mandi"),field("phone","Mobile (optional)")],cols:["Party","City","Mobile"]}
 }[kind],arr=db[cfg.arr],edit=editing&&editing.kind===kind?arr.find(x=>x.id===editing.id):null;
-let rows=arr.map(x=>[esc(x.name),kind==="products"?qty(x.weight)+" g":kind==="parties"?esc(x.city||""):esc(x.unit||"kg"),kind==="products"?money(x.mrp):kind==="parties"?esc(x.phone||""):qty(x.qty),`<button class="btn small light" data-edit="${kind}:${x.id}">Edit</button><button class="btn small danger" data-delete="${kind}:${x.id}">Delete</button>`]);
+let rows=arr.map(x=>[esc(x.name),kind==="products"?qty(x.weight)+" g":kind==="parties"?esc(x.city||""):esc(x.unit||"kg"),kind==="products"?money(x.mrp):kind==="parties"?esc(x.phone||""):qty(x.qty),`<button type="button" class="btn small light" data-edit="${kind}:${esc(x.id)}">Edit</button><button type="button" class="btn small danger" data-delete="${kind}:${esc(x.id)}">Delete</button>`]);
 return form(cfg.title,cfg.fields,edit?"Update":"Save",edit?"Cancel Edit":"Clear")+"<div class=card><h2>Saved Records</h2>"+table([...cfg.cols,"Stock / Action"],rows)+"</div>"}
 function purchasePage(){
  let edit=editing&&editing.kind==="purchases"?db.purchases.find(x=>x.id===editing.id):null;
@@ -149,7 +149,7 @@ function stockPage(){let rows=[];[["Raw Material",db.raw],["Packing Material",db
 function historyPage(type){
  let arr=type==="purchase"?db.purchases:type==="production"?db.productions:type==="batch"?db.batches:type==="sales"?db.sales:db.expenses;
  let rows=arr.slice().reverse().map(x=>
-  type==="purchase"?[fmtDate(x.date),esc(x.bill||""),esc(x.party||""),esc(x.category),esc(x.material),qty(x.qty)+" "+esc(x.unit||""),money(x.rate),money(num(x.qty)*num(x.rate)),`<button class="btn small light" data-edit="purchases:${x.id}">Edit</button><button class="btn small danger" data-delete="purchases:${x.id}">Delete</button>`]:
+  type==="purchase"?[fmtDate(x.date),esc(x.bill||""),esc(x.party||""),esc(x.category),esc(x.material),qty(x.qty)+" "+esc(x.unit||""),money(x.rate),money(num(x.qty)*num(x.rate)),`<button type="button" class="btn small light" data-edit="purchases:${esc(x.id)}">Edit</button><button type="button" class="btn small danger" data-delete="purchases:${esc(x.id)}">Delete</button>`]:
   type==="production"?[fmtDate(x.date),esc(x.rawName),qty(x.inputQty),qty(x.outputQty),qty(x.lossPct)+"%",esc(x.operator||"")]:
   type==="batch"?[fmtDate(x.date),esc(x.batchNo),esc(x.product),qty(x.pouches),money(x.totalCost),money(x.costPerPouch)]:
   type==="sales"?[fmtDate(x.date),esc(x.party),esc(x.product),qty(x.pouches),money(x.rate),money(x.pouches*x.rate)]:
@@ -166,7 +166,7 @@ function historyPage(type){
 function reportPage(){let month=$("monthFilter")?.value||today().slice(0,7),inMonth=x=>(x.date||"").slice(0,7)===month,ps=db.purchases.filter(inMonth),bs=db.batches.filter(inMonth),ss=db.sales.filter(inMonth),es=db.expenses.filter(inMonth);let buy=ps.reduce((a,x)=>a+x.qty*x.rate,0),cost=bs.reduce((a,x)=>a+x.totalCost,0),rev=ss.reduce((a,x)=>a+x.pouches*x.rate,0),exp=es.reduce((a,x)=>a+x.amount,0);return `<div class=card><h2>Monthly Business Report</h2><div class=formgrid>${field("monthFilter","Select Month","month",month)}</div><div class=grid style="margin-top:12px">${metric("Purchase Value",money(buy),ps.length+" entries")}${metric("Production Cost",money(cost),bs.length+" batches")}${metric("Sales Value",money(rev),ss.length+" dispatches")}${metric("Other Expenses",money(exp),es.length+" entries")}${metric("Gross Difference",money(rev-cost-exp),"Sales − production cost − expenses")}</div><h3>Monthly Production</h3>${table(["Date","Batch","Product","Pouches","Cost/Pouch"],bs.map(x=>[fmtDate(x.date),esc(x.batchNo),esc(x.product),qty(x.pouches),money(x.costPerPouch)]))}<h3>Monthly Sales</h3>${table(["Date","Party","Product","Pouches","Amount"],ss.map(x=>[fmtDate(x.date),esc(x.party),esc(x.product),qty(x.pouches),money(x.pouches*x.rate)]))}</div>`}
 function exportPage(){return `<div class=card><h2>Excel / CSV Export</h2><p class=muted>Har section ki alag CSV file download hogi. CSV Microsoft Excel mein khulti hai.</p><div class=actions>${["products","raw","packing","printing","parties","purchases","productions","batches","sales","expenses","adjustments"].map(k=>`<button class="btn" data-export="${k}">${k} CSV</button>`).join("")}<button class="btn secondary" id="allExport">Complete ERP CSV</button></div></div>`}
 function backupPage(){return `<div class=card><h2>Backup & Restore</h2><p class=muted>Backup ko phone ke Downloads folder mein rakhein. Restore karne se current data replace hoga.</p><button class="btn" id="backupDownload">Download Full JSON Backup</button><div class=field style="margin-top:16px"><label>Restore JSON Backup</label><input type=file id=restoreFile accept=".json,application/json"></div><button class="btn danger" id="restoreBtn">Restore Backup</button></div>`}
-function settingsPage(){return `<div class=card><h2>Company & Packing Rules</h2><div class=notice><b>Company:</b> SURYA SWAD<br><b>1 Packet:</b> 36 pouches<br><b>1 Bag:</b> 20 packets = 720 pouches<br><b>Outer Panni:</b> 1 per 36 pouches<br><b>LD Outer Panni:</b> 1 per packet<br><b>Machine Cost:</b> ₹120 per machine-hour</div><p class=muted>These rules are shown as the standard costing assumptions. Actual material consumption and costs are entered batch-wise.</p><button class=btn id=themeToggle>Toggle Dark / Light Theme</button></div>`}
+function settingsPage(){return `<div class=card><h2>Company & Packing Rules</h2><div class=notice><b>Company:</b> SURYA SWAD<br><b>1 Packet:</b> 36 pouches<br><b>1 Bag:</b> 20 packets = 720 pouches<br><b>Outer Panni:</b> 1 per 36 pouches<br><b>LD Outer Panni:</b> 1 per packet<br><b>Machine Cost:</b> ₹120 per machine-hour</div><p class=muted>These rules are shown as the standard costing assumptions. Actual material consumption and costs are entered batch-wise.</p><button class="btn" id="themeToggle">Toggle Dark / Light Theme</button></div>`}
 
 const appsScriptCode = `function doPost(e) {
   try {
@@ -314,38 +314,41 @@ function handleSave(){
 function download(content,name,type){let a=document.createElement("a"),url=URL.createObjectURL(new Blob([content],{type}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function csv(rows){return "\ufeff"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n")}
 function exportData(k){let a=db[k]||[];let keys=a.length?Object.keys(a[0]):[];download(csv([keys,...a.map(x=>keys.map(k=>typeof x[k]==="object"?JSON.stringify(x[k]):x[k]))]),"surya_swad_"+k+".csv","text/csv;charset=utf-8");}
-$("nav").addEventListener("click",e=>{let g=e.target.dataset.group;if(g){page=tabs[g][0][0];editing=null;render()}});
-$("tabs").addEventListener("click",e=>{let p=e.target.dataset.page;if(p){page=p;editing=null;render()}});
+$("nav").addEventListener("click",e=>{let b=e.target.closest("[data-group]");let g=b?.dataset.group;if(g){page=tabs[g][0][0];editing=null;render()}});
+$("tabs").addEventListener("click",e=>{let b=e.target.closest("[data-page]");let p=b?.dataset.page;if(p){page=p;editing=null;render()}});
 $("app").addEventListener("click",e=>{
+ const editBtn=e.target.closest("[data-edit]");
+ const delBtn=e.target.closest("[data-delete]");
+ const expBtn=e.target.closest("[data-export]");
  if(e.target.id==="saveForm"){handleSave();return}
  if(e.target.id==="cancelEdit"){let wasPurchaseEdit=editing&&editing.kind==="purchases";editing=null;if(wasPurchaseEdit)page="purchaseHistory";render();return}
- if(e.target.dataset.edit){
-  let [kind,id]=e.target.dataset.edit.split(":");
-  let x=db[kind]?.find(y=>y.id===id);
-  if(!x)return;
-  editing={kind,id};
+ if(editBtn){
+  let [kind,id]=editBtn.dataset.edit.split(":");
+  let x=db[kind]?.find(y=>String(y.id)===String(id));
+  if(!x)return toast("Record nahi mila");
+  editing={kind,id:x.id};
   if(kind==="purchases"){page="purchase";render();return}
   render();
   let vals=kind==="products"?["name","weight","mrp"]:kind==="parties"?["name","city","phone"]:["name","unit","qty"];
   vals.forEach(k=>{let el=$(k);if(el)el.value=x[k]??""});
-  $("saveForm").textContent="Update";
+  if($("saveForm"))$("saveForm").textContent="Update";
   return;
  }
- if(e.target.dataset.delete){
-  let [kind,id]=e.target.dataset.delete.split(":");
+ if(delBtn){
+  let [kind,id]=delBtn.dataset.delete.split(":");
   if(!confirm("Is record ko delete karein?"))return;
   if(kind==="purchases"){
-   let p=db.purchases.find(x=>x.id===id);
+   let p=db.purchases.find(x=>String(x.id)===String(id));
    if(p){
     let st=byName(stockArray(p.category),p.material);
     if(st && num(st.qty)<num(p.qty))return toast("Stock pehle hi use ho chuka hai, delete nahi kar sakte");
     if(st)st.qty=num(st.qty)-num(p.qty);
    }
   }
-  db[kind]=db[kind].filter(x=>x.id!==id);
+  db[kind]=db[kind].filter(x=>String(x.id)!==String(id));
   save();render();toast("Deleted");return;
  }
- if(e.target.dataset.export){exportData(e.target.dataset.export);return}
+ if(expBtn){exportData(expBtn.dataset.export);return}
  if(e.target.id==="allExport"){let rows=[["Section","Record JSON"]];Object.entries(db).forEach(([k,a])=>a.forEach(x=>rows.push([k,JSON.stringify(x)])));download(csv(rows),"surya_swad_complete_export.csv","text/csv;charset=utf-8");return}
  if(e.target.id==="backupDownload"){download(JSON.stringify(db,null,2),"surya_swad_backup_"+today()+".json","application/json");return}
  if(e.target.id==="restoreBtn"){let f=$("restoreFile").files[0];if(!f)return toast("Backup file select karein");let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x||typeof x!=="object")throw 0;db={...blank(),...x};save();render();toast("Backup restored ✓")}catch(e){toast("Invalid backup file")}};r.readAsText(f);return}
