@@ -86,7 +86,7 @@ function save(autoSync=true){
 function toast(s){let t=$("toast");t.textContent=s;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2600)}
 function fmtDate(d){return esc(d||"")}
 function table(headers,rows){if(!rows.length)return '<div class="empty">Abhi koi record nahi hai.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>`<th>${x}</th>`).join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>`<td>${x??""}</td>`).join("")+'</tr>').join("")+'</tbody></table></div>'}
-function field(id,label,type="text",value="",opts=[]){let control=type==="select"?`<select id="${id}">${opts.map(x=>`<option value="${esc(x)}" ${String(x)===String(value)?"selected":""}>${esc(x)}</option>`).join("")}</select>`:type==="file"?`<input id="${id}" type="file" accept="image/*">`:`<input id="${id}" type="${type}" value="${esc(value)}" ${type==="number"?'step="any"':''}>`;return `<div class="field"><label for="${id}">${label}</label>${control}</div>`}
+function field(id,label,type="text",value="",opts=[]){let control=type==="select"?`<select id="${id}">${opts.map(x=>`<option value="${esc(x)}" ${String(x)===String(value)?"selected":""}>${esc(x)}</option>`).join("")}</select>`:`<input id="${id}" type="${type}" value="${esc(value)}" ${type==="number"?'step="any"':''}>`;return `<div class="field"><label for="${id}">${label}</label>${control}</div>`}
 function form(title,fields,submit="Save",cancelLabel="Clear"){return `<div class="card"><h2>${title}</h2><div class="formgrid">${fields.join("")}</div><div class="actions"><button type="button" class="btn" id="saveForm">${submit}</button><button type="button" class="btn light" id="cancelEdit">${cancelLabel}</button></div></div>`}
 const navItems=[["dashboard","Dashboard"],["masters","Masters"],["purchase","Purchase"],["production","Production"],["inventory","Inventory"],["sales","Sales"],["expenses","Expenses"],["reports","Reports / Backup"],["settings","Settings"]];
 const tabs={
@@ -252,7 +252,6 @@ else if(page==="backup")view=backupPage();
 else if(page==="settings")view=settingsPage();
 else if(page==="cloud")view=cloudPage();
 $("app").innerHTML=view;
- if(page==="purchase")updatePurchaseGstPreview();
 }
 function val(id){let e=$(id);return e?e.value.trim():""}
 function get(id){let e=$(id);return e?e.value:""}
@@ -384,17 +383,94 @@ $("app").addEventListener("click",e=>{
  if(e.target.id==="copyScriptBtn"){navigator.clipboard.writeText(appsScriptCode).then(()=>toast("Apps Script code copied ✓")).catch(()=>toast("Code box se manually copy karein"));return}
 });
 $("app").addEventListener("input",e=>{if(["qty","rate","gstRate"].includes(e.target.id))updatePurchaseGstPreview()});
-$("app").addEventListener("change",e=>{
- if(e.target.id==="monthFilter")render();
- if(["qty","rate","gstRate","gstType"].includes(e.target.id))updatePurchaseGstPreview();
- if(e.target.id==="billPhoto"){
-  e.stopPropagation();
-  const f=e.target.files&&e.target.files[0];
-  if(f)toast("Bill photo selected: "+f.name+". Ab Save Purchase dabayein.");
- }
-});
+$("app").addEventListener("change",e=>{if(e.target.id==="monthFilter")render();if(["qty","rate","gstRate","gstType"].includes(e.target.id))updatePurchaseGstPreview()});
 $("themeBtn").onclick=()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==="dark"?"light":"dark"};
 $("syncBtn").onclick=()=>{if(localStorage.getItem(URLKEY))syncToSheet(false);else{page="cloud";render();}};
+// ===== PURCHASE BILL IMPORT + OCR =====
+const purchasePageOriginal = purchasePage;
+let billImportRows = [];
+purchasePage = function(){
+ return purchasePageOriginal() + `
+ <div class="card" id="billImportCard">
+  <h2>📄 Purchase Bill Import / OCR</h2>
+  <p class="muted">Photo ya PDF upload karein. OCR text nikalega; item details ko confirm karne se pehle aap edit kar sakte hain.</p>
+  <div class="formgrid">
+   ${field("billImportFile","Bill Photo / PDF","file")}
+   ${field("billImportDate","Bill Date","date",today())}
+   ${field("billImportParty","Supplier / Party")}
+   ${field("billImportNo","Bill Number")}
+   ${field("billImportCategory","Stock Category","select","Raw Material",["Raw Material","Packing Material","Printing Material"])}
+   ${field("billImportUnit","Default Unit","select","kg",["kg","pcs","roll","box","litre"])}
+   ${field("billImportGstType","GST Type","select","CGST + SGST",["CGST + SGST","IGST"])}
+  </div>
+  <div class="actions"><button type="button" class="btn" id="processBillOCR">Read Bill / OCR</button><button type="button" class="btn secondary" id="parseBillText">Create Item Preview</button></div>
+  <p id="billOCRStatus" class="muted"></p>
+  <div class="field"><label for="billOCRText">OCR Text (zarurat ho to edit karein)</label><textarea id="billOCRText" rows="7" placeholder="OCR se padha gaya text yahan aayega..."></textarea></div>
+  <div class="actions"><button type="button" class="btn light" id="addBillRow">+ Add Item Manually</button><button type="button" class="btn secondary" id="exportBillRows">Download Excel CSV</button><button type="button" class="btn" id="confirmBillRows">Confirm & Update Stock</button></div>
+  <div id="billRowsPreview"></div>
+ </div>`;
+};
+
+function billLoadScript(src){return new Promise((resolve,reject)=>{if(document.querySelector('script[data-bill-lib="'+src+'"]'))return resolve();let s=document.createElement("script");s.src=src;s.dataset.billLib=src;s.onload=resolve;s.onerror=()=>reject(new Error("OCR library load nahi hui"));document.head.appendChild(s);});}
+async function runBillOCR(file){
+ const status=$("billOCRStatus");
+ if(!file)return toast("Pehle bill photo ya PDF select karein");
+ if(file.size>15*1024*1024)return toast("File 15 MB se chhoti rakhein");
+ status.textContent="OCR library load ho rahi hai...";
+ await billLoadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js");
+ let textOut="";
+ const recognize=async image=>{const result=await Tesseract.recognize(image,"eng",{logger:m=>{if(m.status)status.textContent="OCR: "+m.status+(m.progress?" "+Math.round(m.progress*100)+"%":"");}});return result.data.text||"";};
+ if(file.type==="application/pdf"||file.name.toLowerCase().endsWith(".pdf")){
+  await billLoadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  for(let n=1;n<=pdf.numPages;n++){status.textContent="PDF page "+n+" / "+pdf.numPages+" read ho raha hai...";const p=await pdf.getPage(n);const v=p.getViewport({scale:1.8});const c=document.createElement("canvas");c.width=v.width;c.height=v.height;await p.render({canvasContext:c.getContext("2d"),viewport:v}).promise;textOut+="\n"+await recognize(c);}
+ }else{textOut=await recognize(file);}
+ $("billOCRText").value=textOut;
+ status.textContent="OCR complete. Text check karein, phir Create Item Preview dabayein.";
+}
+function drawBillRows(){
+ const box=$("billRowsPreview");if(!box)return;
+ if(!billImportRows.length){box.innerHTML='<div class="empty">Koi item nahi. OCR Preview ya Add Item Manually dabayein.</div>';return;}
+ box.innerHTML='<h3>Item Preview — Confirm se pehle sab values check karein</h3><div class="tablewrap"><table><thead><tr><th>Item</th><th>Qty</th><th>Rate ₹</th><th>GST %</th><th>Remove</th></tr></thead><tbody>'+billImportRows.map((r,i)=>'<tr><td><input data-bill-i="'+i+'" data-bill-k="material" value="'+esc(r.material)+'"></td><td><input type="number" step="any" data-bill-i="'+i+'" data-bill-k="qty" value="'+esc(r.qty)+'"></td><td><input type="number" step="any" data-bill-i="'+i+'" data-bill-k="rate" value="'+esc(r.rate)+'"></td><td><select data-bill-i="'+i+'" data-bill-k="gstRate">'+[0,5,12,18,28].map(n=>'<option value="'+n+'" '+(Number(r.gstRate)===n?'selected':'')+'>'+n+'%</option>').join('')+'</select></td><td><button type="button" class="btn small danger" data-bill-remove="'+i+'">Remove</button></td></tr>').join('')+'</tbody></table></div>';
+}
+function parseBillOCRText(){
+ const lines=($("billOCRText")?.value||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);const out=[];
+ // Generic invoice heuristic only: candidates are suggestions, not verified bill data.
+ for(const line of lines){
+  const ns=[...line.matchAll(/\d+(?:[,.]\d+)?/g)].map(m=>Number(m[0].replace(/,/g,"")));
+  if(ns.length<2)continue;
+  const name=line.replace(/\d+(?:[,.]\d+)?/g," ").replace(/[₹%]/g," ").replace(/\s+/g," ").trim();
+  if(name.length<2)continue;
+  const gstCandidates=ns.filter(n=>[0,5,12,18,28].includes(n));
+  let q=ns[0],rate=ns[1],gst=gstCandidates.length?gstCandidates[gstCandidates.length-1]:0;
+  if(q>0&&rate>=0)out.push({material:name,qty:q,rate,gstRate:gst});
+ }
+ billImportRows=out;drawBillRows();toast(out.length+" possible item lines mile. Sab values manually check karein.");
+}
+function billCsv(){const rows=[["Date","Bill No","Supplier","Category","Item","Unit","Quantity","Rate","GST %","Taxable","GST Amount","Total"]];for(const r of billImportRows){const taxable=num(r.qty)*num(r.rate),gst=taxable*num(r.gstRate)/100;rows.push([get("billImportDate")||today(),val("billImportNo"),val("billImportParty"),get("billImportCategory"),r.material,get("billImportUnit"),r.qty,r.rate,r.gstRate,taxable,gst,taxable+gst]);}download(csv(rows),"surya_swad_purchase_bill.csv","text/csv;charset=utf-8");}
+$("app").addEventListener("click",async e=>{
+ if(e.target.id==="processBillOCR"){try{await runBillOCR($("billImportFile")?.files?.[0]);}catch(err){if($("billOCRStatus"))$("billOCRStatus").textContent="OCR error: "+err.message;toast("OCR nahi chala. Internet aur file check karein.");}}
+ if(e.target.id==="parseBillText")parseBillOCRText();
+ if(e.target.id==="addBillRow"){billImportRows.push({material:"",qty:"",rate:"",gstRate:0});drawBillRows();}
+ if(e.target.id==="exportBillRows"){if(!billImportRows.length)return toast("Pehle item preview banayein");billCsv();}
+ const rm=e.target.closest("[data-bill-remove]");if(rm){billImportRows.splice(Number(rm.dataset.billRemove),1);drawBillRows();}
+ if(e.target.id==="confirmBillRows"){
+  if(!billImportRows.length)return toast("Koi item preview nahi hai");
+  // Validate every row before changing any stock or purchase records.
+  for(const r of billImportRows){if(!String(r.material||"").trim()||num(r.qty)<=0||num(r.rate)<0||![0,5,12,18,28].includes(Number(r.gstRate)))return toast("Har item ka naam, quantity, rate aur GST check karein");}
+  if(!confirm("Kya checked items ko Purchase History aur Stock mein add karna hai?"))return;
+  const category=get("billImportCategory")||"Raw Material",unit=get("billImportUnit")||"kg",gstType=get("billImportGstType")||"CGST + SGST";
+  for(const r of billImportRows){const taxable=num(r.qty)*num(r.rate),gstAmount=taxable*num(r.gstRate)/100,igst=gstType==="IGST"?gstAmount:0,cgst=igst?0:gstAmount/2,sgst=igst?0:gstAmount/2;
+   db.purchases.push({id:uid(),date:get("billImportDate")||today(),bill:val("billImportNo"),party:val("billImportParty")||"Cash / Mandi",category,material:String(r.material).trim(),unit,qty:num(r.qty),rate:num(r.rate),taxableAmount:taxable,gstRate:Number(r.gstRate),gstType,cgst,sgst,igst,gstAmount,totalAmount:taxable+gstAmount,source:"Bill Import"});
+   addStock(category,String(r.material).trim(),num(r.qty),unit);
+  }
+  save();const count=billImportRows.length;billImportRows=[];page="purchaseHistory";editing=null;render();toast(count+" purchase items aur stock update ho gaya ✓");
+ }
+});
+$("app").addEventListener("input",e=>{const i=Number(e.target.dataset.billI),k=e.target.dataset.billK;if(k&&billImportRows[i])billImportRows[i][k]=e.target.value;});
+$("app").addEventListener("change",e=>{const i=Number(e.target.dataset.billI),k=e.target.dataset.billK;if(k&&billImportRows[i])billImportRows[i][k]=e.target.value;});
+
 render();
 </script>
 </body>
