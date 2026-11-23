@@ -130,11 +130,19 @@ function purchasePage(){
    field("unit","Unit","select",edit?(edit.unit||"kg"):"kg",["kg","pcs","roll","box","litre"]),
    field("qty","Quantity","number",edit?edit.qty:""),
    field("rate","Rate per Unit (₹)","number",edit?edit.rate:""),
+   field("gstRate","GST Rate","select",edit?(edit.gstRate??0):0,["0","5","12","18","28"]),
+   field("gstType","GST Type","select",edit?(edit.gstType||"CGST + SGST"):"CGST + SGST",["CGST + SGST","IGST"]),
    field("billPhoto","Bill Photo (optional)","file")
   ],
   edit?"Update Purchase":"Save",
   edit?"Cancel Edit":"Clear"
- );
+ ) + `<div class="card" id="purchaseGstPreview"><h3>GST Calculation Preview</h3><div class="grid">
+ <div class="metric"><div class="label">Taxable Amount</div><div class="value" id="gstTaxable">₹0</div></div>
+ <div class="metric"><div class="label">CGST</div><div class="value" id="gstCgst">₹0</div></div>
+ <div class="metric"><div class="label">SGST</div><div class="value" id="gstSgst">₹0</div></div>
+ <div class="metric"><div class="label">IGST</div><div class="value" id="gstIgst">₹0</div></div>
+ <div class="metric"><div class="label">Grand Total</div><div class="value" id="gstGrand">₹0</div></div>
+ </div><p class="muted">Rate per unit ko GST se pehle ka taxable rate maana jayega.</p></div>`;
 }
 function productionPage(){return form("Daily Production — Cleaning / Grading / Roasting",[field("date","Date","date",today()),field("rawName","Raw Material"),field("inputQty","Input Qty (kg)","number"),field("outputQty","Clean Output Qty (kg)","number"),field("operator","Operator / Shift"),field("note","Process Note")])}
 function batchPage(){return form("Packing Batch — Pouch Filling",[field("date","Date","date",today()),field("batchNo","Batch No."),field("product","Retail Product / SKU"),field("rawName","Raw Material Used"),field("rawUsed","Raw Consumed (kg)","number"),field("pouches","Actual Pouches Packed","number"),field("laminateName","Laminate / Packing Material"),field("laminateQty","Laminate Used (unit)","number"),field("printingName","Printing Material Used"),field("printingQty","Printing Material Used (unit)","number"),field("pouchWeight","Actual Pouch Weight (g)","number"),field("machineHours","Machine Running Hours","number"),field("laborCost","Labour Cost (₹)","number"),field("otherCost","Other Variable Cost (₹)","number"),field("printingCost","Printing Expense (₹)","number"),field("note","Remarks")])}
@@ -145,14 +153,14 @@ function stockPage(){let rows=[];[["Raw Material",db.raw],["Packing Material",db
 function historyPage(type){
  let arr=type==="purchase"?db.purchases:type==="production"?db.productions:type==="batch"?db.batches:type==="sales"?db.sales:db.expenses;
  let rows=arr.slice().reverse().map(x=>
-  type==="purchase"?[fmtDate(x.date),esc(x.bill||""),esc(x.party||""),esc(x.category),esc(x.material),qty(x.qty)+" "+esc(x.unit||""),money(x.rate),money(num(x.qty)*num(x.rate)),`<button type="button" class="btn small light" data-edit="purchases:${esc(x.id)}">Edit</button><button type="button" class="btn small danger" data-delete="purchases:${esc(x.id)}">Delete</button>`]:
+  type==="purchase"?[fmtDate(x.date),esc(x.bill||""),esc(x.party||""),esc(x.category),esc(x.material),qty(x.qty)+" "+esc(x.unit||""),money(x.rate),money(x.taxableAmount??(num(x.qty)*num(x.rate))),String(x.gstRate??0)+"%",esc(x.gstType||"-"),money(x.cgst||0),money(x.sgst||0),money(x.igst||0),money(x.totalAmount??(num(x.qty)*num(x.rate))),`<button type="button" class="btn small light" data-edit="purchases:${esc(x.id)}">Edit</button><button type="button" class="btn small danger" data-delete="purchases:${esc(x.id)}">Delete</button>`]:
   type==="production"?[fmtDate(x.date),esc(x.rawName),qty(x.inputQty),qty(x.outputQty),qty(x.lossPct)+"%",esc(x.operator||"")]:
   type==="batch"?[fmtDate(x.date),esc(x.batchNo),esc(x.product),qty(x.pouches),money(x.totalCost),money(x.costPerPouch)]:
   type==="sales"?[fmtDate(x.date),esc(x.party),esc(x.product),qty(x.pouches),money(x.rate),money(x.pouches*x.rate)]:
   [fmtDate(x.date),esc(x.category),esc(x.detail),money(x.amount),esc(x.party||"")]
  );
  let heads=
-  type==="purchase"?["Date","Bill","Party","Category","Item","Qty","Rate","Total","Action"]:
+  type==="purchase"?["Date","Bill","Party","Category","Item","Qty","Rate/Unit","Taxable","GST %","GST Type","CGST","SGST","IGST","Grand Total","Action"]:
   type==="production"?["Date","Raw Material","Input kg","Output kg","Loss %","Operator"]:
   type==="batch"?["Date","Batch","Product","Pouches","Batch Cost","Cost/Pouch"]:
   type==="sales"?["Date","Customer","Product","Pouches","Rate","Total"]:
@@ -248,6 +256,20 @@ $("app").innerHTML=view;
 function val(id){let e=$(id);return e?e.value.trim():""}
 function get(id){let e=$(id);return e?e.value:""}
 function number(id){return num(get(id))}
+function purchaseGstCalc(){
+ let taxable=number("qty")*number("rate"), rate=number("gstRate"), gst=taxable*rate/100;
+ let igst=get("gstType")==="IGST"?gst:0, cgst=get("gstType")==="CGST + SGST"?gst/2:0, sgst=cgst;
+ return {taxableAmount:taxable,gstRate:rate,gstType:get("gstType")||"CGST + SGST",cgst,sgst,igst,gstAmount:gst,totalAmount:taxable+gst};
+}
+function updatePurchaseGstPreview(){
+ if(page!=="purchase"||!$("gstTaxable"))return;
+ let x=purchaseGstCalc();
+ $("gstTaxable").textContent=money(x.taxableAmount);
+ $("gstCgst").textContent=money(x.cgst);
+ $("gstSgst").textContent=money(x.sgst);
+ $("gstIgst").textContent=money(x.igst);
+ $("gstGrand").textContent=money(x.totalAmount);
+}
 function handleSave(){
  if(["products","raw","packing","printing","parties"].includes(page)){
   let arr=db[page],name=val("name");if(!name)return toast("Name enter karein");
@@ -260,7 +282,7 @@ function handleSave(){
   let category=get("category"),material=val("material"),q=number("qty"),unit=get("unit");
   if(!material||q<=0)return toast("Item aur valid quantity zaroori hai");
   let file=$("billPhoto")?.files?.[0];if(file){if(file.size>1500000)return toast("Photo 1.5 MB se chhoti rakhein");}
-  let newEntry={date:get("date")||today(),bill:val("bill"),party:val("party")||"Cash / Mandi",category,material,unit,qty:q,rate:number("rate")};
+  let gst=purchaseGstCalc(); let newEntry={date:get("date")||today(),bill:val("bill"),party:val("party")||"Cash / Mandi",category,material,unit,qty:q,rate:number("rate"),...gst};
   if(editing&&editing.kind==="purchases"){
    let old=db.purchases.find(x=>String(x.id)===String(editing.id));
    if(old){
@@ -360,7 +382,8 @@ $("app").addEventListener("click",e=>{
  if(e.target.id==="disconnectCloud"){localStorage.removeItem(URLKEY);localStorage.removeItem("surya_swad_last_sync");toast("Disconnected");render();return}
  if(e.target.id==="copyScriptBtn"){navigator.clipboard.writeText(appsScriptCode).then(()=>toast("Apps Script code copied ✓")).catch(()=>toast("Code box se manually copy karein"));return}
 });
-$("app").addEventListener("change",e=>{if(e.target.id==="monthFilter")render()});
+$("app").addEventListener("input",e=>{if(["qty","rate","gstRate"].includes(e.target.id))updatePurchaseGstPreview()});
+$("app").addEventListener("change",e=>{if(e.target.id==="monthFilter")render();if(["qty","rate","gstRate","gstType"].includes(e.target.id))updatePurchaseGstPreview()});
 $("themeBtn").onclick=()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==="dark"?"light":"dark"};
 $("syncBtn").onclick=()=>{if(localStorage.getItem(URLKEY))syncToSheet(false);else{page="cloud";render();}};
 render();
