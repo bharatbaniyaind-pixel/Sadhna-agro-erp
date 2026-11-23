@@ -334,8 +334,6 @@ function exportData(k){let a=db[k]||[];let keys=a.length?Object.keys(a[0]):[];do
 $("nav").addEventListener("click",e=>{let b=e.target.closest("[data-group]");let g=b?.dataset.group;if(g){page=tabs[g][0][0];editing=null;render()}});
 $("tabs").addEventListener("click",e=>{let b=e.target.closest("[data-page]");let p=b?.dataset.page;if(p){page=p;editing=null;render()}});
 $("app").addEventListener("click",e=>{
- // File picker click ko Purchase Save handler se alag rakhein.
- if(e.target.closest('input[type="file"]'))return;
  const editBtn=e.target.closest("[data-edit]");
  const delBtn=e.target.closest("[data-delete]");
  const expBtn=e.target.closest("[data-export]");
@@ -386,7 +384,15 @@ $("app").addEventListener("click",e=>{
  if(e.target.id==="copyScriptBtn"){navigator.clipboard.writeText(appsScriptCode).then(()=>toast("Apps Script code copied ✓")).catch(()=>toast("Code box se manually copy karein"));return}
 });
 $("app").addEventListener("input",e=>{if(["qty","rate","gstRate"].includes(e.target.id))updatePurchaseGstPreview()});
-$("app").addEventListener("change",e=>{if(e.target.id==="monthFilter")render();if(["qty","rate","gstRate","gstType"].includes(e.target.id))updatePurchaseGstPreview()});
+$("app").addEventListener("change",e=>{
+ if(e.target.id==="monthFilter")render();
+ if(["qty","rate","gstRate","gstType"].includes(e.target.id))updatePurchaseGstPreview();
+ if(e.target.id==="billPhoto"){
+  e.stopPropagation();
+  const f=e.target.files&&e.target.files[0];
+  if(f)toast("Bill photo selected: "+f.name+". Ab Save Purchase dabayein.");
+ }
+});
 $("themeBtn").onclick=()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==="dark"?"light":"dark"};
 $("syncBtn").onclick=()=>{if(localStorage.getItem(URLKEY))syncToSheet(false);else{page="cloud";render();}};
 render();
