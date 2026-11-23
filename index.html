@@ -102,6 +102,13 @@ settings:[["settings","Company & Rules"],["cloud","Cloud / Sheets Setup"]]
 };
 const titleMap=Object.fromEntries(Object.values(tabs).flat());
 function byName(arr,name){return arr.find(x=>x.name.toLowerCase()===String(name).toLowerCase())}
+function ensureParty(partyName){
+ const clean=String(partyName||"").trim();
+ if(!clean || clean.toLowerCase()==="cash / mandi" || clean.toLowerCase()==="cash")return;
+ if(!byName(db.parties,clean)){
+  db.parties.push({id:uid(),name:clean,city:"",phone:""});
+ }
+}
 function finishedStock(){let m={};db.batches.forEach(b=>m[b.product]=(m[b.product]||0)+num(b.pouches));db.sales.forEach(s=>m[s.product]=(m[s.product]||0)-num(s.pouches));return m}
 function purchaseRate(name){for(let i=db.purchases.length-1;i>=0;i--)if(db.purchases[i].material===name)return num(db.purchases[i].rate);return 0}
 function stockArray(category){return category==="Raw Material"?db.raw:category==="Printing Material"?db.printing:db.packing}
@@ -167,7 +174,7 @@ function historyPage(type){
   ["Date","Head","Detail","Amount","Paid To"];
  return `<div class=card><h2>${type[0].toUpperCase()+type.slice(1)} History</h2>${table(heads,rows)}</div>`;
 }
-function reportPage(){let month=$("monthFilter")?.value||today().slice(0,7),inMonth=x=>(x.date||"").slice(0,7)===month,ps=db.purchases.filter(inMonth),bs=db.batches.filter(inMonth),ss=db.sales.filter(inMonth),es=db.expenses.filter(inMonth);let buy=ps.reduce((a,x)=>a+x.qty*x.rate,0),cost=bs.reduce((a,x)=>a+x.totalCost,0),rev=ss.reduce((a,x)=>a+x.pouches*x.rate,0),exp=es.reduce((a,x)=>a+x.amount,0);return `<div class=card><h2>Monthly Business Report</h2><div class=formgrid>${field("monthFilter","Select Month","month",month)}</div><div class=grid style="margin-top:12px">${metric("Purchase Value",money(buy),ps.length+" entries")}${metric("Production Cost",money(cost),bs.length+" batches")}${metric("Sales Value",money(rev),ss.length+" dispatches")}${metric("Other Expenses",money(exp),es.length+" entries")}${metric("Gross Difference",money(rev-cost-exp),"Sales − production cost − expenses")}</div><h3>Monthly Production</h3>${table(["Date","Batch","Product","Pouches","Cost/Pouch"],bs.map(x=>[fmtDate(x.date),esc(x.batchNo),esc(x.product),qty(x.pouches),money(x.costPerPouch)]))}<h3>Monthly Sales</h3>${table(["Date","Party","Product","Pouches","Amount"],ss.map(x=>[fmtDate(x.date),esc(x.party),esc(x.product),qty(x.pouches),money(x.pouches*x.rate)]))}</div>`}
+function reportPage(){let month=$("monthFilter")?.value||today().slice(0,7),inMonth=x=>(x.date||"").slice(0,7)===month,ps=db.purchases.filter(inMonth),bs=db.batches.filter(inMonth),ss=db.sales.filter(inMonth),es=db.expenses.filter(inMonth);let buy=ps.reduce((a,x)=>a+(x.totalAmount??(num(x.qty)*num(x.rate))),0),cost=bs.reduce((a,x)=>a+num(x.totalCost),0),rev=ss.reduce((a,x)=>a+num(x.pouches)*num(x.rate),0),exp=es.reduce((a,x)=>a+num(x.amount),0);return `<div class=card><h2>Monthly Business Report</h2><div class=formgrid>${field("monthFilter","Select Month","month",month)}</div><div class=grid style="margin-top:12px">${metric("Purchase Value (incl. GST)",money(buy),ps.length+" entries")}${metric("Production Cost",money(cost),bs.length+" batches")}${metric("Sales Value",money(rev),ss.length+" dispatches")}${metric("Other Expenses",money(exp),es.length+" entries")}${metric("Gross Difference",money(rev-cost-exp),"Sales − production cost − expenses")}</div><h3>Monthly Production</h3>${table(["Date","Batch","Product","Pouches","Cost/Pouch"],bs.map(x=>[fmtDate(x.date),esc(x.batchNo),esc(x.product),qty(x.pouches),money(x.costPerPouch)]))}<h3>Monthly Sales</h3>${table(["Date","Party","Product","Pouches","Amount"],ss.map(x=>[fmtDate(x.date),esc(x.party),esc(x.product),qty(x.pouches),money(num(x.pouches)*num(x.rate))]))}</div>`}
 function exportPage(){return `<div class=card><h2>Excel / CSV Export</h2><p class=muted>Har section ki alag CSV file download hogi. CSV Microsoft Excel mein khulti hai.</p><div class=actions>${["products","raw","packing","printing","parties","purchases","productions","batches","sales","expenses","adjustments"].map(k=>`<button type="button" class="btn" data-export="${k}">${k} CSV</button>`).join("")}<button type="button" class="btn secondary" id="allExport">Complete ERP CSV</button></div></div>`}
 function backupPage(){return `<div class=card><h2>Backup & Restore</h2><p class=muted>Backup ko phone ke Downloads folder mein rakhein. Restore karne se current data replace hoga.</p><button type="button" class="btn" id="backupDownload">Download Full JSON Backup</button><div class=field style="margin-top:16px"><label>Restore JSON Backup</label><input type=file id=restoreFile accept=".json,application/json"></div><button type="button" class="btn danger" id="restoreBtn">Restore Backup</button></div>`}
 function settingsPage(){return `<div class=card><h2>Company & Packing Rules</h2><div class=notice><b>Company:</b> SURYA SWAD<br><b>1 Packet:</b> 36 pouches<br><b>1 Bag:</b> 20 packets = 720 pouches<br><b>Outer Panni:</b> 1 per 36 pouches<br><b>LD Outer Panni:</b> 1 per packet<br><b>Machine Cost:</b> ₹120 per machine-hour</div><p class=muted>These rules are shown as the standard costing assumptions. Actual material consumption and costs are entered batch-wise.</p><button type="button" class="btn" id="themeToggle">Toggle Dark / Light Theme</button></div>`}
@@ -225,7 +232,7 @@ function cloudPage(){
    <li>Upar <b>Deploy &gt; New deployment</b> par click karein.</li>
    <li>Select type mein <b>Web app</b> chunein.</li>
    <li><i>Execute as:</i> <b>Me</b> aur <i>Who has access:</i> <b>Anyone</b> select karke <b>Deploy</b> karein (Permission allow karein).</li>
-   <li>Jo <b>Web App URL</b> milega, use upar box mein paste karke <b>Save &amp; Connect</b> daba dein.</li>
+   <li>Jo <b>Web App URL</b> milega, use upar box mein paste karein aur <b>Save &amp; Connect</b> daba dein.</li>
   </ol>
  </div>`;
 }
@@ -252,6 +259,7 @@ else if(page==="backup")view=backupPage();
 else if(page==="settings")view=settingsPage();
 else if(page==="cloud")view=cloudPage();
 $("app").innerHTML=view;
+if(typeof drawBillRows==="function" && page==="purchase")drawBillRows();
 }
 function val(id){let e=$(id);return e?e.value.trim():""}
 function get(id){let e=$(id);return e?e.value:""}
@@ -279,10 +287,11 @@ function handleSave(){
   if(editing&&editing.kind===page){let old=arr.find(x=>String(x.id)===String(editing.id));if(old)Object.assign(old,data);editing=null}
   else {if(arr.some(x=>x.name.toLowerCase()===name.toLowerCase()))return toast("Ye naam pehle se hai");arr.push({id:uid(),...data})}
  }else if(page==="purchase"){
-  let category=get("category"),material=val("material"),q=number("qty"),unit=get("unit");
+  let category=get("category"),material=val("material"),q=number("qty"),unit=get("unit"),party=val("party")||"Cash / Mandi";
   if(!material||q<=0)return toast("Item aur valid quantity zaroori hai");
   let file=$("billPhoto")?.files?.[0];if(file){if(file.size>1500000)return toast("Photo 1.5 MB se chhoti rakhein");}
-  let gst=purchaseGstCalc(); let newEntry={date:get("date")||today(),bill:val("bill"),party:val("party")||"Cash / Mandi",category,material,unit,qty:q,rate:number("rate"),...gst};
+  ensureParty(party);
+  let gst=purchaseGstCalc(); let newEntry={date:get("date")||today(),bill:val("bill"),party,category,material,unit,qty:q,rate:number("rate"),...gst};
   if(editing&&editing.kind==="purchases"){
    let old=db.purchases.find(x=>String(x.id)===String(editing.id));
    if(old){
@@ -319,6 +328,7 @@ function handleSave(){
   db.batches.push({id:uid(),date:get("date")||today(),batchNo:val("batchNo")||"SS-"+(db.batches.length+1),product,rawName:raw,rawUsed:used,pouches,packetCount:Math.ceil(pouches/36),bagCount:Math.floor(pouches/720),outerPanni:Math.ceil(pouches/36),ldOuterPanni:Math.ceil(pouches/36),laminateName:lamName,laminateQty:lamQty,printingName:printName,printingQty:printQty,pouchWeight:number("pouchWeight")||num(prod.weight),machineHours:hours,machineCost:machine,laborCost:labor,otherCost:other,printingCost,totalCost:total,costPerPouch:total/pouches,note:val("note")});
  }else if(page==="sale"){
   let product=val("product"),p=Math.round(number("pouches")),av=finishedStock()[product]||0;if(!product||p<=0||p>av)return toast("Product / quantity check karein. Available: "+av);
+  ensureParty(val("party"));
   db.sales.push({id:uid(),date:get("date")||today(),party:val("party")||"Cash",product,pouches:p,rate:number("rate"),transport:number("transport"),note:val("note")});
  }else if(page==="expense"){
   let amount=number("amount");if(amount<=0)return toast("Valid amount enter karein");db.expenses.push({id:uid(),date:get("date")||today(),category:get("category"),detail:val("detail"),amount,party:val("party")});
@@ -386,14 +396,19 @@ $("app").addEventListener("input",e=>{if(["qty","rate","gstRate"].includes(e.tar
 $("app").addEventListener("change",e=>{if(e.target.id==="monthFilter")render();if(["qty","rate","gstRate","gstType"].includes(e.target.id))updatePurchaseGstPreview()});
 $("themeBtn").onclick=()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==="dark"?"light":"dark"};
 $("syncBtn").onclick=()=>{if(localStorage.getItem(URLKEY))syncToSheet(false);else{page="cloud";render();}};
+
 // ===== PURCHASE BILL IMPORT + OCR =====
 const purchasePageOriginal = purchasePage;
 let billImportRows = [];
 purchasePage = function(){
  return purchasePageOriginal() + `
  <div class="card" id="billImportCard">
-  <h2>📄 Purchase Bill Import / OCR</h2>
-  <p class="muted">Photo ya PDF upload karein. OCR text nikalega; item details ko confirm karne se pehle aap edit kar sakte hain.</p>
+  <h2>📄 Purchase Bill Import (Photo / PDF + OCR)</h2>
+  <p class="muted">Bill ki photo ya PDF select karein, ya niche diye gaye quick-load buttons se bill lines laakar Confirm &amp; Update Stock dabayein.</p>
+  <div class="actions">
+   <button type="button" class="btn secondary" id="loadBill144">Load Sadhna Agro (#144)</button>
+   <button type="button" class="btn secondary" id="loadBill3027">Load Digambar (F/3027, 5% GST)</button>
+  </div>
   <div class="formgrid">
    ${field("billImportFile","Bill Photo / PDF","file")}
    ${field("billImportDate","Bill Date","date",today())}
@@ -406,10 +421,22 @@ purchasePage = function(){
   <div class="actions"><button type="button" class="btn" id="processBillOCR">Read Bill / OCR</button><button type="button" class="btn secondary" id="parseBillText">Create Item Preview</button></div>
   <p id="billOCRStatus" class="muted"></p>
   <div class="field"><label for="billOCRText">OCR Text (zarurat ho to edit karein)</label><textarea id="billOCRText" rows="7" placeholder="OCR se padha gaya text yahan aayega..."></textarea></div>
-  <div class="actions"><button type="button" class="btn light" id="addBillRow">+ Add Item Manually</button><button type="button" class="btn secondary" id="exportBillRows">Download Excel CSV</button><button type="button" class="btn" id="confirmBillRows">Confirm & Update Stock</button></div>
+  <div class="actions"><button type="button" class="btn light" id="addBillRow">+ Add Item Manually</button><button type="button" class="btn secondary" id="exportBillRows">Download Excel CSV</button><button type="button" class="btn" id="confirmBillRows">Confirm &amp; Update Stock</button></div>
   <div id="billRowsPreview"></div>
  </div>`;
 };
+
+function applyPresetBill(preset){
+ if($("billImportDate"))$("billImportDate").value=preset.date;
+ if($("billImportParty"))$("billImportParty").value=preset.party;
+ if($("billImportNo"))$("billImportNo").value=preset.bill;
+ if($("billImportCategory"))$("billImportCategory").value=preset.category;
+ if($("billImportUnit"))$("billImportUnit").value=preset.unit;
+ if($("billImportGstType"))$("billImportGstType").value=preset.gstType;
+ billImportRows=preset.rows.map(r=>({...r}));
+ drawBillRows();
+ toast(preset.party+" ("+preset.bill+") preview mein load ho gaya");
+}
 
 function billLoadScript(src){return new Promise((resolve,reject)=>{if(document.querySelector('script[data-bill-lib="'+src+'"]'))return resolve();let s=document.createElement("script");s.src=src;s.dataset.billLib=src;s.onload=resolve;s.onerror=()=>reject(new Error("OCR library load nahi hui"));document.head.appendChild(s);});}
 async function runBillOCR(file){
@@ -432,7 +459,15 @@ async function runBillOCR(file){
 function drawBillRows(){
  const box=$("billRowsPreview");if(!box)return;
  if(!billImportRows.length){box.innerHTML='<div class="empty">Koi item nahi. OCR Preview ya Add Item Manually dabayein.</div>';return;}
- box.innerHTML='<h3>Item Preview — Confirm se pehle sab values check karein</h3><div class="tablewrap"><table><thead><tr><th>Item</th><th>Qty</th><th>Rate ₹</th><th>GST %</th><th>Remove</th></tr></thead><tbody>'+billImportRows.map((r,i)=>'<tr><td><input data-bill-i="'+i+'" data-bill-k="material" value="'+esc(r.material)+'"></td><td><input type="number" step="any" data-bill-i="'+i+'" data-bill-k="qty" value="'+esc(r.qty)+'"></td><td><input type="number" step="any" data-bill-i="'+i+'" data-bill-k="rate" value="'+esc(r.rate)+'"></td><td><select data-bill-i="'+i+'" data-bill-k="gstRate">'+[0,5,12,18,28].map(n=>'<option value="'+n+'" '+(Number(r.gstRate)===n?'selected':'')+'>'+n+'%</option>').join('')+'</select></td><td><button type="button" class="btn small danger" data-bill-remove="'+i+'">Remove</button></td></tr>').join('')+'</tbody></table></div>';
+ let sumTaxable=0, sumGst=0, sumGrand=0;
+ const bodyRows=billImportRows.map((r,i)=>{
+  const taxable=num(r.qty)*num(r.rate);
+  const gstAmt=taxable*num(r.gstRate)/100;
+  const total=taxable+gstAmt;
+  sumTaxable+=taxable; sumGst+=gstAmt; sumGrand+=total;
+  return '<tr><td><input data-bill-i="'+i+'" data-bill-k="material" value="'+esc(r.material)+'"></td><td><input type="number" step="any" data-bill-i="'+i+'" data-bill-k="qty" value="'+esc(r.qty)+'"></td><td><input type="number" step="any" data-bill-i="'+i+'" data-bill-k="rate" value="'+esc(r.rate)+'"></td><td><select data-bill-i="'+i+'" data-bill-k="gstRate">'+[0,5,12,18,28].map(n=>'<option value="'+n+'" '+(Number(r.gstRate)===n?'selected':'')+'>'+n+'%</option>').join('')+'</select></td><td>'+money(total)+'</td><td><button type="button" class="btn small danger" data-bill-remove="'+i+'">Remove</button></td></tr>';
+ }).join('');
+ box.innerHTML='<h3>Item Preview — Confirm se pehle sab values check karein</h3><div class="tablewrap"><table><thead><tr><th>Item</th><th>Qty</th><th>Rate ₹</th><th>GST %</th><th>Line Total</th><th>Remove</th></tr></thead><tbody>'+bodyRows+'</tbody></table></div><p class="muted" style="margin-top:8px"><b>Preview Total:</b> Taxable '+money(sumTaxable)+' + GST '+money(sumGst)+' = <b>'+money(sumGrand)+'</b></p>';
 }
 function parseBillOCRText(){
  const lines=($("billOCRText")?.value||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);const out=[];
@@ -450,6 +485,28 @@ function parseBillOCRText(){
 }
 function billCsv(){const rows=[["Date","Bill No","Supplier","Category","Item","Unit","Quantity","Rate","GST %","Taxable","GST Amount","Total"]];for(const r of billImportRows){const taxable=num(r.qty)*num(r.rate),gst=taxable*num(r.gstRate)/100;rows.push([get("billImportDate")||today(),val("billImportNo"),val("billImportParty"),get("billImportCategory"),r.material,get("billImportUnit"),r.qty,r.rate,r.gstRate,taxable,gst,taxable+gst]);}download(csv(rows),"surya_swad_purchase_bill.csv","text/csv;charset=utf-8");}
 $("app").addEventListener("click",async e=>{
+ if(e.target.id==="loadBill144"){
+  applyPresetBill({
+   date:"2026-10-20",party:"Sadhna Agro",bill:"144",category:"Raw Material",unit:"kg",gstType:"CGST + SGST",
+   rows:[
+    {material:"Sunf moti",qty:30,rate:270,gstRate:5},
+    {material:"Methi Dana",qty:30,rate:89,gstRate:5},
+    {material:"jeera",qty:150,rate:290,gstRate:5},
+    {material:"Cloves (Long)",qty:8,rate:910,gstRate:5}
+   ]
+  });
+  return;
+ }
+ if(e.target.id==="loadBill3027"){
+  applyPresetBill({
+   date:"2026-10-26",party:"DIGAMBAR AEGANY TULARAM CHOWK",bill:"F/3027",category:"Raw Material",unit:"kg",gstType:"CGST + SGST",
+   rows:[
+    {material:"RAI MOTI",qty:50,rate:95,gstRate:5},
+    {material:"LOUNG",qty:10,rate:1050,gstRate:5}
+   ]
+  });
+  return;
+ }
  if(e.target.id==="processBillOCR"){try{await runBillOCR($("billImportFile")?.files?.[0]);}catch(err){if($("billOCRStatus"))$("billOCRStatus").textContent="OCR error: "+err.message;toast("OCR nahi chala. Internet aur file check karein.");}}
  if(e.target.id==="parseBillText")parseBillOCRText();
  if(e.target.id==="addBillRow"){billImportRows.push({material:"",qty:"",rate:"",gstRate:0});drawBillRows();}
@@ -460,16 +517,17 @@ $("app").addEventListener("click",async e=>{
   // Validate every row before changing any stock or purchase records.
   for(const r of billImportRows){if(!String(r.material||"").trim()||num(r.qty)<=0||num(r.rate)<0||![0,5,12,18,28].includes(Number(r.gstRate)))return toast("Har item ka naam, quantity, rate aur GST check karein");}
   if(!confirm("Kya checked items ko Purchase History aur Stock mein add karna hai?"))return;
-  const category=get("billImportCategory")||"Raw Material",unit=get("billImportUnit")||"kg",gstType=get("billImportGstType")||"CGST + SGST";
+  const category=get("billImportCategory")||"Raw Material",unit=get("billImportUnit")||"kg",gstType=get("billImportGstType")||"CGST + SGST",party=val("billImportParty")||"Cash / Mandi";
+  ensureParty(party);
   for(const r of billImportRows){const taxable=num(r.qty)*num(r.rate),gstAmount=taxable*num(r.gstRate)/100,igst=gstType==="IGST"?gstAmount:0,cgst=igst?0:gstAmount/2,sgst=igst?0:gstAmount/2;
-   db.purchases.push({id:uid(),date:get("billImportDate")||today(),bill:val("billImportNo"),party:val("billImportParty")||"Cash / Mandi",category,material:String(r.material).trim(),unit,qty:num(r.qty),rate:num(r.rate),taxableAmount:taxable,gstRate:Number(r.gstRate),gstType,cgst,sgst,igst,gstAmount,totalAmount:taxable+gstAmount,source:"Bill Import"});
+   db.purchases.push({id:uid(),date:get("billImportDate")||today(),bill:val("billImportNo"),party,category,material:String(r.material).trim(),unit,qty:num(r.qty),rate:num(r.rate),taxableAmount:taxable,gstRate:Number(r.gstRate),gstType,cgst,sgst,igst,gstAmount,totalAmount:taxable+gstAmount,source:"Bill Import"});
    addStock(category,String(r.material).trim(),num(r.qty),unit);
   }
   save();const count=billImportRows.length;billImportRows=[];page="purchaseHistory";editing=null;render();toast(count+" purchase items aur stock update ho gaya ✓");
  }
 });
-$("app").addEventListener("input",e=>{const i=Number(e.target.dataset.billI),k=e.target.dataset.billK;if(k&&billImportRows[i])billImportRows[i][k]=e.target.value;});
-$("app").addEventListener("change",e=>{const i=Number(e.target.dataset.billI),k=e.target.dataset.billK;if(k&&billImportRows[i])billImportRows[i][k]=e.target.value;});
+$("app").addEventListener("input",e=>{const i=Number(e.target.dataset.billI),k=e.target.dataset.billK;if(k&&billImportRows[i]){billImportRows[i][k]=e.target.value;drawBillRows();}});
+$("app").addEventListener("change",e=>{const i=Number(e.target.dataset.billI),k=e.target.dataset.billK;if(k&&billImportRows[i]){billImportRows[i][k]=e.target.value;drawBillRows();}});
 
 render();
 </script>
