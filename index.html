@@ -86,7 +86,7 @@ function save(autoSync=true){
 function toast(s){let t=$("toast");t.textContent=s;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2600)}
 function fmtDate(d){return esc(d||"")}
 function table(headers,rows){if(!rows.length)return '<div class="empty">Abhi koi record nahi hai.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(x=>`<th>${x}</th>`).join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>`<td>${x??""}</td>`).join("")+'</tr>').join("")+'</tbody></table></div>'}
-function field(id,label,type="text",value="",opts=[]){let control=type==="select"?`<select id="${id}">${opts.map(x=>`<option value="${esc(x)}" ${String(x)===String(value)?"selected":""}>${esc(x)}</option>`).join("")}</select>`:`<input id="${id}" type="${type}" value="${esc(value)}" ${type==="number"?'step="any"':''}>`;return `<div class="field"><label for="${id}">${label}</label>${control}</div>`}
+function field(id,label,type="text",value="",opts=[]){let control=type==="select"?`<select id="${id}">${opts.map(x=>`<option value="${esc(x)}" ${String(x)===String(value)?"selected":""}>${esc(x)}</option>`).join("")}</select>`:type==="file"?`<input id="${id}" type="file" accept="image/*">`:`<input id="${id}" type="${type}" value="${esc(value)}" ${type==="number"?'step="any"':''}>`;return `<div class="field"><label for="${id}">${label}</label>${control}</div>`}
 function form(title,fields,submit="Save",cancelLabel="Clear"){return `<div class="card"><h2>${title}</h2><div class="formgrid">${fields.join("")}</div><div class="actions"><button type="button" class="btn" id="saveForm">${submit}</button><button type="button" class="btn light" id="cancelEdit">${cancelLabel}</button></div></div>`}
 const navItems=[["dashboard","Dashboard"],["masters","Masters"],["purchase","Purchase"],["production","Production"],["inventory","Inventory"],["sales","Sales"],["expenses","Expenses"],["reports","Reports / Backup"],["settings","Settings"]];
 const tabs={
@@ -252,6 +252,7 @@ else if(page==="backup")view=backupPage();
 else if(page==="settings")view=settingsPage();
 else if(page==="cloud")view=cloudPage();
 $("app").innerHTML=view;
+ if(page==="purchase")updatePurchaseGstPreview();
 }
 function val(id){let e=$(id);return e?e.value.trim():""}
 function get(id){let e=$(id);return e?e.value:""}
@@ -333,6 +334,8 @@ function exportData(k){let a=db[k]||[];let keys=a.length?Object.keys(a[0]):[];do
 $("nav").addEventListener("click",e=>{let b=e.target.closest("[data-group]");let g=b?.dataset.group;if(g){page=tabs[g][0][0];editing=null;render()}});
 $("tabs").addEventListener("click",e=>{let b=e.target.closest("[data-page]");let p=b?.dataset.page;if(p){page=p;editing=null;render()}});
 $("app").addEventListener("click",e=>{
+ // File picker click ko Purchase Save handler se alag rakhein.
+ if(e.target.closest('input[type="file"]'))return;
  const editBtn=e.target.closest("[data-edit]");
  const delBtn=e.target.closest("[data-delete]");
  const expBtn=e.target.closest("[data-export]");
