@@ -1,32 +1,169 @@
-{
-  "products": [],
-  "raw": [
-    { "id": "raw1", "name": "Sunf moti", "qty": 30, "unit": "kg" },
-    { "id": "raw2", "name": "Methi Dana", "qty": 30, "unit": "kg" },
-    { "id": "raw3", "name": "jeera", "qty": 150, "unit": "kg" },
-    { "id": "raw4", "name": "Cloves (Long)", "qty": 8, "unit": "kg" },
-    { "id": "raw5", "name": "RAI MOTI", "qty": 50, "unit": "kg" },
-    { "id": "raw6", "name": "LOUNG", "qty": 10, "unit": "kg" }
-  ],
-  "packing": [],
-  "printing": [],
-  "parties": [
-    { "id": "p1", "name": "Sadhna Agro", "city": "Jabalpur", "phone": "9303444141" },
-    { "id": "p2", "name": "DIGAMBAR AEGANY TULARAM CHOWK", "city": "Jabalpur", "phone": "" }
-  ],
-  "purchases": [
-    { "id": "pur1", "date": "2026-10-20", "bill": "144", "party": "Sadhna Agro", "category": "Raw Material", "material": "Sunf moti", "unit": "kg", "qty": 30, "rate": 270, "taxableAmount": 8100, "gstRate": 5, "gstType": "CGST + SGST", "cgst": 202.5, "sgst": 202.5, "igst": 0, "gstAmount": 405, "totalAmount": 8505 },
-    { "id": "pur2", "date": "2026-10-20", "bill": "144", "party": "Sadhna Agro", "category": "Raw Material", "material": "Methi Dana", "unit": "kg", "qty": 30, "rate": 89, "taxableAmount": 2670, "gstRate": 5, "gstType": "CGST + SGST", "cgst": 66.75, "sgst": 66.75, "igst": 0, "gstAmount": 133.5, "totalAmount": 2803.5 },
-    { "id": "pur3", "date": "2026-10-20", "bill": "144", "party": "Sadhna Agro", "category": "Raw Material", "material": "jeera", "unit": "kg", "qty": 150, "rate": 290, "taxableAmount": 43500, "gstRate": 5, "gstType": "CGST + SGST", "cgst": 1087.5, "sgst": 1087.5, "igst": 0, "gstAmount": 2175, "totalAmount": 45675 },
-    { "id": "pur4", "date": "2026-10-20", "bill": "144", "party": "Sadhna Agro", "category": "Raw Material", "material": "Cloves (Long)", "unit": "kg", "qty": 8, "rate": 910, "taxableAmount": 7280, "gstRate": 5, "gstType": "CGST + SGST", "cgst": 182, "sgst": 182, "igst": 0, "gstAmount": 364, "totalAmount": 7644 },
-    { "id": "pur5", "date": "2026-10-26", "bill": "F/3027", "party": "DIGAMBAR AEGANY TULARAM CHOWK", "category": "Raw Material", "material": "RAI MOTI", "unit": "kg", "qty": 50, "rate": 95, "taxableAmount": 4750, "gstRate": 5, "gstType": "CGST + SGST", "cgst": 118.75, "sgst": 118.75, "igst": 0, "gstAmount": 237.5, "totalAmount": 4987.5 },
-    { "id": "pur6", "date": "2026-10-26", "bill": "F/3027", "party": "DIGAMBAR AEGANY TULARAM CHOWK", "category": "Raw Material", "material": "LOUNG", "unit": "kg", "qty": 10, "rate": 1050, "taxableAmount": 10500, "gstRate": 5, "gstType": "CGST + SGST", "cgst": 262.5, "sgst": 262.5, "igst": 0, "gstAmount": 525, "totalAmount": 11025 }
-  ],
-  "expenses": [
-    { "id": "exp1", "date": "2026-10-20", "category": "Freight", "detail": "Shipping Bill #144", "amount": 700, "party": "Sadhna Agro" }
-  ],
-  "productions": [],
-  "batches": [],
-  "sales": [],
-  "adjustments": []
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Surya Swad — Simple ERP</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#17212b;--muted:#667085;--line:#e5e7eb;--brand:#176b45;--brand2:#e8f4ed;--danger:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--brand);color:white;padding:16px 18px;position:sticky;top:0;z-index:5}
+header b{font-size:20px}header small{display:block;opacity:.85;margin-top:3px}
+main{max-width:1100px;margin:auto;padding:14px}
+nav{display:flex;gap:8px;overflow:auto;padding:8px 0 14px}
+nav button,.btn{border:0;border-radius:10px;padding:10px 14px;background:#e8ecef;color:#17212b;font-weight:600;white-space:nowrap}
+nav button.active,.btn.primary{background:var(--brand);color:white}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px}
+h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.stat{background:var(--brand2);border-radius:12px;padding:13px}.stat strong{font-size:22px;display:block}.stat span{font-size:12px;color:var(--muted)}
+form .fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:9px;background:white;font:inherit;color:var(--ink)}
+textarea{min-height:70px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn.secondary{background:#eef2f6}.btn.danger{background:#fff0ee;color:var(--danger)}
+table{width:100%;border-collapse:collapse;min-width:700px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);font-size:13px}th{background:#f8fafb}
+.tablewrap{overflow:auto}.muted{color:var(--muted);font-size:12px}.hidden{display:none!important}.pill{padding:4px 8px;border-radius:20px;background:#eef2f6;font-size:12px}
+.status{font-size:12px;margin-top:8px}.good{color:var(--brand)}.bad{color:var(--danger)}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}form .fields{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:10px}.card{padding:12px}}
+@media(max-width:420px){form .fields{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><b>SURYA SWAD</b><small>Simple Manufacturing & Packing ERP</small></header>
+<main>
+<nav id="nav">
+<button class="active" data-page="home">Dashboard</button>
+<button data-page="purchase">Purchase</button>
+<button data-page="production">Production</button>
+<button data-page="packing">Packing</button>
+<button data-page="stock">Stock</button>
+<button data-page="reports">Reports</button>
+<button data-page="settings">Google Sheet</button>
+</nav>
+
+<section id="home" class="page">
+<div class="section-head"><h2>आज का Dashboard</h2><span class="pill" id="today"></span></div>
+<div class="grid">
+<div class="stat"><strong id="countPurchase">0</strong><span>Purchase Entries</span></div>
+<div class="stat"><strong id="countProduction">0</strong><span>Production Entries</span></div>
+<div class="stat"><strong id="countPacking">0</strong><span>Packing Batches</span></div>
+<div class="stat"><strong id="countRecords">0</strong><span>Total Records</span></div>
+</div>
+<div class="card" style="margin-top:12px"><h3>काम शुरू करें</h3><p class="muted">Purchase, Production या Packing में एंट्री करें। डेटा इस डिवाइस में सेव रहेगा और Google Sheet से Sync किया जा सकेगा।</p></div>
+<div class="card"><div class="section-head"><h3>हाल की एंट्री</h3><button class="btn secondary" onclick="refresh()">Refresh</button></div><div class="tablewrap"><table><thead><tr><th>तारीख</th><th>प्रकार</th><th>नाम / विवरण</th><th>मात्रा</th></tr></thead><tbody id="recent"></tbody></table></div></div>
+</section>
+
+<section id="purchase" class="page hidden">
+<div class="card"><h2>Purchase Entry</h2>
+<form id="purchaseForm"><input type="hidden" name="id"><div class="fields">
+<div><label>तारीख</label><input name="date" type="date" required></div>
+<div><label>Supplier</label><input name="party" placeholder="Supplier का नाम" required></div>
+<div><label>Material</label><input name="product" placeholder="माल का नाम" required></div>
+<div><label>Quantity</label><input name="qty" type="number" step="0.001" required></div>
+<div><label>Unit</label><select name="unit"><option>Kg</option><option>Gram</option><option>Packet</option><option>Bori</option><option>Nos</option><option>Litre</option></select></div>
+<div><label>Rate (₹)</label><input name="rate" type="number" step="0.01"></div>
+<div><label>Paid (₹)</label><input name="paid" type="number" step="0.01"></div>
+<div><label>Bill / Remarks</label><input name="details"></div>
+</div><div class="actions"><button class="btn primary" type="submit">Save Purchase</button><button class="btn secondary" type="button" onclick="resetForm('purchaseForm')">Clear</button></div></form></div>
+<div class="card"><h3>Purchase Records</h3><div class="tablewrap"><table><thead><tr><th>Date</th><th>Supplier</th><th>Material</th><th>Qty</th><th>Total</th><th>Action</th></tr></thead><tbody id="purchaseRows"></tbody></table></div></div>
+</section>
+
+<section id="production" class="page hidden">
+<div class="card"><h2>Production Entry</h2>
+<form id="productionForm"><input type="hidden" name="id"><div class="fields">
+<div><label>तारीख</label><input name="date" type="date" required></div>
+<div><label>Product</label><input name="product" required placeholder="उत्पाद"></div>
+<div><label>Batch / Machine</label><input name="batch" placeholder="बैच या मशीन"></div>
+<div><label>Raw Material (Kg)</label><input name="qty" type="number" step="0.001" required></div>
+<div><label>Actual Pouches</label><input name="actual" type="number" step="1"></div>
+<div><label>Estimated Pouches</label><input name="estimated" type="number" step="1"></div>
+<div><label>Machine Hours</label><input name="hours" type="number" step="0.1"></div>
+<div><label>Remarks</label><input name="details"></div>
+</div><p class="muted">मशीन खर्च की गणना: ₹120 प्रति मशीन-घंटा।</p><div class="actions"><button class="btn primary">Save Production</button><button class="btn secondary" type="button" onclick="resetForm('productionForm')">Clear</button></div></form></div>
+<div class="card"><h3>Production Records</h3><div class="tablewrap"><table><thead><tr><th>Date</th><th>Product</th><th>Input Kg</th><th>Actual Pouches</th><th>Machine Cost</th><th>Action</th></tr></thead><tbody id="productionRows"></tbody></table></div></div>
+</section>
+
+<section id="packing" class="page hidden">
+<div class="card"><h2>Packing Batch</h2>
+<form id="packingForm"><input type="hidden" name="id"><div class="fields">
+<div><label>तारीख</label><input name="date" type="date" required></div>
+<div><label>Product</label><input name="product" required></div>
+<div><label>Batch No.</label><input name="batch"></div>
+<div><label>Packets</label><input name="packets" type="number" step="1" required></div>
+<div><label>Pouches / Packet</label><input name="perPacket" type="number" value="36"></div>
+<div><label>Outer Panni Qty</label><input name="outer" type="number" step="1"></div>
+<div><label>Remarks</label><input name="details"></div>
+</div><p class="muted">डिफॉल्ट: 1 Packet = 36 Pouches; 1 Bori = 20 Packet = 720 Pouches।</p><div class="actions"><button class="btn primary">Save Packing</button><button class="btn secondary" type="button" onclick="resetForm('packingForm')">Clear</button></div></form></div>
+<div class="card"><h3>Packing Records</h3><div class="tablewrap"><table><thead><tr><th>Date</th><th>Product</th><th>Packets</th><th>Pouches</th><th>Action</th></tr></thead><tbody id="packingRows"></tbody></table></div></div>
+</section>
+
+<section id="stock" class="page hidden"><div class="card"><h2>Stock Overview</h2><p class="muted">यह सरल संस्करण Purchase और Production की एंट्री सूची दिखाता है। वास्तविक material-wise closing stock के लिए opening stock और material consumption की mapping अगला चरण है।</p><div id="stockSummary"></div></div></section>
+
+<section id="reports" class="page hidden"><div class="card"><h2>Monthly Report</h2><div class="fields"><div><label>महीना</label><input id="reportMonth" type="month"></div></div><div class="actions"><button class="btn primary" onclick="makeReport()">Report दिखाएँ</button><button class="btn secondary" onclick="exportCSV()">CSV Export</button></div><div id="reportOutput" style="margin-top:12px"></div></div></section>
+
+<section id="settings" class="page hidden">
+<div class="card"><h2>Google Sheet Connection</h2><p class="muted">पुराने Apps Script Web App URL और access token का उपयोग करें। URL पहले से भरा है; जरूरत हो तो यहाँ बदलें।</p>
+<label>Apps Script Web App URL</label><input id="apiUrl" value="https://script.google.com/macros/s/AKfycbxkaE-q5QLcGpVJ00xoH1oTpIYw0QXmdlz2HjbgTp5Jr3cVRzhVDn3LxXdMoI_tztE/exec">
+<label style="margin-top:10px">Access Token</label><input id="apiToken" value="SADHNA-ERP-2026-9X7K4P2M">
+<div class="actions"><button class="btn primary" onclick="pushToSheet()">Google Sheet पर भेजें</button><button class="btn secondary" onclick="pullFromSheet()">Google Sheet से लाएँ</button><button class="btn secondary" onclick="testConnection()">Connection Test</button></div>
+<div id="syncStatus" class="status muted">अभी तक Sync नहीं किया गया।</div>
+<p class="muted">महत्वपूर्ण: Two-way sync के लिए Apps Script में GET read/list और POST upsert दोनों endpoints होने चाहिए। यदि पुराना Script केवल POST save करता है, तो “Google Sheet से लाएँ” तब तक काम नहीं करेगा जब तक Script में read सुविधा न जोड़ी जाए।</p>
+</div>
+<div class="card"><h3>Backup</h3><div class="actions"><button class="btn secondary" onclick="backup()">JSON Backup Download</button><label class="btn secondary" style="cursor:pointer">Backup Restore<input type="file" accept="application/json" onchange="restore(event)" hidden></label></div></div>
+</section>
+</main>
+<script>
+const KEY='surya_swad_simple_erp_v1';
+let records=JSON.parse(localStorage.getItem(KEY)||'[]');
+const $=id=>document.getElementById(id);
+const today=new Date().toISOString().slice(0,10);
+$('today').textContent=new Date().toLocaleDateString('en-IN');
+['purchaseForm','productionForm','packingForm'].forEach(id=>{const f=$(id);f.elements.date.value=today;f.addEventListener('submit',e=>{e.preventDefault();saveForm(id)})});
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));$(b.dataset.page).classList.remove('hidden');refresh()}));
+function persist(){localStorage.setItem(KEY,JSON.stringify(records));refresh()}
+function val(f,n){return f.elements[n]?.value??''}
+function saveForm(formId){
+ const f=$(formId),type=formId.replace('Form',''),id=val(f,'id')||('SS-'+Date.now());
+ let r={id,type,date:val(f,'date'),product:val(f,'product'),details:val(f,'details'),updatedAt:new Date().toISOString()};
+ if(type==='purchase'){r.party=val(f,'party');r.qty=+val(f,'qty');r.unit=val(f,'unit');r.rate=+val(f,'rate')||0;r.total=r.qty*r.rate;r.paid=+val(f,'paid')||0;r.balance=r.total-r.paid}
+ if(type==='production'){r.batch=val(f,'batch');r.qty=+val(f,'qty');r.actual=+val(f,'actual')||0;r.estimated=+val(f,'estimated')||0;r.hours=+val(f,'hours')||0;r.machineCost=r.hours*120}
+ if(type==='packing'){r.batch=val(f,'batch');r.packets=+val(f,'packets');r.perPacket=+val(f,'perPacket')||36;r.pouches=r.packets*r.perPacket;r.outer=+val(f,'outer')||0}
+ const i=records.findIndex(x=>x.id===id);if(i>=0)records[i]=r;else records.push(r);
+ persist();resetForm(formId);alert('Entry save हो गई।');
 }
+function resetForm(id){const f=$(id);f.reset();f.elements.id.value='';f.elements.date.value=today;if(id==='packingForm')f.elements.perPacket.value=36}
+function editRecord(id){const r=records.find(x=>x.id===id);if(!r)return;const f=$(r.type+'Form');Object.keys(r).forEach(k=>{if(f.elements[k])f.elements[k].value=r[k]});f.elements.id.value=id;document.querySelector(`[data-page="${r.type}"]`).click();window.scrollTo(0,0)}
+function deleteRecord(id){if(!confirm('यह रिकॉर्ड हटाएँ?'))return;records=records.filter(x=>x.id!==id);persist()}
+function money(n){return '₹'+(+n||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
+function actions(r){return `<button class="btn secondary" onclick="editRecord('${r.id}')">Edit</button> <button class="btn danger" onclick="deleteRecord('${r.id}')">Delete</button>`}
+function refresh(){
+ $('countPurchase').textContent=records.filter(x=>x.type==='purchase').length;$('countProduction').textContent=records.filter(x=>x.type==='production').length;$('countPacking').textContent=records.filter(x=>x.type==='packing').length;$('countRecords').textContent=records.length;
+ const sorted=[...records].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,8);
+ $('recent').innerHTML=sorted.map(r=>`<tr><td>${r.date||''}</td><td>${r.type}</td><td>${r.product||r.party||''}</td><td>${r.qty??r.packets??''} ${r.unit||' '}</td></tr>`).join('')||'<tr><td colspan="4">कोई एंट्री नहीं</td></tr>';
+ $('purchaseRows').innerHTML=records.filter(x=>x.type==='purchase').map(r=>`<tr><td>${r.date}</td><td>${esc(r.party)}</td><td>${esc(r.product)}</td><td>${r.qty} ${r.unit}</td><td>${money(r.total)}</td><td>${actions(r)}</td></tr>`).join('');
+ $('productionRows').innerHTML=records.filter(x=>x.type==='production').map(r=>`<tr><td>${r.date}</td><td>${esc(r.product)}</td><td>${r.qty}</td><td>${r.actual}</td><td>${money(r.machineCost)}</td><td>${actions(r)}</td></tr>`).join('');
+ $('packingRows').innerHTML=records.filter(x=>x.type==='packing').map(r=>`<tr><td>${r.date}</td><td>${esc(r.product)}</td><td>${r.packets}</td><td>${r.pouches}</td><td>${actions(r)}</td></tr>`).join('');
+ $('stockSummary').innerHTML=`<p>कुल Purchase Quantity: <b>${records.filter(x=>x.type==='purchase').reduce((s,r)=>s+(r.qty||0),0).toFixed(3)}</b></p><p>कुल Production Input: <b>${records.filter(x=>x.type==='production').reduce((s,r)=>s+(r.qty||0),0).toFixed(3)}</b> Kg</p>`;
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function config(){return {url:$('apiUrl').value.trim(),token:$('apiToken').value.trim()}}
+async function pushToSheet(){
+ const {url,token}=config();if(!url||!token)return alert('URL और Token भरें');$('syncStatus').textContent='Google Sheet पर डेटा भेजा जा रहा है…';
+ const payload={token,records:records.map(r=>({table_name:r.type,id:r.id,payload:r}))};
+ try{const res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});const data=await res.json();if(!data.success)throw Error(data.error||'Save failed');$('syncStatus').textContent=`सफल: ${data.count??data.saved??records.length} रिकॉर्ड Google Sheet पर भेजे गए।`;$('syncStatus').className='status good'}catch(e){$('syncStatus').textContent='Sync Error: '+e.message;$('syncStatus').className='status bad'}
+}
+async function pullFromSheet(){
+ const {url,token}=config();$('syncStatus').textContent='Google Sheet से डेटा पढ़ा जा रहा है…';
+ try{const res=await fetch(url+'?action=list&token='+encodeURIComponent(token));const data=await res.json();if(!data.success)throw Error(data.error||'Read endpoint उपलब्ध नहीं है');const incoming=data.records||[];if(!Array.isArray(incoming))throw Error('गलत response format');const map=new Map(records.map(r=>[r.id,r]));incoming.forEach(x=>{const r=x.payload||x.record||x;if(r.id)map.set(r.id,r)});records=[...map.values()];persist();$('syncStatus').textContent=`सफल: ${incoming.length} रिकॉर्ड Sheet से पढ़े गए।`;$('syncStatus').className='status good'}catch(e){$('syncStatus').textContent='Read Sync Error: '+e.message+' — Apps Script में GET action=list जोड़ना होगा।';$('syncStatus').className='status bad'}
+}
+async function testConnection(){const {url}=config();$('syncStatus').textContent='जाँच जारी…';try{const r=await fetch(url);const d=await r.json();$('syncStatus').textContent='Server response: '+JSON.stringify(d);$('syncStatus').className='status good'}catch(e){$('syncStatus').textContent='Connection Error: '+e.message;$('syncStatus').className='status bad'}}
+function makeReport(){const m=$('reportMonth').value;if(!m)return alert('महीना चुनें');const list=records.filter(r=>(r.date||'').startsWith(m));$('reportOutput').innerHTML=`<b>${m}</b><p>Purchase: ${list.filter(r=>r.type==='purchase').length} entries | Total ${money(list.filter(r=>r.type==='purchase').reduce((s,r)=>s+(r.total||0),0))}</p><p>Production: ${list.filter(r=>r.type==='production').length} entries | Machine cost ${money(list.filter(r=>r.type==='production').reduce((s,r)=>s+(r.machineCost||0),0))}</p><p>Packing: ${list.filter(r=>r.type==='packing').reduce((s,r)=>s+(r.packets||0),0)} packets</p>`}
+function exportCSV(){const rows=[['ID','Date','Type','Product','Party','Quantity','Unit','Actual Pouches','Estimated Pouches','Total','Details'],...records.map(r=>[r.id,r.date,r.type,r.product||'',r.party||'',r.qty??r.packets??'',r.unit||'',r.actual||'',r.estimated||'',r.total||'',r.details||''])];const csv=rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download('surya-swad-report.csv',csv,'text/csv')}
+function backup(){download('surya-swad-backup.json',JSON.stringify(records,null,2),'application/json')}
+function restore(e){const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{try{const arr=JSON.parse(rd.result);if(!Array.isArray(arr))throw Error();if(confirm('मौजूदा डेटा के साथ Backup merge करें? Cancel करने पर मौजूदा डेटा replace होगा।')){const m=new Map(records.map(r=>[r.id,r]));arr.forEach(r=>m.set(r.id,r));records=[...m.values()]}else records=arr;persist();alert('Backup Restore हो गया')}catch{alert('गलत Backup file')}};rd.readAsText(file)}
+function download(name,content,type){const a=document.createElement('a');const u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
+refresh();
+</script>
+</body></html>
