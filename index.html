@@ -38,6 +38,7 @@ table{width:100%;border-collapse:collapse;min-width:700px}th,td{text-align:left;
 <button data-page="purchase">Purchase</button>
 <button data-page="production">Production</button>
 <button data-page="packing">Packing</button>
+<button data-page="printing">Printing Roll</button>
 <button data-page="stock">Stock</button>
 <button data-page="reports">Reports</button>
 <button data-page="settings">Google Sheet</button>
@@ -99,6 +100,32 @@ table{width:100%;border-collapse:collapse;min-width:700px}th,td{text-align:left;
 <div class="card"><h3>Packing Records</h3><div class="tablewrap"><table><thead><tr><th>Date</th><th>Product</th><th>Packets</th><th>Pouches</th><th>Action</th></tr></thead><tbody id="packingRows"></tbody></table></div></div>
 </section>
 
+
+<section id="printing" class="page hidden">
+<div class="card"><h2>Printing Roll — Kg Ledger</h2>
+<p class="muted">Opening + Purchase से weighted average rate निकलेगा। Used Roll और Waste अलग-अलग दर्ज होंगे। Closing Stock अपने आप निकलेगा। तारीख के क्रम में पुराने रिकॉर्ड Edit करने पर आगे का हिसाब भी दोबारा बनेगा।</p>
+<form id="printingForm"><input type="hidden" name="id"><div class="fields">
+<div><label>तारीख</label><input name="date" type="date" required></div>
+<div><label>Opening Stock (Kg)</label><input name="opening" type="number" step="0.001" placeholder="पहली एंट्री में भरें"></div>
+<div><label>Opening Rate (₹/Kg)</label><input name="openingRate" type="number" step="0.01" placeholder="पहली एंट्री में भरें"></div>
+<div><label>Purchase (Kg)</label><input name="purchaseKg" type="number" step="0.001" value="0"></div>
+<div><label>Purchase Rate (₹/Kg)</label><input name="purchaseRate" type="number" step="0.01" value="0"></div>
+<div><label>Used Roll (Kg)</label><input name="usedKg" type="number" step="0.001" value="0"></div>
+<div><label>Printing Waste (Kg)</label><input name="wasteKg" type="number" step="0.001" value="0"></div>
+<div><label>Remarks / Machine / Batch</label><input name="details"></div>
+</div>
+<p class="muted">Opening stock/rate केवल पहली एंट्री या stock correction के लिए भरें। अगली तारीखों में पिछली Closing और Average Rate अपने आप Opening बनेगी।</p>
+<div class="actions"><button class="btn primary">Save Printing Roll</button><button class="btn secondary" type="button" onclick="resetForm('printingForm')">Clear</button></div></form></div>
+<div class="grid" style="margin-bottom:12px">
+<div class="stat"><strong id="rollClosing">0.000</strong><span>Current Closing Kg</span></div>
+<div class="stat"><strong id="rollRate">₹0.00</strong><span>Current Average ₹/Kg</span></div>
+<div class="stat"><strong id="rollUsed">0.000</strong><span>Total Used Kg</span></div>
+<div class="stat"><strong id="rollWaste">0.000</strong><span>Total Waste Kg</span></div>
+</div>
+<div class="card"><h3>Printing Roll Daily Ledger</h3><div class="tablewrap"><table><thead><tr><th>Date</th><th>Opening Kg</th><th>Purchase Kg</th><th>Avg Rate</th><th>Used Kg</th><th>Waste Kg</th><th>Closing Kg</th><th>Used Cost</th><th>Waste Cost</th><th>Action</th></tr></thead><tbody id="printingRows"></tbody></table></div></div>
+<div class="card"><h3>Costing का तरीका</h3><p class="muted">Average Rate = (Opening Stock Value + Purchase Value) ÷ (Opening Kg + Purchase Kg)</p><p class="muted">Printing Material Cost = Used Roll Kg × Average Rate</p><p class="muted">Waste Cost अलग रिपोर्ट होगी = Waste Kg × Average Rate</p><p class="muted">Closing Kg = Opening Kg + Purchase Kg − Used Kg − Waste Kg</p></div>
+</section>
+
 <section id="stock" class="page hidden"><div class="card"><h2>Stock Overview</h2><p class="muted">यह सरल संस्करण Purchase और Production की एंट्री सूची दिखाता है। वास्तविक material-wise closing stock के लिए opening stock और material consumption की mapping अगला चरण है।</p><div id="stockSummary"></div></div></section>
 
 <section id="reports" class="page hidden"><div class="card"><h2>Monthly Report</h2><div class="fields"><div><label>महीना</label><input id="reportMonth" type="month"></div></div><div class="actions"><button class="btn primary" onclick="makeReport()">Report दिखाएँ</button><button class="btn secondary" onclick="exportCSV()">CSV Export</button></div><div id="reportOutput" style="margin-top:12px"></div></div></section>
@@ -120,7 +147,7 @@ let records=JSON.parse(localStorage.getItem(KEY)||'[]');
 const $=id=>document.getElementById(id);
 const today=new Date().toISOString().slice(0,10);
 $('today').textContent=new Date().toLocaleDateString('en-IN');
-['purchaseForm','productionForm','packingForm'].forEach(id=>{const f=$(id);f.elements.date.value=today;f.addEventListener('submit',e=>{e.preventDefault();saveForm(id)})});
+['purchaseForm','productionForm','packingForm','printingForm'].forEach(id=>{const f=$(id);f.elements.date.value=today;f.addEventListener('submit',e=>{e.preventDefault();saveForm(id)})});
 document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));$(b.dataset.page).classList.remove('hidden');refresh()}));
 function persist(){localStorage.setItem(KEY,JSON.stringify(records));refresh()}
 function val(f,n){return f.elements[n]?.value??''}
@@ -130,10 +157,20 @@ function saveForm(formId){
  if(type==='purchase'){r.party=val(f,'party');r.qty=+val(f,'qty');r.unit=val(f,'unit');r.rate=+val(f,'rate')||0;r.total=r.qty*r.rate;r.paid=+val(f,'paid')||0;r.balance=r.total-r.paid}
  if(type==='production'){r.batch=val(f,'batch');r.qty=+val(f,'qty');r.actual=+val(f,'actual')||0;r.estimated=+val(f,'estimated')||0;r.hours=+val(f,'hours')||0;r.machineCost=r.hours*120}
  if(type==='packing'){r.batch=val(f,'batch');r.packets=+val(f,'packets');r.perPacket=+val(f,'perPacket')||36;r.pouches=r.packets*r.perPacket;r.outer=+val(f,'outer')||0}
+
+ if(type==='printing'){
+   r.opening=+val(f,'opening')||0;r.openingRate=+val(f,'openingRate')||0;
+   r.purchaseKg=+val(f,'purchaseKg')||0;r.purchaseRate=+val(f,'purchaseRate')||0;
+   r.usedKg=+val(f,'usedKg')||0;r.wasteKg=+val(f,'wasteKg')||0;
+   if(r.opening<0||r.purchaseKg<0||r.usedKg<0||r.wasteKg<0) return alert('Kg मात्रा negative नहीं हो सकती।');
+   if(r.purchaseKg>0&&r.purchaseRate<=0) return alert('Purchase Rate भरें।');
+   if(r.opening>0&&r.openingRate<=0) return alert('Opening Rate भरें।');
+ }
  const i=records.findIndex(x=>x.id===id);if(i>=0)records[i]=r;else records.push(r);
+
  persist();resetForm(formId);alert('Entry save हो गई।');
 }
-function resetForm(id){const f=$(id);f.reset();f.elements.id.value='';f.elements.date.value=today;if(id==='packingForm')f.elements.perPacket.value=36}
+function resetForm(id){const f=$(id);f.reset();f.elements.id.value='';f.elements.date.value=today;if(id==='packingForm')f.elements.perPacket.value=36;if(id==='printingForm'){f.elements.purchaseKg.value=0;f.elements.purchaseRate.value=0;f.elements.usedKg.value=0;f.elements.wasteKg.value=0}}
 function editRecord(id){const r=records.find(x=>x.id===id);if(!r)return;const f=$(r.type+'Form');Object.keys(r).forEach(k=>{if(f.elements[k])f.elements[k].value=r[k]});f.elements.id.value=id;document.querySelector(`[data-page="${r.type}"]`).click();window.scrollTo(0,0)}
 function deleteRecord(id){if(!confirm('यह रिकॉर्ड हटाएँ?'))return;records=records.filter(x=>x.id!==id);persist()}
 function money(n){return '₹'+(+n||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
@@ -145,7 +182,35 @@ function refresh(){
  $('purchaseRows').innerHTML=records.filter(x=>x.type==='purchase').map(r=>`<tr><td>${r.date}</td><td>${esc(r.party)}</td><td>${esc(r.product)}</td><td>${r.qty} ${r.unit}</td><td>${money(r.total)}</td><td>${actions(r)}</td></tr>`).join('');
  $('productionRows').innerHTML=records.filter(x=>x.type==='production').map(r=>`<tr><td>${r.date}</td><td>${esc(r.product)}</td><td>${r.qty}</td><td>${r.actual}</td><td>${money(r.machineCost)}</td><td>${actions(r)}</td></tr>`).join('');
  $('packingRows').innerHTML=records.filter(x=>x.type==='packing').map(r=>`<tr><td>${r.date}</td><td>${esc(r.product)}</td><td>${r.packets}</td><td>${r.pouches}</td><td>${actions(r)}</td></tr>`).join('');
+
+ const rollRows=calculateRollLedger();
+ $('printingRows').innerHTML=rollRows.map(x=>`<tr><td>${x.date}</td><td>${x.opening.toFixed(3)}</td><td>${x.purchaseKg.toFixed(3)}</td><td>${money(x.avgRate)}</td><td>${x.usedKg.toFixed(3)}</td><td>${x.wasteKg.toFixed(3)}</td><td>${x.closing.toFixed(3)}</td><td>${money(x.usedCost)}</td><td>${money(x.wasteCost)}</td><td>${actions(x.record)}</td></tr>`).join('')||'<tr><td colspan="10">अभी Printing Roll की एंट्री नहीं है</td></tr>';
+ const lastRoll=rollRows[rollRows.length-1];
+ $('rollClosing').textContent=lastRoll?lastRoll.closing.toFixed(3):'0.000';
+ $('rollRate').textContent=lastRoll?money(lastRoll.closingRate):'₹0.00';
+ $('rollUsed').textContent=rollRows.reduce((s,x)=>s+x.usedKg,0).toFixed(3);
+ $('rollWaste').textContent=rollRows.reduce((s,x)=>s+x.wasteKg,0).toFixed(3);
  $('stockSummary').innerHTML=`<p>कुल Purchase Quantity: <b>${records.filter(x=>x.type==='purchase').reduce((s,r)=>s+(r.qty||0),0).toFixed(3)}</b></p><p>कुल Production Input: <b>${records.filter(x=>x.type==='production').reduce((s,r)=>s+(r.qty||0),0).toFixed(3)}</b> Kg</p>`;
+}
+
+function calculateRollLedger(){
+ const list=records.filter(r=>r.type==='printing').sort((a,b)=>(a.date||'').localeCompare(b.date||'')||String(a.id).localeCompare(String(b.id)));
+ let prevKg=null,prevRate=0;const out=[];
+ for(const r of list){
+   const opening=(prevKg===null)?(+r.opening||0):prevKg;
+   const openingRate=(prevKg===null)?(+r.openingRate||0):prevRate;
+   const purchaseKg=+r.purchaseKg||0,purchaseRate=+r.purchaseRate||0;
+   const available=opening+purchaseKg;
+   const value=(opening*openingRate)+(purchaseKg*purchaseRate);
+   const avgRate=available>0?value/available:0;
+   const usedKg=+r.usedKg||0,wasteKg=+r.wasteKg||0;
+   const closing=available-usedKg-wasteKg;
+   const usedCost=usedKg*avgRate,wasteCost=wasteKg*avgRate;
+   const closingRate=closing>0?avgRate:0;
+   out.push({record:r,date:r.date,opening,purchaseKg,avgRate,usedKg,wasteKg,closing,usedCost,wasteCost,closingRate});
+   prevKg=closing;prevRate=closingRate;
+ }
+ return out;
 }
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function config(){return {url:$('apiUrl').value.trim(),token:$('apiToken').value.trim()}}
@@ -159,8 +224,8 @@ async function pullFromSheet(){
  try{const res=await fetch(url+'?action=list&token='+encodeURIComponent(token));const data=await res.json();if(!data.success)throw Error(data.error||'Read endpoint उपलब्ध नहीं है');const incoming=data.records||[];if(!Array.isArray(incoming))throw Error('गलत response format');const map=new Map(records.map(r=>[r.id,r]));incoming.forEach(x=>{const r=x.payload||x.record||x;if(r.id)map.set(r.id,r)});records=[...map.values()];persist();$('syncStatus').textContent=`सफल: ${incoming.length} रिकॉर्ड Sheet से पढ़े गए।`;$('syncStatus').className='status good'}catch(e){$('syncStatus').textContent='Read Sync Error: '+e.message+' — Apps Script में GET action=list जोड़ना होगा।';$('syncStatus').className='status bad'}
 }
 async function testConnection(){const {url}=config();$('syncStatus').textContent='जाँच जारी…';try{const r=await fetch(url);const d=await r.json();$('syncStatus').textContent='Server response: '+JSON.stringify(d);$('syncStatus').className='status good'}catch(e){$('syncStatus').textContent='Connection Error: '+e.message;$('syncStatus').className='status bad'}}
-function makeReport(){const m=$('reportMonth').value;if(!m)return alert('महीना चुनें');const list=records.filter(r=>(r.date||'').startsWith(m));$('reportOutput').innerHTML=`<b>${m}</b><p>Purchase: ${list.filter(r=>r.type==='purchase').length} entries | Total ${money(list.filter(r=>r.type==='purchase').reduce((s,r)=>s+(r.total||0),0))}</p><p>Production: ${list.filter(r=>r.type==='production').length} entries | Machine cost ${money(list.filter(r=>r.type==='production').reduce((s,r)=>s+(r.machineCost||0),0))}</p><p>Packing: ${list.filter(r=>r.type==='packing').reduce((s,r)=>s+(r.packets||0),0)} packets</p>`}
-function exportCSV(){const rows=[['ID','Date','Type','Product','Party','Quantity','Unit','Actual Pouches','Estimated Pouches','Total','Details'],...records.map(r=>[r.id,r.date,r.type,r.product||'',r.party||'',r.qty??r.packets??'',r.unit||'',r.actual||'',r.estimated||'',r.total||'',r.details||''])];const csv=rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download('surya-swad-report.csv',csv,'text/csv')}
+function makeReport(){const m=$('reportMonth').value;if(!m)return alert('महीना चुनें');const list=records.filter(r=>(r.date||'').startsWith(m));$('reportOutput').innerHTML=`<b>${m}</b><p>Printing Roll: Used ${list.filter(r=>r.type==='printing').reduce((s,r)=>s+(r.usedKg||0),0).toFixed(3)} Kg | Waste ${list.filter(r=>r.type==='printing').reduce((s,r)=>s+(r.wasteKg||0),0).toFixed(3)} Kg</p><p>Printing Used Cost ${money(calculateRollLedger().filter(x=>(x.date||'').startsWith(m)).reduce((s,x)=>s+x.usedCost,0))} | Waste Cost ${money(calculateRollLedger().filter(x=>(x.date||'').startsWith(m)).reduce((s,x)=>s+x.wasteCost,0))}</p><p>Purchase: ${list.filter(r=>r.type==='purchase').length} entries | Total ${money(list.filter(r=>r.type==='purchase').reduce((s,r)=>s+(r.total||0),0))}</p><p>Production: ${list.filter(r=>r.type==='production').length} entries | Machine cost ${money(list.filter(r=>r.type==='production').reduce((s,r)=>s+(r.machineCost||0),0))}</p><p>Packing: ${list.filter(r=>r.type==='packing').reduce((s,r)=>s+(r.packets||0),0)} packets</p>`}
+function exportCSV(){const rows=[['ID','Date','Type','Product','Party','Quantity','Unit','Actual Pouches','Estimated Pouches','Total','Opening Kg','Opening Rate','Purchase Kg','Purchase Rate','Used Kg','Waste Kg','Details'],...records.map(r=>[r.id,r.date,r.type,r.product||'',r.party||'',r.qty??r.packets??'',r.unit||'',r.actual||'',r.estimated||'',r.total||'',r.opening??'',r.openingRate??'',r.purchaseKg??'',r.purchaseRate??'',r.usedKg??'',r.wasteKg??'',r.details||''])];const csv=rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download('surya-swad-report.csv',csv,'text/csv')}
 function backup(){download('surya-swad-backup.json',JSON.stringify(records,null,2),'application/json')}
 function restore(e){const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{try{const arr=JSON.parse(rd.result);if(!Array.isArray(arr))throw Error();if(confirm('मौजूदा डेटा के साथ Backup merge करें? Cancel करने पर मौजूदा डेटा replace होगा।')){const m=new Map(records.map(r=>[r.id,r]));arr.forEach(r=>m.set(r.id,r));records=[...m.values()]}else records=arr;persist();alert('Backup Restore हो गया')}catch{alert('गलत Backup file')}};rd.readAsText(file)}
 function download(name,content,type){const a=document.createElement('a');const u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
